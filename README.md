@@ -29,6 +29,27 @@ The idea behind SmartTactics is to build a new version of the AI for the TRPG. T
 
 Lately, I've been really into functional programming and F#. For the project, I intend to do it in F#. Since it's a port of AugmentedTactics, the first thing will be to take the implementation and port in a functional style with F# for Urho3D.
 
+## Task list
+- [ ] Get to know Urho3D
+- [ ] Create Urho3D 2D project for F#
+- [ ] Port character folder from AT
+- [ ] Port combat menu from AT
+- [ ] Port commands from AT
+- [ ] Port character artificial intelligence from AT
+- [ ] Port Pathfinding algorithm from AT
+- [ ] Create game states : MenuState, TurnState, AttackState, etc
+- [ ] Create server to handle game state
+- [ ] Update game world state via server
+- [ ] Create artificial brain 
+- [ ] Train artificial brain
+- [ ] Implement a genetic algorithm 
+- [ ] Add continuous integration with Travis
+- [ ] Implement most damageable command sequence 
+- [ ] Implement an XP system 
+- [ ] Implement time constraint for brain training 
+- [ ] Test architecture with NUnit
+- [ ] Initialize a database to store result from training over time
+
 
 ## License 
 
