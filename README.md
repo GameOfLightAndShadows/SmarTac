@@ -27,10 +27,24 @@ The AI was developed by create different sequences of actions to do and evaluate
 
 The idea behind SmartTactics is to build a new version of the AI for the TRPG. This time around, I won't use Unity, but Urho3D to create a prototype for Android. Again, this time around, the project won't be in 3D but will be in 2D. The goal is to do a proof of concept to show that I can develop a hard mode AI to make it impossible for players to win against it. In order to do so, I am planning to use diverse machine learning techniques and genetic algorithms in order to use Darwin's idea in order to select the strongest and most adapted AI for the hard mode.
 
+As of today (27/08/16), it is planned to have an AI able to classify states to understand whether the situation is 
+- Good
+- Bad 
+- Neutral 
+- Unknown
+
+Over time, the bot will not only be able to classify game states but also, the both will learn to recognize the different possibilities that are available to it. By knowing what's available to him and using a reward system to be able to understand the game states, the bot will know when a decision was either good or bad. For instance, more XP can be awarded to the bot when a character is defeated but the total points will be reduced if it takes more time than usual to beat an opponent. Not only this, hopefully, I'll be able to implement a system able to react to more defensive/offensive party. Using a reward information
+
 Lately, I've been really into functional programming and F#. For the project, I intend to do it in F#. Since it's a port of AugmentedTactics, the first thing will be to take the implementation and port in a functional style with F# for Urho3D.
 
 ## Task list
 - [ ] Get to know Urho3D
+- [ ] Get to know genetic algorithms
+- [ ] Get to know neural networks
+- [ ] Get to know Asynchronous Programming with F#
+- [ ] Learn about reinforcement learning 
+- [ ] Learn about supervised and unsupervised learning
+- [ ] Get to know SARSA algorithm
 - [ ] Create Urho3D 2D project for F#
 - [ ] Port character folder from AT
 - [ ] Port combat menu from AT
@@ -40,15 +54,21 @@ Lately, I've been really into functional programming and F#. For the project, I 
 - [ ] Create game states : MenuState, TurnState, AttackState, etc
 - [ ] Create server to handle game state
 - [ ] Update game world state via server
+- [ ] Implement a tactical AI :  looks at the game state and determines a target
+- [ ] Implement an operational AI :  receives a target from the Tactical AI, looks at its game state and chooses an optimal action to achieve its goal
 - [ ] Create artificial brain 
 - [ ] Train artificial brain
 - [ ] Implement a genetic algorithm 
 - [ ] Add continuous integration with Travis
 - [ ] Implement most damageable command sequence 
 - [ ] Implement an XP system 
+- [ ] Implement money system 
+- [ ] Implement a store for both items and equipment
 - [ ] Implement time constraint for brain training 
 - [ ] Test architecture with NUnit
 - [ ] Initialize a database to store result from training over time
+- [ ] Create a 64 x 64 map
+- [ ] Make character assets move in the map 
 
 
 ## License 
