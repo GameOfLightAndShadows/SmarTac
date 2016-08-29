@@ -3,15 +3,17 @@ Smart bot for 2D version AugmentedTactics
 
 ## Synopsis
 
-Previously, in the fall of 2015, as a credited project for my software engineering undergrad studies, I developed a tactical role playing game prototype using augmented reality and voice recognition as core parts of the game mechanics. There are still some issues to complete in the prototype, but the core elements were implemented. I took game such as 
+Previously, in the fall of 2015, as a credited project for my software engineering undergrad studies, I developed a tactical role playing game prototype using augmented reality and voice recognition as core parts of the game mechanics. There are still some issues to complete in the prototype, but the core elements were implemented. I took inspiration from games such as 
 - Final Fantasy Tactics
 - Fire Emblem Awakening 
-- Fire Emblem
+- Golden Sun
 
-The AugmentedTactics has three types of characters : 
+The AugmentedTactics has three basic types of characters : 
 - Warrior
 - Magician
 - Sniper 
+
+The idea behind creating roles for characters was to create a tactical advantage/disavantage. With this, the players and the AI could use this as a basis for their strategy for example.
 
 The game was developed with the idea of giving the player simple commads to perform in order to beat the AI.The commands were the following : 
 - Move
