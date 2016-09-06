@@ -1,5 +1,4 @@
-# SmartTactics
-Smart bot for 2D version AugmentedTactics
+# Oracle of Shadows
 
 ## Synopsis
 
