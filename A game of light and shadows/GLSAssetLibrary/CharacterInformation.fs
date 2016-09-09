@@ -1,4 +1,4 @@
-﻿module CharacterInformation
+﻿module GLSAsset.CharacterInformation
 
 type CharacterState = 
     | Alive 
@@ -59,3 +59,14 @@ type CharacterJob =
     | BowAndBlade   of CharacterRole  * CharacterStats
     | Necromancer   of CharacterRole  * CharacterStats
     | Nightblade    of CharacterRole  * CharacterStats
+with 
+    member x.Stats = 
+        match x with
+        | Healer       (_,stats) -> stats
+        | Knight       (_,stats) -> stats
+        | Berserker    (_,stats) -> stats
+        | Rider        (_,stats) -> stats
+        | Paladin      (_,stats) -> stats
+        | BowAndBlade  (_,stats) -> stats
+        | Necromancer  (_,stats) -> stats
+        | Nightblade   (_,stats) -> stats
