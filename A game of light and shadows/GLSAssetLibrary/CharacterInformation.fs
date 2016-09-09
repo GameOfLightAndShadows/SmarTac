@@ -4,6 +4,12 @@ type CharacterState =
     | Alive 
     | Dead
 
+type PlayerDirection = 
+    | South
+    | North 
+    | East 
+    | West
+
 type LifePoints ={
     Current : float 
     Max     : float
