@@ -1,4 +1,4 @@
-﻿module GLSAsset.GameElement
+﻿module GLSCore.GameElement
 
 open System
 
@@ -15,10 +15,9 @@ type PlayerDirection =
     | East 
     | West
 
-type BattleSequenceAction = 
+type BattleSequencePhase= 
     | Move 
-    | Attack 
-    | Defend 
+    | ``Attack or Defend``
     | Rotate 
     | EndTurn
     | CheckInventory 

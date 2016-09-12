@@ -1,6 +1,8 @@
-﻿module GLSAsset.CharacterInformation
+﻿module GLSCore.CharacterInformation
 
-open GLSAsset.GameElement
+open GLSCore.GameElement
+
+open System
 
 type CharacterStats = {
     Health          : LifePoints 
@@ -90,3 +92,24 @@ with
         | Polyvalent ap -> ap 
         | ``Sword and shield`` ap -> ap 
         | ``Staff wielder`` ap -> ap 
+
+
+type CharacterState = {
+    CurrentPos       : CharacPos 
+    CurrentDirection : PlayerDirection
+}
+
+[<AbstractClass>]
+type CharacterBase(job: CharacterJob, state: CharacterState) =
+
+    abstract member TeamParty: Object array
+
+    abstract member ActionPoints: int
+
+    abstract member MoveRange: MoveRange
+
+    abstract member CharacterState: CharacterState
+
+    member x.Job = job
+
+    member x.Stats = job.Stats

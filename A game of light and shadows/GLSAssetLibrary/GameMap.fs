@@ -1,6 +1,6 @@
-﻿module GLSALib.GameMap
+﻿module GLSCore.GameMap
 
-open GLSAsset.GameElement
+open GLSCore.GameElement
 open System
 
 type MovementCost = 

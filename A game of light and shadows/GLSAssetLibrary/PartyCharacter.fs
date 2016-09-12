@@ -1,7 +1,7 @@
-﻿module GLSAsset.PartyCharacter
+﻿module GLSCore.PartyCharacter
 
-open GLSAsset.CharacterInformation
-open GLSAsset.GameElement
+open GLSCore.CharacterInformation
+open GLSCore.GameElement
 
 open System
 
@@ -12,28 +12,6 @@ open System
    - After EndTurn, battle sequence will move to the next character
    - CheckInventory can be use at any time during the character's turn 
 *)
-
-type CharacterState = {
-    CurrentPos       : CharacPos 
-    CurrentDirection : PlayerDirection
-}
-
-
-[<AbstractClass>]
-type CharacterBase(job: CharacterJob, state: CharacterState) =
-
-    abstract member TeamParty: Object array
-
-    abstract member ActionPoints: int
-
-    abstract member MoveRange: MoveRange
-
-    abstract member CharacterState: CharacterState
-
-    member x.Job = job
-
-    member x.Stats = job.Stats
-
 type PartyCharacter(job: CharacterJob, 
                     equipment: CharacterEquipement,
                     style: CombatStyle, 
