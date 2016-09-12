@@ -8,11 +8,11 @@
     <ProjectGuid>4f82d01f-4ff7-48f7-82ca-52a200bbdd30</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>GLSAssetLibrary</RootNamespace>
-    <AssemblyName>GLSAssetLibrary</AssemblyName>
+    <AssemblyName>GLSAsset</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <Name>GLSALib</Name>
+    <Name>GLSAsset</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -44,6 +44,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="GameElement.fs" />
+    <Compile Include="GameMap.fs" />
     <Compile Include="CharacterInformation.fs" />
     <Compile Include="PartyCharacter.fs" />
     <Compile Include="CharacterFactoryBuilder.fs" />

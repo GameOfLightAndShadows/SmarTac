@@ -1,6 +1,8 @@
 ﻿module GLSAsset.PartyCharacter
 
 open GLSAsset.CharacterInformation
+open GLSAsset.GameElement
+
 open System
 
 (* - After Move, player will be able to choose any action
@@ -10,35 +12,47 @@ open System
    - After EndTurn, battle sequence will move to the next character
    - CheckInventory can be use at any time during the character's turn 
 *)
-type BattleSequenceAction = 
-    | Move 
-    | Attack 
-    | Defend 
-    | Rotate 
-    | EndTurn
-    | CheckInventory 
+
+type CharacterState = {
+    CurrentPos       : CharacPos 
+    CurrentDirection : PlayerDirection
+}
+
 
 [<AbstractClass>]
-type CharacterBase(job: CharacterJob) =
+type CharacterBase(job: CharacterJob, state: CharacterState) =
 
     abstract member TeamParty: Object array
 
     abstract member ActionPoints: int
 
-    abstract member Direction: PlayerDirection
+    abstract member MoveRange: MoveRange
 
-    abstract member CurrentCoordinates: int * int
-
-    abstract member MoveRange: int * int
-
-    abstract member CanDoExtraDamage: unit -> bool
-
-    abstract member Action: BattleSequenceAction -> BattleSequenceAction
+    abstract member CharacterState: CharacterState
 
     member x.Job = job
 
     member x.Stats = job.Stats
 
-[<AbstractClass>] // Abstract for now.
-type PartyCharacter(job: CharacterJob) = 
-    inherit CharacterBase(job)
+type PartyCharacter(job: CharacterJob, 
+                    equipment: CharacterEquipement,
+                    style: CombatStyle, 
+                    state: CharacterState,
+                    team: Object array) = 
+    inherit CharacterBase(job,state)
+
+    member x.Job = job
+    
+    member x.Equipment = equipment 
+    
+    member x.CombatStyle = style 
+
+    override x.ActionPoints = style.actionPoints
+    
+    override x.TeamParty = team  
+
+    override x.MoveRange = job.Role.moveRange
+
+    override x.CharacterState = state 
+
+        

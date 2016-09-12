@@ -1,32 +1,6 @@
 ﻿module GLSAsset.CharacterInformation
 
-type CharacterState = 
-    | Alive 
-    | Dead
-
-type PlayerDirection = 
-    | South
-    | North 
-    | East 
-    | West
-
-type LifePoints ={
-    Current : float 
-    Max     : float
-}
-with 
-    member x.isDead = x.Current < 0.0
-
-    member x.capHealth () =
-        if x.Current > x.Max then { Current = x.Max; Max = x.Max } else x
-
-    member x.raiseHealth (lifePoint:int) = 
-        let raisedHealth = { x with Current = x.Current + (lifePoint |> float) }.capHealth()
-        raisedHealth
-
-    member x.takeHit (hitPoint: int) = 
-        let reducedLife = { x with Current = x.Current - (hitPoint |> float) }
-        reducedLife
+open GLSAsset.GameElement
 
 type CharacterStats = {
     Health          : LifePoints 
@@ -44,11 +18,19 @@ with
         { x with Defense = x.Defense + tPoints }
 
 type CharacterRole = 
-    | Wizard 
-    | Knight 
-    | Fighter
-    | MagicSoldier
-    | Sniper 
+    | Wizard of MoveRange
+    | Knight of MoveRange
+    | Fighter of MoveRange
+    | MagicSoldier of MoveRange 
+    | Sniper  of MoveRange
+with    
+    member x.moveRange = 
+        match x with 
+        | Wizard mr -> mr 
+        | Knight mr -> mr 
+        | Fighter mr -> mr 
+        | MagicSoldier mr -> mr 
+        | Sniper  mr -> mr
 
 type CharacterJob = 
     | Healer        of CharacterRole  * CharacterStats
@@ -70,3 +52,41 @@ with
         | BowAndBlade  (_,stats) -> stats
         | Necromancer  (_,stats) -> stats
         | Nightblade   (_,stats) -> stats
+
+    member x.Role = 
+        match x with
+        | Healer       (role, _) -> role
+        | Knight       (role, _) -> role
+        | Berserker    (role, _) -> role
+        | Rider        (role, _) -> role
+        | Paladin      (role, _) -> role
+        | BowAndBlade  (role, _) -> role
+        | Necromancer  (role, _) -> role
+        | Nightblade   (role, _) -> role
+
+
+type CharacterEquipement = {
+    Hat         : string 
+    Gauntlets   : string 
+    Armor       : string 
+    Weapon      : string 
+    Pants       : string 
+    Boots       : string
+}
+
+type CombatStyle = 
+    | DualWielder of int
+    | MaceUser of int 
+    |  ``Sword and shield`` of int
+    | Archer of int 
+    | ``Staff wielder`` of int
+    | Polyvalent of int
+with 
+    member x.actionPoints = 
+        match x with 
+        | DualWielder ap -> ap 
+        | MaceUser ap -> ap
+        | Archer ap -> ap 
+        | Polyvalent ap -> ap 
+        | ``Sword and shield`` ap -> ap 
+        | ``Staff wielder`` ap -> ap 
