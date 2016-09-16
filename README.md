@@ -1,5 +1,7 @@
 # A Game of Light and Shadows
 
+[![Join the chat at https://gitter.im/A-game-of-light-and-shadows/Lobby](https://badges.gitter.im/A-game-of-light-and-shadows/Lobby.svg)](https://gitter.im/A-game-of-light-and-shadows/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ## Synopsis
 
 Previously, in the fall of 2015, as a credited project for my software engineering undergrad studies, I developed a tactical role playing game prototype using augmented reality and voice recognition as core parts of the game mechanics. There are still some issues to complete in the prototype, but the core elements were implemented. I took inspiration from games such as 
