@@ -1,7 +1,7 @@
 ﻿module GLSCore.PartyCharacter
 
-open GLSCore.CharacterInformation
 open GLSCore.GameElement
+open GLSCore.CharacterInformation
 
 open System
 
@@ -16,6 +16,7 @@ type PartyCharacter(job: CharacterJob,
                     equipment: CharacterEquipement,
                     style: CombatStyle, 
                     state: CharacterState,
+                    direction: PlayerDirection,
                     team: Object array) = 
     inherit CharacterBase(job,state)
 
@@ -23,7 +24,9 @@ type PartyCharacter(job: CharacterJob,
     
     member x.Equipment = equipment 
     
-    member x.CombatStyle = style 
+    member x.CombatStyle = style
+
+    member x.CharacterDirection = direction
 
     override x.ActionPoints = style.actionPoints
     

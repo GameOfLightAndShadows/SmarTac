@@ -14,6 +14,14 @@ type PlayerDirection =
     | North 
     | East 
     | West
+with 
+    member x.areDirectionOpposite (dir: PlayerDirection) = 
+        match x,dir with 
+        | South, North  
+        | North, South  
+        | East, West  
+        | West, East -> true 
+        | _,_ -> false
 
 type BattleSequencePhase= 
     | Move 
