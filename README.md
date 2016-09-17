@@ -2,8 +2,9 @@
 
 [![Join the chat at https://gitter.im/A-game-of-light-and-shadows/Lobby](https://badges.gitter.im/A-game-of-light-and-shadows/Lobby.svg)](https://gitter.im/A-game-of-light-and-shadows/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-[![Build status](https://ci.appveyor.com/api/projects/status/irnoo2kc6yxv8oia/branch/master?svg=true)](https://ci.appveyor.com/project/Kavignon/a-game-of-light-and-shadows/branch/master)
+Master Branch [![Build status](https://ci.appveyor.com/api/projects/status/irnoo2kc6yxv8oia/branch/master?svg=true)](https://ci.appveyor.com/project/Kavignon/a-game-of-light-and-shadows/branch/master)
 
+Augmented Tactic Branch : ![Build status] (https://travis-ci.org/Kavignon/A-game-of-light-and-shadows.svg?branch=FromAugmentedTactics)
 
 ## Synopsis
 
@@ -45,18 +46,18 @@ Lately, I've been really into functional programming and F#. For the project, I 
 
 ## Task list
 - [ ] Get to know Urho3D
-- [ ] Get to know genetic algorithms
+- [x] Get to know genetic algorithms
 - [ ] Get to know neural networks
-- [ x ] Get to know Asynchronous Programming with F#
+- [x] Get to know Asynchronous Programming with F#
 - [ ] 
 - [ ] Learn about reinforcement learning 
-- [ ] Learn about supervised and unsupervised learning
+- [x] Learn about supervised and unsupervised learning
 - [ ] Get to know SARSA algorithm
 - [ ] Create Urho3D 2D project for F#
-- [ x ] Port character folder from AT
-- [ ] Port combat menu from AT
-- [ x ] Port commands from AT
-- [ ] Port character artificial intelligence from AT
+- [x] Port character folder from AT
+- [x] Port combat menu from AT
+- [x] Port commands from AT
+- [x] Port character artificial intelligence from AT
 - [ ] Port Pathfinding algorithm from AT
 - [ ] Create game states : MenuState, TurnState, AttackState, etc
 - [ ] Create server to handle game state
