@@ -1,5 +1,7 @@
 ﻿module GLSManager.Protocol
 
+open GLSManager.GlobalGLSState
+
 type GameManagerProtocol =  
     | UpdateGlobalState 
     | DestroyCharacter 
@@ -7,11 +9,6 @@ type GameManagerProtocol =
     | UpdateCharacterPosition
     | UpdateCharacterDirection 
     | StopManager
-
-type BattlePhase = 
-    | Move
-    | EngageCharacter
-    | EndTurn
 
 // Define CharacterObserver which will update the BattleSequenceManager once a character performed an action. 
 
