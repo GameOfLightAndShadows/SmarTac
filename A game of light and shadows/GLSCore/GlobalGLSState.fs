@@ -1,6 +1,7 @@
 ﻿module GLSManager.GlobalGLSState
 
 open GLSCore.PartyCharacter
+open GLSCore.GameMap
  
 type GameMode = 
     | Easy
@@ -15,6 +16,15 @@ type GameOptions =
     | ModifyVolume
     | VibrateMode of ActivationMode
     | ModifyGameMode of GameMode
+
+type Storyline = 
+    | GameMechanicsIntroduction 
+    | Prelude
+    | FirstBattle 
+    | LostCityOfBaltazaar
+    | ImpenetrableFortressOfBarbas
+    | KaltheasRiver
+    | BeyondLostWoods
 
 type MenuOptions =
     | SelectOpenRecentGame
@@ -40,6 +50,7 @@ type BattleSequenceState = {
     ActivePhase     : BattlePhase
     PlayerTeamParty : PartyCharacter array
     BrainTeamParty  : PartyCharacter array
+    Board           : GameBoard
 }
 
 // Basic implementation of the weapon & item store 
@@ -74,6 +85,7 @@ type ItemStoreState = {
 
 type GlobalGameState = {
     Menu : MenuState
+    Story : Storyline
     BattleSequence : BattleSequenceState
     ItemStore : ItemStoreState
     WeaponStore : WeaponStoreState
