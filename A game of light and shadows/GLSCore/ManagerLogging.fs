@@ -1,2 +1,2 @@
-﻿module GLSManagers.ManagerLogging
+﻿module ManagerLogging
 

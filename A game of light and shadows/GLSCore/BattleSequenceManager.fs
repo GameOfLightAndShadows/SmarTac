@@ -1,2 +1,2 @@
-﻿module BattleSequenceManager
+﻿module GLSManager.BattleSequenceManager
 

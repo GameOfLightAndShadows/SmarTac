@@ -5,14 +5,14 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>4f82d01f-4ff7-48f7-82ca-52a200bbdd30</ProjectGuid>
+    <ProjectGuid>081c7ea3-799e-4c0a-ab8c-4c1b00faf649</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>GLSAssetLibrary</RootNamespace>
-    <AssemblyName>GLSCore</AssemblyName>
+    <RootNamespace>GLSManagers</RootNamespace>
+    <AssemblyName>GLSManagers</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <Name>GLSCore</Name>
+    <Name>GLSManagers</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,7 +22,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\GLSAssetLibrary.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\GLSManagers.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,7 +31,7 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\GLSAssetLibrary.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\GLSManagers.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
@@ -50,18 +50,11 @@
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
-    <Content Include="packages.config" />
     <Compile Include="AssemblyInfo.fs" />
+    <Content Include="packages.config" />
     <Compile Include="ManagerLogging.fs" />
-    <Compile Include="ManagerProtocol.fs" />
     <Compile Include="GlobalGLSState.fs" />
-    <Compile Include="GameElement.fs" />
-    <Compile Include="GameMap.fs" />
-    <Compile Include="CharacterInformation.fs" />
-    <Compile Include="CharacterAction.fs" />
-    <Compile Include="PartyCharacter.fs" />
-    <Compile Include="CharacterFactoryBuilder.fs" />
-    <Compile Include="ChoiceSelector.fs" />
+    <Compile Include="ManagerProtocol.fs" />
     <Compile Include="CommandManager.fs" />
     <Compile Include="BattleSequenceManager.fs" />
     <Compile Include="GameManager.fs" />
@@ -80,10 +73,6 @@
       <HintPath>..\packages\Akka.Logger.NLog.1.1.1\lib\net45\Akka.Logger.NLog.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="FSharp.Core">
-      <HintPath>..\packages\FSharp.Core.3.1.2.5\lib\net40\FSharp.Core.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="FSharp.PowerPack">
       <HintPath>..\packages\FSPowerPack.Core.Community.3.0.0.0\lib\Net40\FSharp.PowerPack.dll</HintPath>
       <Private>True</Private>
@@ -96,25 +85,16 @@
       <HintPath>..\packages\FsPickler.1.2.21\lib\net45\FsPickler.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="FsUnit.NUnit">
-      <HintPath>..\packages\FsUnit.2.3.1\lib\net45\FsUnit.NUnit.dll</HintPath>
+    <Reference Include="mscorlib" />
+    <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <Private>True</Private>
     </Reference>
-    <Reference Include="mscorlib" />
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="NHamcrest">
-      <HintPath>..\packages\FsUnit.2.3.1\lib\net45\NHamcrest.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="NLog">
       <HintPath>..\packages\NLog.4.3.2\lib\net45\NLog.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="nunit.framework">
-      <HintPath>..\packages\NUnit.3.4.1\lib\net45\nunit.framework.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />

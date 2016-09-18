@@ -1,2 +1,2 @@
-﻿module GameManager
+﻿module GLSManager.GameManager
 

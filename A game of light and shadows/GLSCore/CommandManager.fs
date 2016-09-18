@@ -1,2 +1,2 @@
-﻿module CommandManager
+﻿module GLSManager.CommandManager
 

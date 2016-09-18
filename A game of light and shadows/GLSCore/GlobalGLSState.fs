@@ -1,2 +1,2 @@
-﻿module GlobalGLSState
+﻿module GLSManager.GlobalGLSState
 
