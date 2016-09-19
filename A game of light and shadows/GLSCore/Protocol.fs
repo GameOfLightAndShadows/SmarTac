@@ -1,6 +1,16 @@
 ﻿module GLSManager.Protocol
 
 open GLSManager.GlobalGLSState
+open GLSCore.GameMap
+
+type GlobalStateProtocol = 
+    | UpdateStoryline       of Storyline 
+    | UpdateBoard           of GameBoard 
+    | UpdateMenu            of MenuState
+    | UpdateBattleSequence  of BattleSequenceState
+    | UpdateWeaponStore     of WeaponStoreState
+    | UpdateItemStore       of ItemStoreState
+
 
 type GameManagerProtocol =  
     | UpdateGlobalState 

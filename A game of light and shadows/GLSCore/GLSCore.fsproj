@@ -53,19 +53,26 @@
     <Content Include="packages.config" />
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="ManagerLogging.fs" />
-    <Compile Include="ManagerProtocol.fs" />
-    <Compile Include="GlobalGLSState.fs" />
+    <Compile Include="CharacterInformation.fs" />
+    <Compile Include="PartyCharacter.fs" />
     <Compile Include="GameElement.fs" />
     <Compile Include="GameMap.fs" />
-    <Compile Include="CharacterInformation.fs" />
+    <Compile Include="GlobalGLSState.fs" />
+    <Compile Include="Protocol.fs" />
     <Compile Include="CharacterAction.fs" />
-    <Compile Include="PartyCharacter.fs" />
     <Compile Include="CharacterFactoryBuilder.fs" />
     <Compile Include="ChoiceSelector.fs" />
     <Compile Include="CommandManager.fs" />
     <Compile Include="BattleSequenceManager.fs" />
-    <Compile Include="GameManager.fs" />
     <Compile Include="StateServer.fs" />
+    <Compile Include="InventoryManager.fs" />
+    <Compile Include="WeaponStoreManager.fs" />
+    <Compile Include="ItemStoreManager.fs" />
+    <Compile Include="BrainManager.fs" />
+    <Compile Include="TeamPartyManager.fs" />
+    <Compile Include="WorldMapManager.fs" />
+    <Compile Include="GameManager.fs" />
+    <Compile Include="DeadMessageServer.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Akka">
