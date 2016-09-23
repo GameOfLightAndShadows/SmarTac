@@ -22,7 +22,12 @@ type MapSize = {
     Height  : int
 }
 
-type GameBoard = Map<CharacPos, GameCell>
+type GameBoard = {
+    GameMap: Map<CharacPos, GameCell>
+}
+with 
+    static member InitialBoard() = 
+        { GameMap = Map.empty }
 
 type GameBoardState(size: MapSize) = 
     
@@ -32,3 +37,5 @@ type GameBoardState(size: MapSize) =
 
     member x.updateBoardState (board: GameBoard) = 
         () // Will be implemented later.
+    
+        
