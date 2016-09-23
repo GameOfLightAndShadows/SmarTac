@@ -6,37 +6,32 @@ open Akka
 open Akka.FSharp
 open Akka.Logger.NLog
 
+open GLSCore.CoreHelpers
 
-let stateServerActor 
-    (initialState: GlobalGameState)
-//    (gameManager: Actor.ICanTell)
-    (mailbox: Actor<'a>) = 
+let processGlobalState
+    (mailbox: Actor<_>)  =
+    let internalState = GlobalGameState.Initial
+    let rec loop (state: GlobalGameState) = actor { 
+        let! message = mailbox.Receive ()
+        let internalState = 
+            match message with 
+            | UpdateStoryline story ->  
+                state.updateStoryline story
+            | UpdateBoard  board ->
+                state.BattleSequence.updateBoardState board |> state.updateBattleSequence
+            | UpdateMenu  menu        -> 
+                state.updateMenuState menu
+            | UpdateBattleSequence bs -> 
+                state.updateBattleSequence bs
+            | UpdateWeaponStore ws  ->
+                state.updateWeaponStore ws 
+            | UpdateItemStore is -> 
+                state.updateItemStore is      
+        return! loop internalState 
+    }
+    loop internalState
 
+let stateServerRef = spawn system "State-Server" <| processGlobalState 
+// Must confirm, but looks like the Akka actors have to spawn locally. 
+// Will implement a supervisor of actors with the responsability of spawning every one of them 
 
-    let handleGlobalState (initialState: GlobalGameState) (mailbox : Actor<'a>) =
-
-      let rec imp lastState =
-        actor {
-          let! msg = mailbox.Receive()
-          match msg with 
-          | UpdateStoryline story -> () 
-          | UpdateBoard           -> () 
-          | UpdateMenu            -> ()
-          | UpdateBattleSequence  -> ()
-          | UpdateWeaponStore     -> ()
-          | UpdateItemStore       -> ()
-
-          
-          gameManager <! ""
-          return! imp newState
-        }
-
-      imp initialState
-
-
-      static member StartServer() = 
-//        (gameManager: Actor.ICanTell)
-        (mailbox: Actor<'a>) = 
-            let initialState = GlobalGameState.Initial
-            let handling = handleGlobalState initialState mailbbox
-            handling

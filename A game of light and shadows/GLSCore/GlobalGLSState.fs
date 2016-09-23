@@ -62,19 +62,41 @@ type BattlePhase =
     | EngageCharacter
     | EndTurn
 
+type MatchState = 
+    | InProcess
+    | BrainWon 
+    | PlayerWon
+with 
+    static member Initial = InProcess
+
 type BattleSequenceState = {
     ActivePhase     : BattlePhase
     PlayerTeamParty : PartyCharacter array
     BrainTeamParty  : PartyCharacter array
     Board           : GameBoard
+    MatchState      : MatchState
 }
 
 with 
+    member x.updateBoardState (b: GameBoard) = 
+        { x with Board = b }
+
+    member x.updateBrainTeamParty (team: PartyCharacter array) = 
+        { x with BrainTeamParty = team }
+
+    member x.updatePlayerParty (team: PartyCharacter array) = 
+        { x with PlayerTeamParty = team }
+
+    member x.updateMatchState (state: MatchState) = 
+        { x with MatchState = state }
+
+
     static member Initial = {
         ActivePhase = Move 
         PlayerTeamParty = [| |]
         BrainTeamParty = [| |]
         Board = GameBoard.InitialBoard()
+        MatchState = MatchState.Initial
     }
 
 // Basic implementation of the weapon & item store 
@@ -134,8 +156,22 @@ type GlobalGameState = {
     WeaponStore : WeaponStoreState
 }
 with 
-    static member Initial = 
-    {
+    member x.updateMenuState (menu: MenuState) = 
+        { x with Menu = menu }
+
+    member x.updateStoryline (sl: Storyline) = 
+        { x with Story = sl }
+
+    member x.updateBattleSequence (bss: BattleSequenceState) = 
+        { x with BattleSequence = bss }
+
+    member x.updateItemStore (iss: ItemStoreState) = 
+        { x with ItemStore = iss }
+
+    member x.updateWeaponStore (wss: WeaponStoreState) = 
+        { x with WeaponStore = wss }
+
+    static member Initial = {
         Menu = MenuState.Initial
         Story = Storyline.FirstLevel
         BattleSequence = BattleSequenceState.Initial
