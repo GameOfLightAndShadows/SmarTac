@@ -2,6 +2,8 @@
 
 open GLSManager.GlobalGLSState
 open GLSCore.GameMap
+open GLSCore.CharacterInformation
+open GLSCore.PartyCharacter
 
 type GlobalStateProtocol = 
     | UpdateStoryline       of Storyline 
@@ -14,9 +16,9 @@ type GlobalStateProtocol =
 
 type GameManagerProtocol =  
     | UpdateGlobalState 
-    | DestroyCharacter 
-    | UpdateCharacterHealth 
-    | UpdateCharacterPosition
+    | DestroyCharacter of PartyCharacter
+    | UpdateCharacterHealth of PartyCharacter
+    | UpdateCharacterPosition of PartyCharacter
     | UpdateCharacterDirection 
     | StopManager
 
@@ -52,7 +54,7 @@ type WorldMapManagerProtocol =
     | MoveCharacterToStoryPoint 
     | Stop
 
-type CommanadManagerProtocol = 
+type CommandManagerProtocol = 
     | PerformAttackCommandOn 
     | PerformMoveCommandWith 
     | PerformDefendCommandWith 
