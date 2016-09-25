@@ -57,9 +57,15 @@ with
         Player = GLSPlayer.Initial
     }
 
+type BattleChoice = 
+    | MeleeAttack 
+    | ClassAttack 
+    | Defense 
+    | SelectItem 
+
 type BattlePhase = 
     | Move
-    | EngageCharacter
+    | EngageCharacter of BattleChoice
     | EndTurn
 
 type MatchState = 
