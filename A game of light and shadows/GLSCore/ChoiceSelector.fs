@@ -29,10 +29,12 @@ type IBattleActionSequence =
     abstract member faceTarget: PartyCharacter -> PartyCharacter -> unit
 
 
-type CommandSequence = 
-    | AttackSequence 
-    | DefenseSequence 
-
+type CommandSequence = {
+    Caller      : PartyCharacter 
+    Target      : PartyCharacter option
+    Sequence    : (unit -> unit) list
+}
+with 
     interface IBattleActionSequence with
         member x.canMoveSelf 
             (caller: PartyCharacter) 

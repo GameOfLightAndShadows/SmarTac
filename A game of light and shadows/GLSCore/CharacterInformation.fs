@@ -110,6 +110,9 @@ type CharacterBase(job: CharacterJob, state: CharacterState) =
 
     abstract member CharacterState: CharacterState
 
+    abstract member CharacterID: int
+
     member x.Job = job
 
     member x.Stats = job.Stats
+

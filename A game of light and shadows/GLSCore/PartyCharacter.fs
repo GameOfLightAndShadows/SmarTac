@@ -15,6 +15,7 @@ open System
 type PartyCharacter(job: CharacterJob, 
                     equipment: CharacterEquipement,
                     style: CombatStyle, 
+                    id: int,
                     state: CharacterState,
                     direction: PlayerDirection,
                     team: Object array) = 
@@ -35,5 +36,7 @@ type PartyCharacter(job: CharacterJob,
     override x.MoveRange = job.Role.moveRange
 
     override x.CharacterState = state 
+
+    override x.CharacterID = id
 
         
