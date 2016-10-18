@@ -53,9 +53,9 @@
     <Content Include="packages.config" />
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="ManagerLogging.fs" />
+    <Compile Include="GameElement.fs" />
     <Compile Include="CharacterInformation.fs" />
     <Compile Include="PartyCharacter.fs" />
-    <Compile Include="GameElement.fs" />
     <Compile Include="GameMap.fs" />
     <Compile Include="GlobalGLSState.fs" />
     <Compile Include="Protocol.fs" />
