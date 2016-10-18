@@ -344,27 +344,31 @@ module GameLogic =
 
     let computeScoreGain (board: GameBoard) (charac: Character) (action: Act) = 
         let pos = charac.Position
-        match board.TryFind pos with 
-        | Some cell -> 
-            Console.WriteLine (sprintf "Type of cell: %O" cell)
-            match cell with
-            | Empty -> 
-                0
-            | Enemy e -> 
-                match action with 
-                | MeleeAttack  -> MELEEATTACKSCORE 
-                | RaiseDefense -> RAISEDEFENSESCORE
-                | SpecialMove  -> SPECIALMOVESCORE
-                | _ -> 0
-            | HiddenTrap t -> 
-                match t with 
-                | ReduceLifePoints -> REDUCELIFEPOINTSCORE
-                | ReduceMoney      -> REDUCECURRENCYSCORE
-            | CollectibleTreasure ct -> 
-                match ct with 
-                | HealthPotion ->  HEALTHPOTIONSCORE
-                | Currency     ->  CURRENCYSCORE
-        | None -> 0
+        let oCell = board |> Map.tryFind pos 
+        let scoreGain = 
+            match oCell with 
+            | Some cell -> 
+                Console.WriteLine (sprintf "Type of cell: %O" cell)
+                match cell with
+                | Empty -> 
+                    0
+                | Enemy e -> 
+                    match action with 
+                    | MeleeAttack  -> MELEEATTACKSCORE 
+                    | RaiseDefense -> RAISEDEFENSESCORE
+                    | SpecialMove  -> SPECIALMOVESCORE
+                    | _ -> 0
+                | HiddenTrap t -> 
+                    match t with 
+                    | ReduceLifePoints -> REDUCELIFEPOINTSCORE
+                    | ReduceMoney      -> REDUCECURRENCYSCORE
+                | CollectibleTreasure ct -> 
+                    match ct with 
+                    | HealthPotion ->  HEALTHPOTIONSCORE
+                    | Currency     ->  CURRENCYSCORE
+            | None -> 0
+
+        scoreGain 
 
     let updateGameBoard (board: GameBoard) (character: Character) = 
         board |> Map.filter(fun position _ -> position <> character.Position)

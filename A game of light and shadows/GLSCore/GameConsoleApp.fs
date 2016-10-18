@@ -58,7 +58,7 @@ module Program =
             let player = state.Character |> applyDecision size move
             let board = updateGameBoard state.Board player
             let gain = computeScoreGain state.Board player encounter
-            let score = state.Score + score
+            let score = state.Score + gain
             Console.WriteLine(score) 
             Console.WriteLine(player.Position.ToString())
             Console.WriteLine(player.Direction.ToString())
