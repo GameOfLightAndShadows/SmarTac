@@ -4,6 +4,7 @@ open GLSCore.CharacterInformation
 open GLSCore.PartyCharacter
 open GLSCore.CharacterAction
 open GLSCore.GameMap
+open GLSCore.GameElement
 
 open System
 open System.Collections

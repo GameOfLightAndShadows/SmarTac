@@ -3,6 +3,7 @@
 open GLSManager.GlobalGLSState
 open GLSCore.GameMap
 open GLSCore.CharacterInformation
+open GLSCore.GameElement
 open GLSCore.PartyCharacter
 
 type GlobalStateProtocol = 

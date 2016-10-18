@@ -2,6 +2,7 @@
 
 open GLSCore.PartyCharacter
 open GLSCore.GameMap
+open GLSCore.GameElement
  
 type GameMode = 
     | Easy
