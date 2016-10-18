@@ -182,6 +182,13 @@ type PlayerDirection =
     | East 
     | West
 with 
+    override x.ToString() = 
+        match x with 
+        | South -> "South"
+        | North -> "North"
+        | East ->  "East"
+        | West ->  "West"
+
     member x.areDirectionOpposite (dir: PlayerDirection) = 
         match x,dir with 
         | South, North  
@@ -288,10 +295,19 @@ module GameLogic =
 
     let changeDirection (act: MoveAction) (dir: PlayerDirection) = 
         match act with 
-        | Up 
-        | Down
-        | Right 
-        | Left ->  dir.switchOppositeDirection()
+        | Right -> 
+            match dir with 
+            | North -> East 
+            | East -> South 
+            | South -> West 
+            | West -> North 
+             
+        | Left ->  
+            match dir with 
+            | North -> West 
+            | West -> South 
+            | South -> East 
+            | East -> North 
         | _ -> dir 
 
     let moveTo 

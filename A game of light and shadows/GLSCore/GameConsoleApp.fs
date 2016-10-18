@@ -11,7 +11,7 @@ module Program =
         // Init world 
         let size = { Width = 64; Height = 64 }
 
-        let character = { Position = { Top = 10; Left = 10 }; Direction = North;  } 
+        let character = { Position = { Top = 10; Left = 10 }; Direction = East;  } 
 
         let randomizer = Random () 
 
@@ -44,7 +44,13 @@ module Program =
         // Game Loop 
         let rec loop(state: GameState) = 
             
-            let move = moveDecision() 
+            let move =  
+                let value = randomizer.NextDouble()                        
+                if value >= 0.0 && value < 0.25 then Up
+                else if value >= 0.25 && value < 0.50 then Right
+                else if value >= 0.50 && value < 0.75 then Down
+                else Left
+
             let encounter = encounterDecision()
 
             // world update 
@@ -55,6 +61,7 @@ module Program =
             let score = state.Score + score
             Console.WriteLine(score) 
             Console.WriteLine(player.Position.ToString())
+            Console.WriteLine(player.Direction.ToString())
             let updated = { Board = board; Character = player; Score = score }
 
             Console.ReadLine() |> ignore<string>
