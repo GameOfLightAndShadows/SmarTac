@@ -102,7 +102,7 @@ with
         ActivePhase = Move 
         PlayerTeamParty = [| |]
         BrainTeamParty = [| |]
-        Board = GameBoard.InitialBoard()
+        Board = Map.empty
         MatchState = MatchState.Initial
     }
 
