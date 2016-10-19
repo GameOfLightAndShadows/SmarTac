@@ -3,6 +3,7 @@
 open System
 open System.Threading 
 open GLSCore.GameElement
+open GLSManager.BrainManager
 
 module Program = 
     
@@ -10,9 +11,8 @@ module Program =
     let main argv =
         // Init world 
         let size = { Width = 64; Height = 64 }
-
+        let characterMoveRange = 4
         let character = { Position = { Top = 10; Left = 10 }; Direction = East;  } 
-
         let randomizer = Random () 
 
         let gameboard = 
@@ -30,19 +30,13 @@ module Program =
                         yield pos, cell]
             |> Map.ofList   
             
-        let score = 0 
-        
+        let score = 0      
         let gameState = { Board = gameboard; Character = character; Score = score }    
-        
-        // Random Decision making 
-        let moveChoices = [| Up; Down; Left; Right |]
-        let choices = [| MeleeAttack; SpecialMove; RaiseDefense; |]
-        
-        let moveDecision() = moveChoices.[randomizer.Next(4)]
-        let encounterDecision() = choices.[randomizer.Next(3)]
 
-        // Game Loop 
-        let rec loop(state: GameState) = 
+        let rec loop (state:GameState,brain:Brain) =
+
+            let currentState = visibleState characterMoveRange size state.Board state.Character 
+            let decision = PrimitiveBrain.decide brain currentState
             
             let move =  
                 let value = randomizer.NextDouble()                        
@@ -51,33 +45,33 @@ module Program =
                 else if value >= 0.50 && value < 0.75 then Down
                 else Left
 
-            let encounter = encounterDecision()
-
-            // world update 
-                
-            let player = state.Character |> applyDecision size move
+            let encounter = randomMove()  
+             
+            // world update
+            let player = state.Character |> applyDecision size decision
             let board = updateGameBoard state.Board player
-            let gain = computeScoreGain state.Board player encounter
+            let gain = computeScoreGain state.Board player decision
             let score = state.Score + gain
-            Console.WriteLine(score) 
-            Console.WriteLine(player.Position.ToString())
-            Console.WriteLine(player.Direction.ToString())
+
+            // learning
+            let nextState = visibleState characterMoveRange size board player
+            let experience = {
+                State = currentState;
+                Action = decision;
+                Reward = gain |> float;
+                NextState = nextState; }
+            let brain = learn brain experience
+
             let updated = { Board = board; Character = player; Score = score }
+            
+            Thread.Sleep 20
+            let result = sprintf "Action : %O - Reward : %f - Score: %d " experience.Action experience.Reward score
+            Console.Write(result)
+            Console.ReadLine() |> ignore
+            loop (updated,brain)
 
-            Console.ReadLine() |> ignore<string>
-            Thread.Sleep 5 
-            loop updated
+        let _ = loop (gameState,Map.empty)
 
-        let _ = loop gameState
+        Console.ReadLine() |> ignore
 
         0
-
-
-//            loop updated 
-//        for i= 1 to 100 do 
-//            Console.WriteLine(loop gameState)
-        
-        Console.ReadLine()
-        0
-        
-               

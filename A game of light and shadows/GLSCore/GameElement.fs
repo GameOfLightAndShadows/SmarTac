@@ -141,34 +141,27 @@ module CharacterInformation =
 
 open CharacterInformation 
 
-type MoveAction = 
-    | Up 
-    | Down 
-    | Left 
-    | Right 
-with 
-    override x.ToString() =
-        match x with
-        | Left          -> "Going left"
-        | Right         -> "Going right"
-        | Up            -> "Going  up"
-        | Down          -> "Going down"
-
 // Actions 
 type Act = 
-    | Move of MoveAction
+    | Up
+    | Down 
+    | Left 
+    | Right
     | MeleeAttack 
     | SpecialMove 
     | RaiseDefense
-    | EndTurn 
+//    | EndTurn 
 with 
     override x.ToString() = 
         match x with 
         | MeleeAttack   -> "Melee attack"
         | SpecialMove   -> "Special Move"
-        | Move m        -> m.ToString()
+        | Left          -> "Going left"
+        | Right         -> "Going right"
+        | Up            -> "Going  up"
+        | Down          -> "Going down"
         | RaiseDefense  -> "Temporally raised defense"
-        | EndTurn       -> "Turn completed"
+//        | EndTurn       -> "Turn completed"
 // Position 
 type Pos = 
     { Top: int; Left:int }
@@ -293,7 +286,7 @@ module GameLogic =
         Left = pos.Left %%% size.Width    
     }
 
-    let changeDirection (act: MoveAction) (dir: PlayerDirection) = 
+    let changeDirection (act: Act) (dir: PlayerDirection) = 
         match act with 
         | Right -> 
             match dir with 
@@ -330,7 +323,7 @@ module GameLogic =
 //            ()
 //        character  
 
-    let applyDecision (mapSize: MapSize) (action: MoveAction) (charac: Character) = 
+    let applyDecision (mapSize: MapSize) (action: Act) (charac: Character) = 
         Console.WriteLine (action.ToString())
         match action with 
         | Up 
@@ -340,7 +333,8 @@ module GameLogic =
             let newDirection = charac.Direction |> changeDirection action
             { charac with 
                 Position = charac.Position |> moveTo mapSize newDirection
-                Direction = newDirection }           
+                Direction = newDirection }   
+        | _ -> charac
 
     let computeScoreGain (board: GameBoard) (charac: Character) (action: Act) = 
         let pos = charac.Position
@@ -352,7 +346,7 @@ module GameLogic =
                 match cell with
                 | Empty -> 
                     0
-                | Enemy e -> 
+                | Enemy e ->                 
                     match action with 
                     | MeleeAttack  -> MELEEATTACKSCORE 
                     | RaiseDefense -> RAISEDEFENSESCORE

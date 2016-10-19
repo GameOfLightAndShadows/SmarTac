@@ -75,6 +75,7 @@
     <Compile Include="GameManager.fs" />
     <Compile Include="DeadMessageServer.fs" />
     <Compile Include="GameConsoleApp.fs" />
+    <None Include="Simulation.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Akka">
