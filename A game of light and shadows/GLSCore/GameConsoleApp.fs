@@ -50,7 +50,7 @@ module Program =
             // world update
             let player = state.Character |> applyDecision size decision
             let board = updateGameBoard state.Board player
-            let gain = computeScoreGain state.Board player decision
+            let gain = computeScoreGain state.Board player encounter
             let score = state.Score + gain
 
             // learning

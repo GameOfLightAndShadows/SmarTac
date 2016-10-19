@@ -58,6 +58,7 @@
     <Compile Include="CharacterInformation.fs" />
     <Compile Include="PartyCharacter.fs" />
     <Compile Include="GameMap.fs" />
+    <Compile Include="Pathfinding.fs" />
     <Compile Include="GlobalGLSState.fs" />
     <Compile Include="Protocol.fs" />
     <Compile Include="CharacterAction.fs" />

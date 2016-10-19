@@ -51,7 +51,15 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="Library1.fs" />
+    <Compile Include="BattleSequenceTests.fs" />
+    <Compile Include="BrainManagerTests.fs" />
+    <Compile Include="ChoiceSelectorTests.fs" />
+    <Compile Include="GameElementTests.fs" />
+    <Compile Include="GameSupervisorTests.fs" />
+    <Compile Include="GlobalStateServerTests.fs" />
+    <Compile Include="PartyCharacterTests.fs" />
+    <Compile Include="PathfindingTests.fs" />
+    <Compile Include="PrimitiveBrainTests.fs" />
     <None Include="Script.fsx" />
     <Content Include="packages.config" />
   </ItemGroup>
@@ -149,6 +157,13 @@
     <Reference Include="System.Numerics" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GLSCore\GLSCore.fsproj">
+      <Name>GLSCore</Name>
+      <Project>{4f82d01f-4ff7-48f7-82ca-52a200bbdd30}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

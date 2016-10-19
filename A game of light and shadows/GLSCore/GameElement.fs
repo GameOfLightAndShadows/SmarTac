@@ -33,7 +33,7 @@ type LifePoints ={
     Max     : float
 }
 with 
-    member x.isDead = x.Current < 0.0
+    member x.isDead = x.Current <= 0.0
 
     member x.capHealth () =
         if x.Current > x.Max then { Current = x.Max; Max = x.Max } else x
@@ -313,16 +313,6 @@ module GameLogic =
         | East  -> { pos with Left = (pos.Left + 1) %%% size.Width }
         | West  -> { pos with Left = (pos.Left - 1) %%% size.Width }
 
-//    let encounterEnemyDecision (character: Character) (enemy: Character) (action: Act) = 
-//        match action with 
-//        | MeleeAttack  -> 
-//            enemy.Role.Stats.updateLifePoints <| enemy.Role.Stats.Health.takeHit (character.Role.Stats.Strength |> int32) |> ignore<CharacterStats>      
-//        | RaiseDefense ->
-//             character.Role.Stats.applyTemporaryDefense 50 |> ignore<CharacterStats>
-//        | _ -> 
-//            ()
-//        character  
-
     let applyDecision (mapSize: MapSize) (action: Act) (charac: Character) = 
         Console.WriteLine (action.ToString())
         match action with 
@@ -366,4 +356,6 @@ module GameLogic =
 
     let updateGameBoard (board: GameBoard) (character: Character) = 
         board |> Map.filter(fun position _ -> position <> character.Position)
+
+
          
