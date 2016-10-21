@@ -6,6 +6,22 @@ open GLSCore.GameElement
 open GLSManager.BrainManager
 
 module Program = 
+
+    let cellValues = [| -200; -150; -100; -50; 50; 100; 150; 200; 250 |] 
+    type Board = int[,]
+    let randomizer = new Random()
+
+    let updateBoard (board: Board) (player:Character) = 
+        let pos = player.Position
+        let updatedBoard = Array2D.copy board   
+        updatedBoard.[pos.Left,pos.Top] <- randomizer.Next(cellValues.Length)
+        updatedBoard
+
+    type State = int list
+
+    let activeCell (board: Board) (pos: Pos) = board.[pos.Left, pos.Top]
+
+    let initBoard (size: MapSize) = Array2D.init size.Width size.Height (fun left top -> randomizer.Next(cellValues.Length))
     
     [<EntryPoint>]
     let main argv =
