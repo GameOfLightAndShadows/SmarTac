@@ -69,6 +69,70 @@ module PrimitiveBrain =
             )
         dir, visibleCells
             
+open PrimitiveBrain 
 
+module AdvancedBrain = 
+
+
+    let rotate dir (x,y) = 
+        match dir with 
+        | North -> (x,y)
+        | South -> (-x,-y)
+        | West -> (-y,x)
+        | East -> (y,-x)
+
+    // Modifies the perception oh the character of the game board when he changes direction
+    let visibleState (size: MapSize) (moveRange:int) (board: GameBoard) (player: Character) = 
+        let (dir, pos) = player.Direction, player.Position
+        offsets moveRange
+        |> List.map (rotate dir )
+        |> List.map (fun (x,y) -> 
+            onboard size { Top = pos.Top + x ; Left = pos.Left + y }
+            |> activeCell board)
+         
+
+
+    let nextValue (brain: Brain) (state: CurrentGameState) = 
+        options 
+        |> Seq.map(fun action -> 
+            match brain.TryFind { State = state; Action = action } with 
+            | Some value -> value
+            | None -> 0.0)
+
+        |> Seq.max
+
+    let alpha= 0.1 // learning rate
+    let gamma = 0.3 //discount rate
+    let epsilon = 0.07 // random learning
+
+    let learn (brain: Brain) (exp: Experience) = 
+        let strat = { State = exp.State; Action = exp.Action }
+        let nValue = nextValue brain exp.NextState
+        match brain.TryFind strat with 
+        | Some v ->     
+            let newV = (1.0 - alpha) * v + alpha * (exp.Reward + gamma * nValue)
+            brain.Add (strat, newV)
+        | None -> 
+            brain.Add (strat, alpha * (exp.Reward + gamma* nValue))
+
+    let decide (brain: Brain) (state: CurrentGameState) = 
+        if randomizer.NextDouble() < epsilon then 
+            randomMove()
+        else 
+            let eval = 
+                options 
+                |> Array.map (fun alt ->  { State = state; Action = alt })
+                |> Array.filter( fun strat -> brain.ContainsKey strat)
+
+            match eval.Length with 
+            | 0 -> randomMove() 
+            | _ -> 
+                options
+                |> Seq.maxBy(fun alt -> 
+                    let strat = { State = state; Action = alt }
+                    match brain.TryFind strat with 
+                    | Some v -> v 
+                    | None -> 0.0
+                )
 
 
