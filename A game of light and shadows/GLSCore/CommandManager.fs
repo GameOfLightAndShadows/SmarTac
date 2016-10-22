@@ -6,9 +6,10 @@ open Akka.FSharp
 open GLSCore.CharacterAction
 open GLSCore.GameElement
 open GLSCore.CharacterInformation
-open GLSCore.CoreHelpers
 
 open GLSManager.Protocol
+
+let system = System.create "system" <| Configuration.load ()
 
 let processCommand
     (mailbox: Actor<_>) =

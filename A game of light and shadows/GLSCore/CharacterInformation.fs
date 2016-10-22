@@ -95,7 +95,7 @@ with
 
 
 type CharacterState = {
-    CurrentPos       : CharacPos 
+    CurrentPos       : Pos 
     CurrentDirection : PlayerDirection
 }
 

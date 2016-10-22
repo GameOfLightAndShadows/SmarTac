@@ -1,0 +1,10 @@
+language: fsharp
+solution: ./src/A game of light and shadows.sln
+ 
+install:
+  - sudo apt-get install nunit-console
+  - nuget restore ./src/A game of light and shadows.sln
+ 
+script:
+  - xbuild ./src/yoursolution.sln
+  - nunit-console ./src/GLSTest.Tests/bin/Debug/GLSTest.Tests.dll

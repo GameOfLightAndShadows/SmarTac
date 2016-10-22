@@ -6,7 +6,7 @@ open Akka
 open Akka.FSharp
 open Akka.Logger.NLog
 
-open GLSCore.CoreHelpers
+let system = System.create "system" <| Configuration.load ()
 
 let processGlobalState
     (mailbox: Actor<_>)  =

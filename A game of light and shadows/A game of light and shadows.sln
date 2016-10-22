@@ -5,6 +5,8 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "GLSCore", "GLSCore\GLSCore.fsproj", "{4F82D01F-4FF7-48F7-82CA-52A200BBDD30}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "GLSTest", "GLSTest\GLSTest.fsproj", "{A9EE9DBA-444A-464C-A938-BE657BB0B904}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{4F82D01F-4FF7-48F7-82CA-52A200BBDD30}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4F82D01F-4FF7-48F7-82CA-52A200BBDD30}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4F82D01F-4FF7-48F7-82CA-52A200BBDD30}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A9EE9DBA-444A-464C-A938-BE657BB0B904}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A9EE9DBA-444A-464C-A938-BE657BB0B904}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A9EE9DBA-444A-464C-A938-BE657BB0B904}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A9EE9DBA-444A-464C-A938-BE657BB0B904}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

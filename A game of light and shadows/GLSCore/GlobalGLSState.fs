@@ -2,6 +2,7 @@
 
 open GLSCore.PartyCharacter
 open GLSCore.GameMap
+open GLSCore.GameElement
  
 type GameMode = 
     | Easy
@@ -101,7 +102,7 @@ with
         ActivePhase = Move 
         PlayerTeamParty = [| |]
         BrainTeamParty = [| |]
-        Board = GameBoard.InitialBoard()
+        Board = Map.empty
         MatchState = MatchState.Initial
     }
 
