@@ -7,6 +7,14 @@ open GLSCore.CharacterInformation
 open GLSCore.GameElement
 open GLSCore.PartyCharacter
 
+open GLSManager.Protocol
+
+open Akka 
+open Akka.FSharp
+
+
+
+
 (*
  Determines the action factor which will be combine to 
  the tactical advantage  and the target's tiers.
@@ -14,6 +22,15 @@ open GLSCore.PartyCharacter
 *)    
 [<Literal>]
 let UnitExperiencePoints = 10.0
+
+let canCharacterLevelUp (pc: PartyCharacter) = 
+    pc.ExperiencePoints >= 125.00
+
+let attributeLevelUpPoints (pc: PartyCharacter) = 
+    let lvlUpPoints =  Math.Floor (pc.ExperiencePoints % 125.00 ) |> int32
+    pc.LevelUpPoints <- pc.LevelUpPoints + lvlUpPoints
+    pc.ExperiencePoints <- 0.00
+   
 
 let computeExperienceGains (caller: PartyCharacter) (target: PartyCharacter) (action: EngageAction) = 
     let actionFactor = 
@@ -46,3 +63,23 @@ let computeExperienceGains (caller: PartyCharacter) (target: PartyCharacter) (ac
         | Some v -> v
 
     UnitExperiencePoints * ((actionFactor + tacticalAdvantageFactor) * tiersFactor)
+
+
+
+let system = System.create "system" <| Configuration.load ()
+
+let processExperienceGain
+    (mailbox: Actor<ExperienceSystemProtocol>) =
+    let rec loop () = actor { 
+        let! message = mailbox.Receive ()
+        match message with 
+        | ComputeGain (c, t, action) -> 
+            let experiencePoints = computeExperienceGains c t action    
+            if canCharacterLevelUp c then attributeLevelUpPoints c
+            // return updated party member to the battle sequence manager
+        
+        return! loop () 
+    }
+    loop ()
+
+let commandManagerRef = spawn system "Experience System" <| processExperienceGain 

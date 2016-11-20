@@ -138,7 +138,11 @@ type CharacterBase(job: CharacterJob, state: CharacterState) =
 
     abstract member TeamParty: Object array
 
-    abstract member ActionPoints: int
+    abstract member ActionPoints: int with get, set
+
+    abstract member ExperiencePoints: float with get, set
+
+    abstract member LevelUpPoints: int with get, set
 
     abstract member MoveRange: MoveRange
 
@@ -150,5 +154,5 @@ type CharacterBase(job: CharacterJob, state: CharacterState) =
 
     member x.Job = job
 
-    member x.Stats = job.Stats
+    member x.Stats = job.Stats 
 
