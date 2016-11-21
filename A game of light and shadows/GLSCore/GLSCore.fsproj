@@ -71,6 +71,7 @@
     <Compile Include="WeaponStoreManager.fs" />
     <Compile Include="ItemStoreManager.fs" />
     <Compile Include="BrainManager.fs" />
+    <Compile Include="ExperienceSystemManager.fs" />
     <Compile Include="TeamPartyManager.fs" />
     <Compile Include="WorldMapManager.fs" />
     <Compile Include="GameManager.fs" />

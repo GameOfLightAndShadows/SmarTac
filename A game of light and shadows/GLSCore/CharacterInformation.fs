@@ -66,6 +66,40 @@ with
         | Necromancer  (role, _) -> role
         | Nightblade   (role, _) -> role
 
+let doesHaveTacticalAdvantage (fstCharacter: CharacterJob) (sndCharacter: CharacterJob) =
+    match fstCharacter.Role, sndCharacter.Role with
+    | Wizard _, Fighter _ -> true // 25 % more damage
+    | Wizard _, Sniper _ -> true // 15 % more damage 
+    | CharacterRole.Knight _, Wizard _ -> true // 20% more damage
+    | Sniper _, Fighter _ -> true // 20% more damage
+    | Sniper _, CharacterRole.Knight _ -> true // 5% more damage
+    | MagicSoldier _, CharacterRole.Knight _ -> true // 3 % by sword only 
+    | _, _ -> false 
+
+// Describe how strong a unit is suppose to be
+// Will impact the overall stats
+[<Literal>]
+let lowTiersStatsFactor = 1  
+
+[<Literal>]
+let midLowTiersStatsFactor = 1.075  
+
+[<Literal>]
+let midTiersStatsFactor = 1.1233 
+
+[<Literal>]
+let highTiersStatsFactor = 1.1785  
+
+[<Literal>]
+let heroClassTiersStatsFactor = 1.2375 
+
+type UnitTiers = 
+    | Low
+    | MidLow
+    | Mid
+    | High
+    | HeroClass
+
 
 type CharacterEquipement = {
     Hat         : string 
@@ -104,7 +138,11 @@ type CharacterBase(job: CharacterJob, state: CharacterState) =
 
     abstract member TeamParty: Object array
 
-    abstract member ActionPoints: int
+    abstract member ActionPoints: int with get, set
+
+    abstract member ExperiencePoints: float with get, set
+
+    abstract member LevelUpPoints: int with get, set
 
     abstract member MoveRange: MoveRange
 
@@ -112,7 +150,9 @@ type CharacterBase(job: CharacterJob, state: CharacterState) =
 
     abstract member CharacterID: int
 
+    abstract member Tiers: UnitTiers option
+
     member x.Job = job
 
-    member x.Stats = job.Stats
+    member x.Stats = job.Stats 
 

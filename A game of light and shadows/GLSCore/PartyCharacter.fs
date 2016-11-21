@@ -16,6 +16,7 @@ type PartyCharacter(job: CharacterJob,
                     equipment: CharacterEquipement,
                     style: CombatStyle, 
                     id: int,
+                    oTiers: UnitTiers option,
                     state: CharacterState,
                     direction: PlayerDirection,
                     team: Object array) = 
@@ -38,5 +39,7 @@ type PartyCharacter(job: CharacterJob,
     override x.CharacterState = state 
 
     override x.CharacterID = id
+
+    override x.Tiers = oTiers
 
         

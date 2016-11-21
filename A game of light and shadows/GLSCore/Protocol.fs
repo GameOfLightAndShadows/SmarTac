@@ -4,6 +4,7 @@ open GLSManager.GlobalGLSState
 open GLSCore.GameMap
 open GLSCore.CharacterInformation
 open GLSCore.GameElement
+open GLSCore.CharacterAction
 open GLSCore.PartyCharacter
 
 type GlobalStateProtocol = 
@@ -67,3 +68,6 @@ type StateServerProtocol =
     | UpdatePartyCharacter 
     | UpdateGameBoardState
     | UpdateTeamPartyInventory
+
+type ExperienceSystemProtocol = 
+    | ComputeGain of PartyCharacter * PartyCharacter * EngageAction
