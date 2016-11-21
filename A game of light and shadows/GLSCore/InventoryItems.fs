@@ -8,13 +8,18 @@ open System
 //Represents unit for currency
 [<Measure>] type usd
 
-type InventoryItem = {
-    Name : string 
-    Description : string 
-    Weight : float<kg>
-    Price  : float<usd>
-    Quantity : int
-}
+[<AbstractClass>]
+type InventoryItem() =
+
+    abstract member ItemName : string 
+
+    abstract member ItemDescription : string 
+
+    abstract member ItemWeight : float<kg> 
+
+    abstract member ItemPrice : float<usd> 
+
+    abstract member Quantity : int 
 
 type WeaponRank = 
     | RankE 
@@ -34,15 +39,15 @@ type WeaponStat = {
 }
 
 type ConsummableItem = 
-    | HealthPotion      of InventoryItem
-    | HighHealthPotion  of InventoryItem
-    | MegaHealthPotion  of InventoryItem
-    | Elixir            of InventoryItem
-    | HighElixir        of InventoryItem
-    | MegaElixir        of InventoryItem
-    | PhoenixFeather    of InventoryItem
-    | MedicinalHerb     of InventoryItem
-    | Antidote          of InventoryItem
+    | HealthPotion      
+    | HighHealthPotion  
+    | MegaHealthPotion  
+    | Elixir            
+    | HighElixir        
+    | MegaElixir        
+    | PhoenixFeather    
+    | MedicinalHerb     
+    | Antidote    
 
 type Dagger = 
     | RustedDagger of InventoryItem * WeaponStat
@@ -147,6 +152,18 @@ type Shield =
     | KnightShield of InventoryItem
     | HeavyShield of InventoryItem
     | SteelShield of InventoryItem
+
+type Inventory = {
+    Inventory : InventoryItem array
+}
+with 
+    member x.filterFromLightestToHeaviest() =
+        x.Inventory
+        |> Array.sortBy(fun item -> item.ItemWeight)
+
+    member x.filterFromHeaviestToLightest() = 
+        x.Inventory 
+        |> Array.sortBy (fun x -> -x.ItemWeight - 1.0<kg>) // Sort in a descending order 
 
 type Equipment = {
     Hat : Hat 
