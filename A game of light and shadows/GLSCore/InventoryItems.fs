@@ -29,10 +29,9 @@
         Rank : WeaponRank
     }
 
-    type InventoryItem =
-
-        abstract member Quantity : int with get, set
-
+    type ItemVariationProvenance = 
+        | FromTheShop
+        | FromTheInventory
 
     type ConsummableItem = 
         | HealthPotion      
@@ -43,9 +42,7 @@
         | MegaElixir        
         | PhoenixFeather    
         | MedicinalHerb     
-        | Antidote   
-    interface InventoryItem 
-    with 
+        | Antidote    
         override x.ToString() = 
             match x with 
             | HealthPotion      -> "Health Potion"
@@ -83,14 +80,85 @@
             | Antidote           -> 125<usd>
 
         member x.ItemQuantity = 
+            match x with 
+            | HealthPotion       ->     0
+            | HighHealthPotion   ->     0
+            | MegaHealthPotion   ->     0
+            | Elixir             ->     0
+            | HighElixir         ->     0
+            | MegaElixir         ->     0
+            | PhoenixFeather     ->     0
+            | MedicinalHerb      ->     0
+            | Antidote           ->     0
+
+        member x.updateItemQuantity value provenance= 
+            let itemVariation = 
+                match provenance with 
+                | FromTheShop -> value 
+                | FromTheInventory -> value * -1
+
+            let qty = x.ItemQuantity + itemVariation
+            let qty=
+                match qty with 
+                | t when t > 99 -> 99
+                | t when t <0 -> 0
+                | _ -> qty
+            qty          
             
-
-
-
     type Dagger = 
-        | RustedDagger of InventoryItem * WeaponStat
-        | IronDagger of InventoryItem  * WeaponStat 
-        | SteelDagger of InventoryItem * WeaponStat
+        | RustedDagger of   WeaponStat
+        | IronDagger   of   WeaponStat 
+        | SteelDagger  of   WeaponStat
+    with   
+        override x.ToString() = 
+            match x with 
+            | RustedDagger _ -> "Rusted dagger"
+            | IronDagger   _ -> "Iron dagger"
+            | SteelDagger  _ -> "Steel dagger"
+
+        member x.WeaponRank =
+            match x with 
+            | RustedDagger _ -> RankE
+            | IronDagger   _-> RankD
+            | SteelDagger  _-> RankC
+
+        member x.WeaponStats = 
+            match x with
+            | RustedDagger s -> s 
+            | IronDagger   s -> s
+            | SteelDagger  s -> s 
+            
+        member x.Weight = 
+            match x with 
+            | RustedDagger _ -> 2.10<kg>
+            | IronDagger   _ -> 2.80<kg>
+            | SteelDagger  _ -> 5.25<kg>
+            
+        member x.Price = 
+             match x with 
+             | RustedDagger _ -> 80<usd> 
+             | IronDagger   _ -> 200<usd> 
+             | SteelDagger  _ -> 350<usd> 
+
+        member x.Quantity = 
+            match x with 
+            | RustedDagger _ -> 0
+            | IronDagger   _ -> 0 
+            | SteelDagger  _ -> 0 
+
+        member x.UpdateQuantity value variationProvenance = 
+            let itemVariation = 
+                match variationProvenance with 
+                | FromTheShop -> value 
+                | FromTheInventory -> value * -1
+
+            let qty = x.Quantity + itemVariation
+            let qty=
+                match qty with 
+                | t when t > 99 -> 99
+                | t when t <0 -> 0
+                | _ -> qty
+            qty   
 
     type Sword = 
         | BrokenSword of InventoryItem * WeaponStat
@@ -194,8 +262,7 @@
     let makeBagItemsDistinct (bag: InventoryItem array) = 
         bag |> Seq.distinct |> Seq.toArray
 
-    type GameItems = 
-        | Consummable   of ConsummableItem
+    type CharacterWearables = 
         | Shield        of Shield 
         | Ring          of Ring 
         | Gloves        of Gauntlets 
@@ -210,20 +277,12 @@
         | Axe           of Axe 
         | Sword         of Sword
         | Dagger        of Dagger 
+
+
+    type GameItems = 
+        | Consummable   of ConsummableItem
+        | Wearable      of CharacterWearable
     with 
-
-    (*
-        abstract member ItemName : string 
-
-        abstract member ItemDescription : string 
-
-        abstract member ItemWeight : float<kg> 
-
-        abstract member ItemPrice : float<usd> 
-
-        abstract member Quantity : int with get, set
-
-    *)
         member x.Name 
 
     type Inventory = {
