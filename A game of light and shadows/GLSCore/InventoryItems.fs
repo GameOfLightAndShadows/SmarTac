@@ -11,6 +11,62 @@
     //Max weight of the inventory bag
     [<Literal>] 
     let MaxWeight = 100.00<kg>
+    
+    type IEnergyPoint =
+        abstract CurrentPoints : float 
+        abstract MaxPoints     : float
+        abstract capPoints : unit -> IEnergyPoint 
+        abstract raisePoints : int -> IEnergyPoint
+        abstract reducePoints : int -> IEnergyPoint 
+
+    type LifePoint = 
+        { CurrentLife: float
+          MaxLife : float }
+        interface IEnergyPoint with
+            member x.capPoints () =
+                if x.CurrentLife > x.MaxLife then { LifePoint.CurrentLife = x.MaxLife; LifePoint.MaxLife = x.MaxLife } :> IEnergyPoint else x :> IEnergyPoint
+
+            member x.raisePoints (lifePoint:int) = 
+                let raisedHealth = { x with CurrentLife = x.CurrentLife + (lifePoint |> float) }
+                (raisedHealth :> IEnergyPoint).capPoints()
+
+            member x.reducePoints (hitPoint: int) = 
+                let reducedLife = { x with CurrentLife = x.CurrentLife - (hitPoint |> float) }
+                (reducedLife :> IEnergyPoint)
+
+        member x.isCharacterDead() = 
+            x.CurrentLife <= 0.0
+
+    type ManaPoint = 
+        { CurrentMana: float
+          MaxMana : float }
+        interface IEnergyPoint with
+            member x.capPoints () =
+                if x.CurrentMana > x.MaxMana then { ManaPoint.CurrentMana = x.MaxMana; ManaPoint.MaxMana = x.MaxMana } :> IEnergyPoint else x :> IEnergyPoint
+
+            member x.raisePoints (manaPoint:int) = 
+                let raisedHealth = { x with CurrentMana = x.CurrentMana + (manaPoint |> float) }
+                (raisedHealth :> IEnergyPoint).capPoints()
+
+            member x.reducePoints (manaPoint: int) = 
+                let reducedLife = { x with CurrentMana = x.CurrentMana - (manaPoint |> float) }
+                (reducedLife :> IEnergyPoint)      
+       
+    type CharacterStats = {
+        Health          : LifePoint
+        Mana            : ManaPoint 
+        Speed           : float 
+        Strength        : float 
+        MagicPower      : float option 
+        Defense         : int
+        Resistance      : int
+        MagicResist     : float  
+        Evade           : int 
+        Luck            : int
+    }
+    with 
+        member x.applyTemporaryDefense (tPoints: int) = 
+            { x with Defense = x.Defense + tPoints }
    
     type WeaponRank = 
         | RankE 
@@ -42,7 +98,6 @@
         | MegaElixir        
         | PhoenixFeather    
         | MedicinalHerb     
-        | Antidote    
         override x.ToString() = 
             match x with 
             | HealthPotion      -> "Health Potion"
@@ -53,7 +108,6 @@
             | MegaElixir        -> "Mega Elixir"
             | PhoenixFeather    -> "Phoenix Feather"
             | MedicinalHerb     -> "Medicinal Herb"
-            | Antidote          -> "Antidote"
 
         member x.Weight = 
             match x with 
@@ -65,7 +119,6 @@
             | MegaElixir         -> 0.05<kg>
             | PhoenixFeather     -> 0.05<kg>
             | MedicinalHerb      -> 0.03<kg>
-            | Antidote           -> 0.10<kg>
 
         member x.Price = 
             match x with 
@@ -77,7 +130,6 @@
             | MegaElixir         -> 275<usd>
             | PhoenixFeather     -> 350<usd>
             | MedicinalHerb      -> 50<usd>
-            | Antidote           -> 125<usd>
 
         member x.ItemQuantity = 
             match x with 
@@ -89,7 +141,24 @@
             | MegaElixir         ->     0
             | PhoenixFeather     ->     0
             | MedicinalHerb      ->     0
-            | Antidote           ->     0
+
+        member x.ConsummeItem (characterStat: CharacterStats) = 
+            match x with 
+            | HealthPotion       -> { characterStat with Health = (characterStat.Health :> IEnergyPoint).raisePoints 15 :?> LifePoint }
+            | HighHealthPotion   -> { characterStat with Health = (characterStat.Health :> IEnergyPoint).raisePoints 30 :?> LifePoint }
+            | MegaHealthPotion   -> { characterStat with Health = (characterStat.Health :> IEnergyPoint).raisePoints 50 :?> LifePoint }
+            | Elixir             -> { characterStat with Mana = (characterStat.Health :> IEnergyPoint).raisePoints 10 :?> ManaPoint }
+            | HighElixir         -> { characterStat with Mana = (characterStat.Health :> IEnergyPoint).raisePoints 20 :?> ManaPoint }
+            | MegaElixir         -> { characterStat with Mana = (characterStat.Health :> IEnergyPoint).raisePoints 30 :?> ManaPoint }
+            | PhoenixFeather     -> 
+                if characterStat.Health.isCharacterDead() <> true then characterStat
+                else { characterStat with 
+                        Health = (characterStat.Health :> IEnergyPoint).raisePoints ( Math.Round characterStat.Health.MaxLife * 0.50 |> int32) :?> LifePoint
+                        Mana = (characterStat.Mana :> IEnergyPoint).raisePoints (Math.Round characterStat.Mana.MaxMana * 0.50 |> int32) :?> ManaPoint
+                    }
+
+            | MedicinalHerb      ->  { characterStat with Health = (characterStat.Health :> IEnergyPoint).raisePoints 5 :?> LifePoint }
+            
 
         member x.updateItemQuantity value provenance= 
             let itemVariation = 
@@ -161,10 +230,59 @@
             qty   
 
     type Sword = 
-        | BrokenSword of InventoryItem * WeaponStat
-        | RustedSword of InventoryItem * WeaponStat
-        | IronSword of InventoryItem * WeaponStat
-        | SteelSword of InventoryItem * WeaponStat
+        | BrokenSword of WeaponStat
+        | RustedSword of WeaponStat
+        | IronSword   of WeaponStat
+        | SteelSword  of WeaponStat
+    with
+        member x.WeaponRank =
+            match x with 
+            | BrokenSword _ -> RankE
+            | RustedSword _ -> RankE
+            | IronSword   _ -> RankD
+            | SteelSword  _ -> RankC
+
+        member x.WeaponStats = 
+            match x with
+            | BrokenSword s -> s
+            | RustedSword s -> s
+            | IronSword   s -> s
+            | SteelSword  s -> s
+            
+        member x.Weight = 
+            match x with 
+            | BrokenSword _ -> 7.20<kg>
+            | RustedSword _ -> 8.50<kg>
+            | IronSword   _ -> 12.35<kg>
+            | SteelSword  _ -> 15.00<kg>
+
+        member x.Price = 
+             match x with 
+             | BrokenSword _ -> 90<usd>
+             | RustedSword _ -> 120<usd>
+             | IronSword   _ -> 250<usd>
+             | SteelSword  _ -> 525<usd>
+
+        member x.Quantity = 
+            match x with 
+            | BrokenSword _ -> 0
+            | RustedSword _ -> 0
+            | IronSword   _ -> 0 
+            | SteelSword  _ -> 0
+
+        member x.UpdateQuantity value variationProvenance = 
+            let itemVariation = 
+                match variationProvenance with 
+                | FromTheShop -> value 
+                | FromTheInventory -> value * -1
+
+            let qty = x.Quantity + itemVariation
+            let qty=
+                match qty with 
+                | t when t > 99 -> 99
+                | t when t <0 -> 0
+                | _ -> qty
+            qty   
 
     type Axe = 
         | RustedAxe of InventoryItem * WeaponStat
@@ -259,10 +377,7 @@
         | HeavyShield of InventoryItem
         | SteelShield of InventoryItem
 
-    let makeBagItemsDistinct (bag: InventoryItem array) = 
-        bag |> Seq.distinct |> Seq.toArray
-
-    type CharacterWearables = 
+    type CharacterWearable = 
         | Shield        of Shield 
         | Ring          of Ring 
         | Gloves        of Gauntlets 
@@ -278,13 +393,13 @@
         | Sword         of Sword
         | Dagger        of Dagger 
 
-
-    type GameItems = 
+    type GameItem = 
         | Consummable   of ConsummableItem
         | Wearable      of CharacterWearable
-    with 
-        member x.Name 
 
+    let makeBagItemsDistinct (bag: GameItem array) = 
+        bag |> Seq.distinct |> Seq.toArray
+    
     type Inventory = {
         Bag : GameItem array
         Weight: float<kg>
