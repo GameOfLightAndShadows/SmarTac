@@ -8,64 +8,96 @@
     //Represents unit for currency
     [<Measure>] type usd
 
+    // units of measure representing the character and weapon stats
+    [<Measure>] type dmg // damage
+    [<Measure>] type def // defense
+    [<Measure>] type str // strenght 
+    [<Measure>] type spd // speed
+    [<Measure>] type intel // intelligence 
+    [<Measure>] type res // resistance 
+    [<Measure>] type mgpwr  // magic power 
+    [<Measure>] type mgres // magic resistance 
+    [<Measure>] type evd    // evade
+    [<Measure>] type lck  // luck
+    [<Measure>] type ctr // critical
+    [<Measure>] type hl // hit limit
+    [<Measure>] type hp // health points 
+    [<Measure>] type mp // mana points 
+ 
+    let removeUnitFromFloat (x: float<_>) =
+        float x 
+
+    let removeUnitFromInt (x: int<_>) =
+        int x
+
     //Max weight of the inventory bag
     [<Literal>] 
     let MaxWeight = 500.00<kg>
+
+    type IStats = 
+        abstract member showStat : unit -> string
     
     type IEnergyPoint =
         abstract CurrentPoints : float 
         abstract MaxPoints     : float
         abstract capPoints : unit -> IEnergyPoint 
-        abstract raisePoints : int -> IEnergyPoint
-        abstract reducePoints : int -> IEnergyPoint 
+        abstract raisePoints : float -> IEnergyPoint
+        abstract reducePoints : float -> IEnergyPoint 
 
-    type LifePoint = 
-        { CurrentLife: float
-          MaxLife : float }
+    type HealthPoint = 
+        { CurrentLife: float<hp>
+          MaxLife : float<hp> }
         interface IEnergyPoint with
             member x.capPoints () =
-                if x.CurrentLife > x.MaxLife then { LifePoint.CurrentLife = x.MaxLife; LifePoint.MaxLife = x.MaxLife } :> IEnergyPoint else x :> IEnergyPoint
+                if x.CurrentLife > x.MaxLife then { CurrentLife = x.MaxLife; MaxLife = x.MaxLife } :> IEnergyPoint else x :> IEnergyPoint
 
-            member x.raisePoints (lifePoint:int) = 
-                let raisedHealth = { x with CurrentLife = x.CurrentLife + (lifePoint |> float) }
+            member x.raisePoints (raisePoint:float) = 
+                let lifePoints = raisePoint * 1.0<hp>
+                let raisedHealth = { x with CurrentLife = x.CurrentLife + lifePoints }
                 (raisedHealth :> IEnergyPoint).capPoints()
 
-            member x.reducePoints (hitPoint: int) = 
-                let reducedLife = { x with CurrentLife = x.CurrentLife - (hitPoint |> float) }
+            member x.reducePoints (hitPoint: float) = 
+                let lifePoints = hitPoint * 1.0<hp>
+                let reducedLife = { x with CurrentLife = x.CurrentLife - lifePoints }
                 (reducedLife :> IEnergyPoint)
 
         member x.isCharacterDead() = 
-            x.CurrentLife <= 0.0
+            x.CurrentLife <= 0.0<hp>
 
     type ManaPoint = 
-        { CurrentMana: float
-          MaxMana : float }
+        { CurrentMana: float<mp>
+          MaxMana : float<mp> }
         interface IEnergyPoint with
             member x.capPoints () =
                 if x.CurrentMana > x.MaxMana then { ManaPoint.CurrentMana = x.MaxMana; ManaPoint.MaxMana = x.MaxMana } :> IEnergyPoint else x :> IEnergyPoint
 
-            member x.raisePoints (manaPoint:int) = 
-                let raisedHealth = { x with CurrentMana = x.CurrentMana + (manaPoint |> float) }
+            member x.raisePoints (raisePoint:float) = 
+                let manaPoints = raisePoint * 1.0<mp>
+                let raisedHealth = { x with CurrentMana = x.CurrentMana + manaPoints }
                 (raisedHealth :> IEnergyPoint).capPoints()
 
-            member x.reducePoints (manaPoint: int) = 
-                let reducedLife = { x with CurrentMana = x.CurrentMana - (manaPoint |> float) }
+            member x.reducePoints (reducePoint: float) = 
+                let manaPoints = reducePoint * 1.0<mp>
+                let reducedLife = { x with CurrentMana = x.CurrentMana - manaPoints }
                 (reducedLife :> IEnergyPoint)      
        
     type CharacterStats = {
-        Health          : LifePoint
+        Health          : HealthPoint
         Mana            : ManaPoint 
-        Speed           : float 
-        Strength        : float 
-        MagicPower      : float option 
-        Defense         : int
-        Resistance      : int
-        MagicResist     : float  
-        Evade           : int 
-        Luck            : int
+        Speed           : float<spd>
+        Strength        : float<str>
+        MagicPower      : float<mgpwr> option 
+        Defense         : int<def>
+        Resistance      : int<res>
+        MagicResist     : float<mgres>
+        Evade           : int<evd>
+        Luck            : int<lck>
     }
     with 
-        member x.applyTemporaryDefense (tPoints: int) = 
+        interface IStats with 
+            member x.showStat() = 
+                sprintf "Max health : %O - Max mana : %O - Strenght : %O - Defense : %O - Magic power : %O - Resistance : %O - Magic resistance : %O - Evade : %O - Luck : %O" x.Health.MaxLife x.Mana.MaxMana x.Strength x.Defense x.MagicPower x.Resistance x.MagicResist x.Evade x.Luck
+        member x.applyTemporaryDefense (tPoints: int<def>) = 
             { x with Defense = x.Defense + tPoints }
    
     type WeaponRank = 
@@ -77,405 +109,334 @@
         | RankS
 
     type WeaponStat = {
-        Damage : float 
-        Defense : float 
-        Speed : float 
-        Critical : float 
-        HitLimit : int 
+        Damage : float<dmg>
+        Intelligence : float<intel> option
+        Defense : float<def> 
+        Speed : float<spd> 
+        Critical : float<ctr>
+        HitLimit : int<hl> 
         Rank : WeaponRank
     }
+    with    
+        interface IStats with 
+            member x.showStat() = 
+                let oIntelVal = 
+                    match x.Intelligence with 
+                    | Some v -> v 
+                    | None -> 0.00<intel>
+
+                sprintf "Weapon damage : %O - Intelligence : %O - Defense : %O - Speed : %O - Critical hit : %O - Weapon hit limit : %O - Weapon rank : %O"
+                    x.Damage oIntelVal x.Defense x.Speed x.Critical x.HitLimit x.Rank
 
     type ItemVariationProvenance = 
         | FromTheShop
         | FromTheInventory
 
     type ConsummableItem = 
-        | HealthPotion        of int
-        | HighHealthPotion    of int
-        | MegaHealthPotion    of int
-        | Elixir              of int
-        | HighElixir          of int
-        | MegaElixir          of int
-        | PhoenixFeather      of int
-        | MedicinalHerb       of int
+        | HealthPotion        
+        | HighHealthPotion   
+        | MegaHealthPotion   
+        | Elixir              
+        | HighElixir          
+        | MegaElixir          
+        | PhoenixFeather      
+        | MedicinalHerb       
         override x.ToString() = 
             match x with 
-            | HealthPotion     _ -> "Health Potion"
-            | HighHealthPotion _ -> "High Health Potion"
-            | MegaHealthPotion _ -> "Mega Health Potion"
-            | Elixir           _ -> "Elixir"
-            | HighElixir       _ -> "High Elixir"
-            | MegaElixir       _ -> "Mega Elixir"
-            | PhoenixFeather   _ -> "Phoenix Feather"
-            | MedicinalHerb    _ -> "Medicinal Herb"
-
+            | HealthPotion     -> "Health Potion"
+            | HighHealthPotion  -> "High Health Potion"
+            | MegaHealthPotion -> "Mega Health Potion"
+            | Elixir            -> "Elixir"
+            | HighElixir        -> "High Elixir"
+            | MegaElixir        -> "Mega Elixir"
+            | PhoenixFeather    -> "Phoenix Feather"
+            | MedicinalHerb     -> "Medicinal Herb"
         member x.Weight = 
             match x with 
-            | HealthPotion       _-> 0.02<kg>
-            | HighHealthPotion   _-> 0.03<kg>
-            | MegaHealthPotion   _-> 0.05<kg>
-            | Elixir             _-> 0.02<kg>
-            | HighElixir         _-> 0.03<kg>
-            | MegaElixir         _-> 0.05<kg>
-            | PhoenixFeather     _-> 0.05<kg>
-            | MedicinalHerb      _-> 0.03<kg>
+            | HealthPotion       -> 0.02<kg>
+            | HighHealthPotion   -> 0.03<kg>
+            | MegaHealthPotion   -> 0.05<kg>
+            | Elixir             -> 0.02<kg>
+            | HighElixir         -> 0.03<kg>
+            | MegaElixir         -> 0.05<kg>
+            | PhoenixFeather     -> 0.05<kg>
+            | MedicinalHerb      -> 0.03<kg>
 
         member x.Price = 
             match x with 
-            | HealthPotion      _ -> 100<usd>
-            | HighHealthPotion  _ -> 150<usd>
-            | MegaHealthPotion  _ -> 225<usd>
-            | Elixir            _ -> 125<usd>
-            | HighElixir        _ -> 175<usd>
-            | MegaElixir        _ -> 275<usd>
-            | PhoenixFeather    _ -> 350<usd>
-            | MedicinalHerb     _ -> 50<usd>
+            | HealthPotion       -> 100<usd>
+            | HighHealthPotion   -> 150<usd>
+            | MegaHealthPotion   -> 225<usd>
+            | Elixir             -> 125<usd>
+            | HighElixir         -> 175<usd>
+            | MegaElixir         -> 275<usd>
+            | PhoenixFeather     -> 350<usd>
+            | MedicinalHerb      -> 50<usd>
 
-        member x.ItemQuantity = 
+        member x.ConsummeItem (characterStat: CharacterStats)= 
             match x with 
-            | HealthPotion      q -> q
-            | HighHealthPotion  q -> q
-            | MegaHealthPotion  q -> q
-            | Elixir            q -> q
-            | HighElixir        q -> q
-            | MegaElixir        q -> q
-            | PhoenixFeather    q -> q
-            | MedicinalHerb     q -> q
-
-        member x.ConsummeItem (characterStat: CharacterStats) = 
-            match x with 
-            | HealthPotion      q -> { characterStat with Health = (characterStat.Health :> IEnergyPoint).raisePoints 15 :?> LifePoint }
-            | HighHealthPotion  q -> { characterStat with Health = (characterStat.Health :> IEnergyPoint).raisePoints 30 :?> LifePoint }
-            | MegaHealthPotion  q -> { characterStat with Health = (characterStat.Health :> IEnergyPoint).raisePoints 50 :?> LifePoint }
-            | Elixir            q -> { characterStat with Mana = (characterStat.Health :> IEnergyPoint).raisePoints 10 :?> ManaPoint }
-            | HighElixir        q -> { characterStat with Mana = (characterStat.Health :> IEnergyPoint).raisePoints 20 :?> ManaPoint }
-            | MegaElixir        q -> { characterStat with Mana = (characterStat.Health :> IEnergyPoint).raisePoints 30 :?> ManaPoint }
-            | PhoenixFeather    q -> 
-                if characterStat.Health.isCharacterDead() <> true then characterStat
-                else { characterStat with 
-                        Health = (characterStat.Health :> IEnergyPoint).raisePoints ( Math.Round characterStat.Health.MaxLife * 0.50 |> int32) :?> LifePoint
-                        Mana = (characterStat.Mana :> IEnergyPoint).raisePoints (Math.Round characterStat.Mana.MaxMana * 0.50 |> int32) :?> ManaPoint
+            | HealthPotion      -> { characterStat with  Health = (characterStat.Health :> IEnergyPoint).raisePoints 15.0:?> HealthPoint }
+            | HighHealthPotion   -> { characterStat with Health = (characterStat.Health :> IEnergyPoint).raisePoints 30.0 :?> HealthPoint }
+            | MegaHealthPotion   -> { characterStat with Health = (characterStat.Health :> IEnergyPoint).raisePoints 50.0 :?> HealthPoint }
+            | Elixir             -> { characterStat with Mana = (characterStat.Health :> IEnergyPoint).raisePoints 10.0 :?> ManaPoint }
+            | HighElixir         -> { characterStat with Mana = (characterStat.Health :> IEnergyPoint).raisePoints 20.0 :?> ManaPoint }
+            | MegaElixir         -> { characterStat with Mana = (characterStat.Health :> IEnergyPoint).raisePoints 30.0 :?> ManaPoint }
+            | PhoenixFeather     -> 
+                if not (characterStat.Health.isCharacterDead()) then characterStat
+                else 
+                    { characterStat with 
+                        Health = (characterStat.Health :> IEnergyPoint).raisePoints ((removeUnitFromFloat characterStat.Health.MaxLife) * 0.50) :?> HealthPoint
+                        Mana = (characterStat.Mana :> IEnergyPoint).raisePoints ((removeUnitFromFloat characterStat.Mana.MaxMana) * 0.50) :?> ManaPoint
                     }
 
-            | MedicinalHerb     q ->  { characterStat with Health = (characterStat.Health :> IEnergyPoint).raisePoints 5 :?> LifePoint }
+            | MedicinalHerb ->  { characterStat with Health = (characterStat.Health :> IEnergyPoint).raisePoints 5.0 :?> HealthPoint }
             
     type Dagger = 
-        | RustedDagger of   WeaponStat  * int
-        | IronDagger   of   WeaponStat  * int
-        | SteelDagger  of   WeaponStat  * int
+        | RustedDagger 
+        | IronDagger   
+        | SteelDagger  
     with   
         override x.ToString() = 
             match x with 
-            | RustedDagger (_,_) -> "Rusted dagger"
-            | IronDagger   (_,_) -> "Iron dagger"
-            | SteelDagger  (_,_) -> "Steel dagger"
-
-        member x.WeaponRank =
-            match x with 
-            | RustedDagger (_,_) -> RankE
-            | IronDagger   (_,_)-> RankD
-            | SteelDagger  (_,_)-> RankC
-
+            | RustedDagger  -> "Rusted dagger"
+            | IronDagger    -> "Iron dagger"
+            | SteelDagger   -> "Steel dagger"
         member x.WeaponStats = 
             match x with
-            | RustedDagger (s,_) -> s 
-            | IronDagger   (s,_) -> s
-            | SteelDagger  (s,_) -> s 
+            | RustedDagger -> { Damage = 5.60<dmg>; Defense = 1.20<def>; Intelligence = None; Speed = 1.00<spd>; Critical = 0.02<ctr>; HitLimit = 20<hl>; Rank = RankE }
+            | IronDagger   -> { Damage = 9.80<dmg>; Defense = 2.30<def>; Intelligence = None; Speed = 1.10<spd>; Critical = 0.04<ctr>; HitLimit = 25<hl>; Rank = RankD }
+            | SteelDagger  -> { Damage = 13.10<dmg>; Defense = 3.00<def>; Intelligence = None; Speed = 1.15<spd>; Critical = 0.05<ctr>; HitLimit = 30<hl>; Rank = RankC }
             
         member x.Weight = 
             match x with 
-            | RustedDagger (_,_) -> 2.10<kg>
-            | IronDagger   (_,_) -> 2.80<kg>
-            | SteelDagger  (_,_) -> 5.25<kg>
+            | RustedDagger -> 2.10<kg>
+            | IronDagger   -> 2.80<kg>
+            | SteelDagger  -> 4.25<kg>
             
         member x.Price = 
              match x with 
-             | RustedDagger (_,_) -> 80<usd> 
-             | IronDagger   (_,_) -> 200<usd> 
-             | SteelDagger  (_,_) -> 350<usd> 
-
-        member x.Quantity = 
-            match x with 
-            | RustedDagger (_,q) -> q
-            | IronDagger   (_,q) -> q 
-            | SteelDagger  (_,q) -> q    
+             | RustedDagger -> 80<usd> 
+             | IronDagger   -> 200<usd> 
+             | SteelDagger  -> 350<usd>   
 
     type Sword = 
-        | BrokenSword of WeaponStat * int
-        | RustedSword of WeaponStat * int
-        | IronSword   of WeaponStat * int
-        | SteelSword  of WeaponStat * int
+        | BrokenSword 
+        | RustedSword 
+        | IronSword   
+        | SteelSword  
     with
-        member x.WeaponRank =
+        override x.ToString() = 
             match x with 
-            | BrokenSword (_,_) -> RankE
-            | RustedSword (_,_) -> RankE
-            | IronSword   (_,_) -> RankD
-            | SteelSword  (_,_) -> RankC
-
+            | BrokenSword -> "Broken sword"
+            | RustedSword -> "Rusted sword"
+            | IronSword   -> "Iron sword"
+            | SteelSword  -> "Steel sword`"
         member x.WeaponStats = 
             match x with
-            | BrokenSword (s,_) -> s
-            | RustedSword (s,_) -> s
-            | IronSword   (s,_) -> s
-            | SteelSword  (s,_) -> s
-            
+            | BrokenSword -> { Damage = 5.4<dmg>; Defense = 2.50<def>; Intelligence = None; Speed = 1.2<spd>; Critical = 0.01<ctr>; HitLimit = 10<hl>; Rank = RankE }
+            | RustedSword -> { Damage = 8.75<dmg>; Defense = 2.90<def>; Intelligence = None ;Speed = 1.05<spd>; Critical = 0.03<ctr>; HitLimit = 20<hl>; Rank = RankD }
+            | IronSword   -> { Damage = 11.1<dmg>; Defense = 3.40<def>; Intelligence = None ;Speed = 1.00<spd>; Critical = 0.04<ctr>; HitLimit = 25<hl>; Rank = RankC }
+            | SteelSword  -> { Damage = 15.25<dmg>; Defense = 4.30<def>;Intelligence = None ; Speed = 0.85<spd>; Critical = 0.06<ctr>; HitLimit = 35<hl>; Rank = RankB }
         member x.Weight = 
             match x with 
-            | BrokenSword (_,_) -> 7.20<kg>
-            | RustedSword (_,_) -> 8.50<kg>
-            | IronSword   (_,_) -> 12.35<kg>
-            | SteelSword  (_,_) -> 15.00<kg>
+            | BrokenSword  -> 7.20<kg>
+            | RustedSword  -> 8.50<kg>
+            | IronSword    -> 12.35<kg>
+            | SteelSword   -> 15.00<kg>
 
         member x.Price = 
              match x with 
-             | BrokenSword (_,_) -> 90<usd>
-             | RustedSword (_,_) -> 120<usd>
-             | IronSword   (_,_) -> 250<usd>
-             | SteelSword  (_,_) -> 525<usd>
-
-        member x.Quantity = 
-            match x with 
-            | BrokenSword (_,q) -> q
-            | RustedSword (_,q) -> q
-            | IronSword   (_,q) -> q 
-            | SteelSword  (_,q) -> q   
+             | BrokenSword  -> 90<usd>
+             | RustedSword  -> 120<usd>
+             | IronSword    -> 250<usd>
+             | SteelSword   -> 525<usd>
 
     type Axe = 
-        | RustedAxe         of WeaponStat  * int
-        | IronAxe           of WeaponStat  * int
-        | RustedBattleAxe   of WeaponStat  * int
-        | IronBattleAxe     of WeaponStat  * int
-        | StellBattleAxe    of WeaponStat  * int
+        | RustedAxe        
+        | IronAxe         
+        | RustedBattleAxe 
+        | IronBattleAxe   
+        | SteelBattleAxe  
     with
-        member x.WeaponRank =
+        override x.ToString() = 
             match x with 
-            | RustedAxe       (_,_) -> RankE
-            | IronAxe         (_,_) -> RankD
-            | RustedBattleAxe (_,_) -> RankE
-            | IronBattleAxe   (_,_) -> RankD
-            | StellBattleAxe  (_,_) -> RankC
+            | RustedAxe -> "Rusted axe"
+            | IronAxe -> "Iron axe"
+            | RustedBattleAxe -> "Rusted battle axe"
+            | IronBattleAxe -> "Iron battle axe"
+            | SteelBattleAxe -> "SteelBattleAxe"
 
-        member x.WeaponStats = 
-            match x with
-            | RustedAxe       (s,_) -> s
-            | IronAxe         (s,_) -> s
-            | RustedBattleAxe (s,_) -> s
-            | IronBattleAxe   (s,_) -> s
-            | StellBattleAxe  (s,_) -> s
-
-        member x.Weight = 
+        member x.Weight =
             match x with 
-            | RustedAxe          (_,_) -> 8.00<kg>
-            | IronAxe            (_,_) -> 10.00<kg>
-            | RustedBattleAxe    (_,_) -> 9.00<kg>
-            | IronBattleAxe      (_,_) -> 13.00<kg>
-            | StellBattleAxe     (_,_) -> 16.00<kg>
-
+            | RustedAxe       -> 8.00<kg>
+            | IronAxe         -> 10.00<kg>
+            | RustedBattleAxe -> 9.00<kg>
+            | IronBattleAxe   -> 13.00<kg>
+            | SteelBattleAxe  -> 16.00<kg>
         member x.Price = 
              match x with 
-             | RustedAxe          (_,_) ->  125<usd>
-             | IronAxe            (_,_) ->  280<usd>
-             | RustedBattleAxe    (_,_) ->  150<usd>
-             | IronBattleAxe      (_,_) ->  300<usd>
-             | StellBattleAxe     (_,_) ->  425<usd>
+             | RustedAxe        ->  125<usd>
+             | IronAxe          ->  280<usd>
+             | RustedBattleAxe  ->  150<usd>
+             | IronBattleAxe    ->  300<usd>
+             | SteelBattleAxe   ->  425<usd>
 
-        member x.Quantity = 
+        member x.WeaponStats = 
             match x with 
-            | RustedAxe          (_,q) ->  q
-            | IronAxe            (_,q) ->  q
-            | RustedBattleAxe    (_,q) ->  q
-            | IronBattleAxe      (_,q) ->  q
-            | StellBattleAxe     (_,q) ->  q
+            | RustedAxe ->          { Damage = 7.20<dmg>; Defense = 2.10<def>; Speed = -1.00<spd>;  Intelligence = None ; Critical =0.03<ctr> ; HitLimit =   20<hl>; Rank = RankE }
+            | IronAxe ->            { Damage = 11.80<dmg>; Defense = 2.90<def>; Speed = -1.50<spd>; Intelligence = None ; Critical = 0.06<ctr> ;  HitLimit = 25<hl>; Rank = RankD }
+            | RustedBattleAxe ->    { Damage = 7.10<dmg>; Defense = 2.30<def>; Speed = -1.20<spd>; Intelligence = None ; Critical = 0.04<ctr> ; HitLimit =  20<hl>; Rank = RankE }
+            | IronBattleAxe ->      { Damage = 12.00<dmg>; Defense = 3.05<def>; Speed = -1.60<spd>;Intelligence = None ; Critical = 0.07<ctr> ; HitLimit =  25<hl>; Rank = RankD }
+            | SteelBattleAxe ->     { Damage = 16.20<dmg>; Defense = 3.50<def>; Speed = -2.60<spd>;Intelligence = None ; Critical = 0.095<ctr> ; HitLimit =  30<hl>; Rank = RankC }
 
     type Spear =
-        | RustedSpear of WeaponStat * int
-        | IronSpear   of WeaponStat * int
-        | SteelSpear  of WeaponStat * int
+        | RustedSpear
+        | IronSpear  
+        | SteelSpear 
     with
-        member x.WeaponRank =
+        override x.ToString() = 
             match x with 
-            | RustedSpear (_,_) -> RankE
-            | IronSpear   (_,_) -> RankD
-            | SteelSpear  (_,_) -> RankC
-            
+            | RustedSpear -> "Rusted spear"
+            | IronSpear -> "Iron spear"
+            | SteelSpear -> "Steel spear"
         member x.WeaponStats = 
             match x with
-            | RustedSpear (s,_) -> s
-            | IronSpear   (s,_) -> s
-            | SteelSpear  (s,_) -> s
-                      
+            | RustedSpear  -> { Damage = 8.20<dmg>; Intelligence = None; Defense = -3.30<def>; Speed = -1.10<spd>; Critical = 0.05<ctr>; HitLimit = 12<hl>; Rank = RankE }
+            | IronSpear    -> { Damage = 12.00<dmg>; Intelligence = None; Defense = -4.25<def>; Speed = -1.50<spd>; Critical = 0.075<ctr>; HitLimit = 15<hl>; Rank = RankD }
+            | SteelSpear   -> { Damage = 14.75<dmg>; Intelligence = None; Defense = -5.05<def>; Speed = -1.75<spd>; Critical = 0.0925<ctr>; HitLimit = 20<hl>; Rank = RankC }               
         member x.Weight = 
             match x with 
-            | RustedSpear (_,_) -> 15.0<kg>
-            | IronSpear   (_,_) -> 20.0<kg>
-            | SteelSpear  (_,_) -> 30.0<kg>
-
+            | RustedSpear -> 15.0<kg>
+            | IronSpear   -> 20.0<kg>
+            | SteelSpear  -> 30.0<kg>
         member x.Price = 
-             match x with 
-             | RustedSpear (_,_) -> 200<usd>
-             | IronSpear   (_,_) -> 325<usd>
-             | SteelSpear  (_,_) -> 550<usd>
-
-        member x.Quantity = 
-            match x with 
-            | RustedSpear (_,q) ->  q
-            | IronSpear   (_,q) ->  q
-            | SteelSpear  (_,q) ->  q             
+             match x with
+             | RustedSpear  -> 200<usd>
+             | IronSpear    -> 325<usd>
+             | SteelSpear   -> 550<usd>          
 
     type Staff = 
-        | RookieStaff       of WeaponStat * int 
-        | AdeptStaff        of WeaponStat * int 
-        | SorcererStaff     of WeaponStat * int 
-        | NecromancerStaff  of WeaponStat * int 
+        | RookieStaff       
+        | AdeptStaff        
+        | SorcererStaff     
+        | NecromancerStaff  
     with
-        member x.WeaponRank =
+        override x.ToString() = 
             match x with 
-            | RookieStaff      (_,_) -> RankE
-            | AdeptStaff       (_,_) -> RankD
-            | SorcererStaff    (_,_) -> RankB
-            | NecromancerStaff (_,_) -> RankA
-
+            | RookieStaff -> "Rookie staff"
+            | AdeptStaff -> "Adept staff"
+            | SorcererStaff -> "Sorcerer staff"
+            | NecromancerStaff  -> "Necromancer staff"
         member x.WeaponStats = 
             match x with
-            | RookieStaff      (s,_) -> s
-            | AdeptStaff       (s,_) -> s
-            | SorcererStaff    (s,_) -> s
-            | NecromancerStaff (s,_) -> s
-            
+            | RookieStaff       ->  { Damage = 3.00<dmg>; Defense = 1.50<def>; Intelligence = Some 4.00<intel>; Speed = 1.00<spd>; Critical = 0.02<ctr>; HitLimit= 10<hl>; Rank = RankE }
+            | AdeptStaff        ->{ Damage = 5.00<dmg>; Defense = 2.00<def>; Intelligence = Some 7.00<intel>; Speed = 0.80<spd>; Critical = 0.045<ctr>; HitLimit= 12<hl>; Rank = RankD }
+            | SorcererStaff     ->{ Damage = 6.70<dmg>; Defense = 4.50<def>; Intelligence = Some 9.20<intel>; Speed = 1.10<spd>; Critical = 0.075<ctr>; HitLimit = 20<hl>; Rank = RankC }
+            | NecromancerStaff  ->{ Damage = 8.00<dmg>; Defense = 5.00<def>; Intelligence = Some 13.00<intel>; Speed = 1.00<spd>; Critical = 0.00<ctr>; HitLimit = 25<hl>; Rank = RankA }
         member x.Weight = 
             match x with 
-            | RookieStaff      (_,_) -> 2.20<kg>
-            | AdeptStaff       (_,_) -> 4.20<kg>
-            | SorcererStaff    (_,_) -> 5.10<kg>
-            | NecromancerStaff (_,_) -> 3.20<kg>
-
-        member x.Price = 
-             match x with 
-             | RookieStaff      (_,_) -> 180<usd>
-             | AdeptStaff       (_,_) -> 270<usd>
-             | SorcererStaff    (_,_) -> 445<usd>
-             | NecromancerStaff (_,_) -> 650<usd>
-
-        member x.Quantity = 
-            match x with 
-            | RookieStaff      (_,q)-> q
-            | AdeptStaff       (_,q)-> q
-            | SorcererStaff    (_,q)-> q 
-            | NecromancerStaff (_,q)-> q
+            | RookieStaff       -> 2.20<kg>
+            | AdeptStaff        -> 4.20<kg>
+            | SorcererStaff     -> 5.10<kg>
+            | NecromancerStaff  -> 3.20<kg>
+        member x.Price =
+             match x with
+             | RookieStaff      -> 180<usd>
+             | AdeptStaff       -> 270<usd>
+             | SorcererStaff    -> 445<usd>
+             | NecromancerStaff -> 650<usd>
 
     type Blade = 
-        | RustedLongBlade   of WeaponStat * int 
-        | RustedKatana      of WeaponStat * int 
-        | IronLongBlade     of WeaponStat * int 
-        | CurvedLongBlade   of WeaponStat * int 
-        | SteelKatana       of WeaponStat * int 
-        | SteelLongBlade    of WeaponStat * int 
+        | RustedLongBlade
+        | RustedKatana   
+        | IronLongBlade  
+        | CurvedLongBlade
+        | SteelKatana    
+        | SteelLongBlade 
     with
-        member x.WeaponRank =
+        override x.ToString() = 
             match x with 
-            | RustedLongBlade    (_,_) -> RankE
-            | RustedKatana       (_,_) -> RankE
-            | IronLongBlade      (_,_) -> RankD
-            | CurvedLongBlade    (_,_) -> RankD
-            | SteelKatana        (_,_) -> RankC
-            | SteelLongBlade     (_,_) -> RankC
-
+            | RustedLongBlade -> "Rusted long blade"
+            | RustedKatana    -> "Rusted katana"
+            | IronLongBlade   -> "Iron long blade" 
+            | CurvedLongBlade  -> "Curved long blade"
+            | SteelKatana     -> "Steel katana"
+            | SteelLongBlade  -> "Steel long blade"       
         member x.WeaponStats = 
             match x with
-            | RustedLongBlade    (s,_) -> s
-            | RustedKatana       (s,_) -> s
-            | IronLongBlade      (s,_) -> s
-            | CurvedLongBlade    (s,_) -> s
-            | SteelKatana        (s,_) -> s
-            | SteelLongBlade     (s,_) -> s
-
+            | RustedLongBlade -> { Damage = 6.00<dmg>; Defense = 0.5<def>; Intelligence = None; Speed = 1.10<spd>; Critical = 0.01<ctr>; HitLimit = 10<hl>; Rank = RankE }
+            | RustedKatana    -> { Damage = 5.50<dmg>; Defense = 0.45<def>; Intelligence = None; Speed = 1.07<spd>; Critical = 0.02<ctr>; HitLimit = 10<hl>; Rank = RankE }
+            | IronLongBlade   -> { Damage = 8.50<dmg>; Defense = 0.65<def>; Intelligence = None; Speed = 1.20<spd>; Critical = 0.03<ctr>; HitLimit = 10<hl>; Rank = RankD }
+            | CurvedLongBlade -> { Damage = 7.00<dmg>; Defense = 0.80<def>; Intelligence = None; Speed = 1.25<spd>; Critical = 0.055<ctr>; HitLimit = 10<hl>; Rank = RankD }
+            | SteelKatana     -> { Damage = 13.0<dmg>; Defense = 1.00<def>; Intelligence = None; Speed = 1.60<spd>; Critical = 0.07<ctr>; HitLimit = 15<hl>; Rank = RankC }
+            | SteelLongBlade  -> { Damage = 15.00<dmg>; Defense = 1.10<def>; Intelligence = None; Speed = 1.55<spd>; Critical = 0.085<ctr>; HitLimit = 15<hl>; Rank = RankC }
         member x.Weight = 
             match x with 
-            | RustedLongBlade    (_,_) -> 6.00<kg>
-            | RustedKatana       (_,_) -> 7.75<kg>
-            | IronLongBlade      (_,_) -> 14.25<kg>
-            | CurvedLongBlade    (_,_) -> 11.20<kg>
-            | SteelKatana        (_,_) -> 16.78<kg>
-            | SteelLongBlade     (_,_) -> 15.30<kg>
-
+            | RustedLongBlade -> 6.00<kg>
+            | RustedKatana    -> 7.75<kg>
+            | IronLongBlade   -> 14.25<kg>
+            | CurvedLongBlade -> 11.20<kg>
+            | SteelKatana     -> 16.78<kg>
+            | SteelLongBlade  -> 15.30<kg>
         member x.Price = 
              match x with 
-             | RustedLongBlade    (_,_) ->  120<usd>
-             | RustedKatana       (_,_) ->  100<usd>
-             | IronLongBlade      (_,_) ->  215<usd>
-             | CurvedLongBlade    (_,_) ->  240<usd>
-             | SteelKatana        (_,_) ->  350<usd>
-             | SteelLongBlade     (_,_) ->  410<usd> 
-
-        member x.Quantity = 
-            match x with 
-            | RustedLongBlade    (_,q) ->  q
-            | RustedKatana       (_,q) ->  q
-            | IronLongBlade      (_,q) ->  q
-            | CurvedLongBlade    (_,q) ->  q
-            | SteelKatana        (_,q) ->  q
-            | SteelLongBlade     (_,q) ->  q
+             | RustedLongBlade ->  120<usd>
+             | RustedKatana    ->  100<usd>
+             | IronLongBlade   ->  215<usd>
+             | CurvedLongBlade ->  240<usd>
+             | SteelKatana     ->  350<usd>
+             | SteelLongBlade  ->  410<usd> 
 
     type SpellbookStats = {
         AttackRange : int 
         Rank        : WeaponRank
-        Uses    : int
+        Uses        : int
     }
+    with
+        interface IStats with 
+            member x.showStat() = 
+                sprintf "Attack range : %O - Number of use: %O - Rank of spell: %O" x.AttackRange x.Uses x.Rank
 
     type Spellbook =
-        | Fireball      of SpellbookStats * int  
-        | Thunder       of SpellbookStats * int 
-        | Frost         of SpellbookStats * int 
-        | Hellfire      of SpellbookStats * int 
-        | BlackFire     of SpellbookStats * int 
-        | StormOfBlades of SpellbookStats * int 
+        | Fireball       
+        | Thunder       
+        | Frost         
+        | Hellfire      
+        | BlackFire     
+        | StormOfBlades 
     with
-        member x.SpellRank =
+        override x.ToString() =     
             match x with 
-            | Fireball        (_, _) -> RankE
-            | Thunder         (_, _) -> RankE
-            | Frost           (_, _) -> RankE
-            | Hellfire        (_, _) -> RankC
-            | BlackFire       (_, _) -> RankC
-            | StormOfBlades   (_, _) -> RankC
-
-
-        member x.SpellStats = 
+            | Fireball -> "Fireball" 
+            | Thunder -> "Thunder"
+            | Frost -> "Frost" 
+            | Hellfire -> "Hellfire"
+            | BlackFire -> "Black fire" 
+            | StormOfBlades -> "Storm of blades"
+        member x.SpellStats =
             match x with
-            | Fireball        (s, _) -> s
-            | Thunder         (s, _) -> s
-            | Frost           (s, _) -> s
-            | Hellfire        (s, _) -> s
-            | BlackFire       (s, _) -> s
-            | StormOfBlades   (s, _) -> s
-            
-        member x.Weight = 
-            match x with 
-            | Fireball        (_, _) -> 0.05<kg>
-            | Thunder         (_, _) -> 0.05<kg>
-            | Frost           (_, _) -> 0.05<kg>
-            | Hellfire        (_, _) -> 0.05<kg>
-            | BlackFire       (_, _) -> 0.05<kg>
-            | StormOfBlades   (_, _) -> 0.05<kg>
-
-        member x.Price = 
-             match x with 
-             | Fireball        (_, _) -> 150<usd>
-             | Thunder         (_, _) -> 150<usd>
-             | Frost           (_, _) -> 150<usd>
-             | Hellfire        (_, _) -> 350<usd>
-             | BlackFire       (_, _) -> 350<usd>
-             | StormOfBlades   (_, _) -> 350<usd>
-
-        member x.Quantity = 
-            match x with 
-            | Fireball        (_, q) -> q
-            | Thunder         (_, q) -> q
-            | Frost           (_, q) -> q
-            | Hellfire        (_, q) -> q
-            | BlackFire       (_, q) -> q
-            | StormOfBlades   (_, q) -> q
+            | Fireball         -> { AttackRange = 1; Rank = RankE; Uses = 30 }
+            | Thunder          -> { AttackRange = 1; Rank = RankE; Uses = 30 }
+            | Frost            -> { AttackRange = 1; Rank = RankE; Uses = 30 }
+            | Hellfire         -> { AttackRange = 2; Rank = RankD; Uses = 25 }
+            | BlackFire        -> { AttackRange = 2; Rank = RankC; Uses = 20 }
+            | StormOfBlades    -> { AttackRange = 3; Rank = RankD; Uses = 30 }    
+        member x.Weight =
+            match x with
+            | Fireball         -> 0.05<kg>
+            | Thunder          -> 0.05<kg>
+            | Frost            -> 0.05<kg>
+            | Hellfire         -> 0.05<kg>
+            | BlackFire        -> 0.05<kg>
+            | StormOfBlades    -> 0.05<kg>
+        member x.Price =
+             match x with
+             | Fireball        -> 150<usd>
+             | Thunder         -> 150<usd>
+             | Frost           -> 150<usd>
+             | Hellfire        -> 350<usd>
+             | BlackFire       -> 350<usd>
+             | StormOfBlades   -> 350<usd>
 
     type Weaponry = 
         | Dagger        of Dagger 
@@ -485,7 +446,6 @@
         | Staff         of Staff 
         | LongBlade     of Blade
         | Spellbook     of Spellbook
-
     with 
         member x.Price = 
             match x with 
@@ -496,17 +456,6 @@
             | Staff      w -> w.Price
             | LongBlade  w -> w.Price
             | Spellbook  w -> w.Price
-
-        member x.Quantity =
-            match x with
-            | Dagger     w -> w.Quantity
-            | Sword      w -> w.Quantity
-            | Axe        w -> w.Quantity
-            | Spear      w -> w.Quantity
-            | Staff      w -> w.Quantity
-            | LongBlade  w -> w.Quantity
-            | Spellbook  w -> w.Quantity
-
         member x.Weight =
             match x with
             | Dagger     w -> w.Weight
@@ -519,23 +468,13 @@
 
         member x.Stats = 
             match x with
-            | Dagger     w -> w.WeaponStats
-            | Sword      w -> w.WeaponStats
-            | Axe        w -> w.WeaponStats
-            | Spear      w -> w.WeaponStats
-            | Staff      w -> w.WeaponStats
-            | LongBlade  w -> w.WeaponStats
-            // Might have problems for spell books stats... atm
-
-        member x.Rank =
-            match x with 
-            | Dagger     w -> w.WeaponRank
-            | Sword      w -> w.WeaponRank
-            | Axe        w -> w.WeaponRank
-            | Spear      w -> w.WeaponRank
-            | Staff      w -> w.WeaponRank
-            | LongBlade  w -> w.WeaponRank
-            | Spellbook  w -> w.SpellRank
+            | Dagger     w -> w.WeaponStats  :> IStats
+            | Sword      w -> w.WeaponStats :> IStats
+            | Axe        w -> w.WeaponStats :> IStats
+            | Spear      w -> w.WeaponStats :> IStats
+            | Staff      w -> w.WeaponStats :> IStats
+            | LongBlade  w -> w.WeaponStats :> IStats
+            | Spellbook  w -> w.SpellStats :> IStats
 
     type Hat = 
         | SorcererHat of InventoryItem 
@@ -589,7 +528,7 @@
     type GameItem = 
         | Consummable   of ConsummableItem
         | Weapon        of Weaponry
-        | Wearable      of CharacterProtection
+        | Protection    of CharacterProtection
     with 
         member x.UpdateQuantity value variationProvenance = 
             let itemVariation = 
