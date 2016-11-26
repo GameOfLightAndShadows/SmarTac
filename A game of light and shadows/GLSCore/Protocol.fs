@@ -7,67 +7,74 @@ open GLSCore.GameElement
 open GLSCore.CharacterAction
 open GLSCore.PartyCharacter
 
-type GlobalStateProtocol = 
-    | UpdateStoryline       of Storyline 
-    | UpdateBoard           of GameBoard 
+type GlobalStateProtocol =
+    | UpdateStoryline       of Storyline
+    | UpdateBoard           of GameBoard
     | UpdateMenu            of MenuState
     | UpdateBattleSequence  of BattleSequenceState
     | UpdateWeaponStore     of WeaponStoreState
     | UpdateItemStore       of ItemStoreState
 
 
-type GameManagerProtocol =  
-    | UpdateGlobalState 
+type GameManagerProtocol =
+    | UpdateGlobalState
     | DestroyCharacter of PartyCharacter
     | UpdateCharacterHealth of PartyCharacter
     | UpdateCharacterPosition of PartyCharacter
-    | UpdateCharacterDirection 
+    | UpdateCharacterDirection
+    | BroadcastInventoryUpdate of Inventory
     | StopManager
 
-// Define CharacterObserver which will update the BattleSequenceManager once a character performed an action. 
+// Define CharacterObserver which will update the BattleSequenceManager once a character performed an action.
 
-type BattleSequenceManagerProtocol = 
+type BattleSequenceManagerProtocol =
     | ChangePhase of BattlePhase
     | StopManager
 
-type InventoryManagerProtocol = 
-    | LookAtInventory 
-    | ReorderInventory 
-    | TossItem 
-    | AddItem 
-    | SelectItem 
-    | StopManager 
+type InventoryManagerProtocol =
+    | LookAtInventory
+    | ReorderInventory
+    | TossItem
+    | AddItem
+    | SelectItem
+    | StopManager
 
-type BattleViewManagerProtocol = 
-    | TryEvade 
-    | UseMeleeAttack 
-    | UseCharacterSpecialMove 
+type BattleViewManagerProtocol =
+    | TryEvade
+    | UseMeleeAttack
+    | UseCharacterSpecialMove
     | ApplyTemporaryDefenseUpgrade
-    | StopManager 
+    | StopManager
 
-type StoreManagerProtocol = 
-    | ShowStock 
-    | BuyItem 
-    | SellItem 
-    | StopManager 
+type StoreManagerProtocol =
+    | ShowStock
+    | BuyItem
+    | SellItem
+    | StopManager
 
-type WorldMapManagerProtocol = 
-    | RenderStoryPoint 
-    | MoveCharacterToStoryPoint 
+type WorldMapManagerProtocol =
+    | RenderStoryPoint
+    | MoveCharacterToStoryPoint
     | Stop
 
-type CommandManagerProtocol = 
-    | PerformAttackCommandOn 
-    | PerformMoveCommandWith 
-    | PerformDefendCommandWith 
-    | PerformRotateCommandWith 
+type CommandManagerProtocol =
+    | PerformAttackCommandOn
+    | PerformMoveCommandWith
+    | PerformDefendCommandWith
+    | PerformRotateCommandWith
     | PerformEndTurn
 
-type StateServerProtocol =  
-    | UpdateTeamPartyState 
-    | UpdatePartyCharacter 
+type StateServerProtocol =
+    | UpdateTeamPartyState
+    | UpdatePartyCharacter
     | UpdateGameBoardState
     | UpdateTeamPartyInventory
 
-type ExperienceSystemProtocol = 
+type InventorySystemManagerProtocol =
+  | AddSingleItem of GameItem
+  | AddItems of GameItem array
+  | RemoveSingleItem of GameItem
+  | MoveExcessToInventory
+
+type ExperienceSystemProtocol =
     | ComputeGain of PartyCharacter * PartyCharacter * EngageAction

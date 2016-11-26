@@ -1,40 +1,26 @@
 ﻿module GLSCore.CharacterInformation
 
 open GLSCore.GameElement
+open GLSCore.InventoryItems
 
 open System
 
-type CharacterStats = {
-    Health          : LifePoints 
-    Speed           : float 
-    Strength        : float 
-    MagicPower      : float option 
-    Defense         : int
-    Resistance      : int
-    MagicResist     : float  
-    Evade           : int 
-    Luck            : int
-}
-with 
-    member x.applyTemporaryDefense (tPoints: int) = 
-        { x with Defense = x.Defense + tPoints }
-
-type CharacterRole = 
+type CharacterRole =
     | Wizard of MoveRange
     | Knight of MoveRange
     | Fighter of MoveRange
-    | MagicSoldier of MoveRange 
+    | MagicSoldier of MoveRange
     | Sniper  of MoveRange
-with    
-    member x.moveRange = 
-        match x with 
-        | Wizard mr -> mr 
-        | Knight mr -> mr 
-        | Fighter mr -> mr 
-        | MagicSoldier mr -> mr 
+with
+    member x.moveRange =
+        match x with
+        | Wizard mr -> mr
+        | Knight mr -> mr
+        | Fighter mr -> mr
+        | MagicSoldier mr -> mr
         | Sniper  mr -> mr
 
-type CharacterJob = 
+type CharacterJob =
     | Healer        of CharacterRole  * CharacterStats
     | Knight        of CharacterRole  * CharacterStats
     | Berserker     of CharacterRole  * CharacterStats
@@ -43,8 +29,8 @@ type CharacterJob =
     | BowAndBlade   of CharacterRole  * CharacterStats
     | Necromancer   of CharacterRole  * CharacterStats
     | Nightblade    of CharacterRole  * CharacterStats
-with 
-    member x.Stats = 
+with
+    member x.Stats =
         match x with
         | Healer       (_,stats) -> stats
         | Knight       (_,stats) -> stats
@@ -55,7 +41,7 @@ with
         | Necromancer  (_,stats) -> stats
         | Nightblade   (_,stats) -> stats
 
-    member x.Role = 
+    member x.Role =
         match x with
         | Healer       (role, _) -> role
         | Knight       (role, _) -> role
@@ -69,80 +55,80 @@ with
 let doesHaveTacticalAdvantage (fstCharacter: CharacterJob) (sndCharacter: CharacterJob) =
     match fstCharacter.Role, sndCharacter.Role with
     | Wizard _, Fighter _ -> true // 25 % more damage
-    | Wizard _, Sniper _ -> true // 15 % more damage 
+    | Wizard _, Sniper _ -> true // 15 % more damage
     | CharacterRole.Knight _, Wizard _ -> true // 20% more damage
     | Sniper _, Fighter _ -> true // 20% more damage
     | Sniper _, CharacterRole.Knight _ -> true // 5% more damage
-    | MagicSoldier _, CharacterRole.Knight _ -> true // 3 % by sword only 
-    | _, _ -> false 
+    | MagicSoldier _, CharacterRole.Knight _ -> true // 3 % by sword only
+    | _, _ -> false
 
 // Describe how strong a unit is suppose to be
 // Will impact the overall stats
 [<Literal>]
-let lowTiersStatsFactor = 1  
+let lowTiersStatsFactor = 1
 
 [<Literal>]
-let midLowTiersStatsFactor = 1.075  
+let midLowTiersStatsFactor = 1.075
 
 [<Literal>]
-let midTiersStatsFactor = 1.1233 
+let midTiersStatsFactor = 1.1233
 
 [<Literal>]
-let highTiersStatsFactor = 1.1785  
+let highTiersStatsFactor = 1.1785
 
 [<Literal>]
-let heroClassTiersStatsFactor = 1.2375 
+let heroClassTiersStatsFactor = 1.2375
 
-type UnitTiers = 
+type UnitTiers =
     | Low
     | MidLow
     | Mid
     | High
     | HeroClass
 
-
-type CharacterEquipement = {
-    Hat         : string 
-    Gauntlets   : string 
-    Armor       : string 
-    Weapon      : string 
-    Pants       : string 
-    Boots       : string
+type Equipment = {
+    Hat : Hat option
+    Armor : Armor option
+    Legs  : Pants option
+    Hands : Gauntlets option
+    Ring  : Ring option
+    Weapon : Weaponry option
+    Shield : Shield option
 }
 
-type CombatStyle = 
+
+type CombatStyle =
     | DualWielder of int
-    | MaceUser of int 
+    | MaceUser of int
     |  ``Sword and shield`` of int
-    | Archer of int 
+    | Archer of int
     | ``Staff wielder`` of int
     | Polyvalent of int
-with 
-    member x.actionPoints = 
-        match x with 
-        | DualWielder ap -> ap 
+with
+    member x.actionPoints =
+        match x with
+        | DualWielder ap -> ap
         | MaceUser ap -> ap
-        | Archer ap -> ap 
-        | Polyvalent ap -> ap 
-        | ``Sword and shield`` ap -> ap 
-        | ``Staff wielder`` ap -> ap 
-
+        | Archer ap -> ap
+        | Polyvalent ap -> ap
+        | ``Sword and shield`` ap -> ap
+        | ``Staff wielder`` ap -> ap
 
 type CharacterState = {
-    CurrentPos       : Pos 
+    CurrentPos       : Pos
     CurrentDirection : PlayerDirection
 }
 
 [<AbstractClass>]
-type CharacterBase(job: CharacterJob, state: CharacterState) =
+type CharacterBase(job: CharacterJob, state: CharacterState, equipment: Equipment) =
 
     abstract member TeamParty: Object array
 
-    abstract member ActionPoints: int with get, set
+    abstract member ActionPoints: int with get
 
-    abstract member ExperiencePoints: float with get, set
+    abstract member ExperiencePoints: float with get
 
-    abstract member LevelUpPoints: int with get, set
+    abstract member LevelUpPoints: int with get
 
     abstract member MoveRange: MoveRange
 
@@ -154,5 +140,6 @@ type CharacterBase(job: CharacterJob, state: CharacterState) =
 
     member x.Job = job
 
-    member x.Stats = job.Stats 
+    member x.Stats = job.Stats
 
+    member x.Equipment = equipment

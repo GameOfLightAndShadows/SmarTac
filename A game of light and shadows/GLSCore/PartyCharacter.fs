@@ -16,6 +16,7 @@ type PartyCharacter(job: CharacterJob,
                     equipment: CharacterEquipement,
                     style: CombatStyle, 
                     id: int,
+                    ap: int,
                     oTiers: UnitTiers option,
                     state: CharacterState,
                     direction: PlayerDirection,
@@ -41,5 +42,9 @@ type PartyCharacter(job: CharacterJob,
     override x.CharacterID = id
 
     override x.Tiers = oTiers
+
+    override x.ExperiencePoints = 0.00
+
+    override x.LevelUpPoints = 0
 
         
