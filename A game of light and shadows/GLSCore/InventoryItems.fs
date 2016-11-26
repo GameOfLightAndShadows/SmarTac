@@ -1,6 +1,7 @@
 ﻿    module GLSCore.InventoryItems
 
     open System 
+    open System.Collections 
 
     //Represents unit for weight in kilograms
     [<Measure>] type kg
@@ -821,7 +822,32 @@
                 | Gloves g -> g.CharacterProtectionStats :> IStats
                 | Legs l -> l.CharacterProtectionStats :> IStats
                 | Armor a -> a.CharacterProtectionStats :> IStats
-                | Hat h -> h.CharacterProtectionStats   :> IStats           
+                | Hat h -> h.CharacterProtectionStats   :> IStats      
+    [<AutoOpen>]
+    module ExccesItems =    
+        type ImmutableStack<'T> =
+            | Empty 
+            | Stack of 'T * ImmutableStack<'T>
+        with 
+            member s.Push x = Stack(x, s)
+            member s.Pop() = 
+                match s with
+                | Empty -> failwith "Underflow"
+                | Stack(t,_) -> t
+            member s.Top() = 
+                match s with
+                | Empty -> failwith "Contain no elements"
+                | Stack(_,st) -> st
+            member s.isEmpty = 
+                match s with
+                | Empty -> true
+                | _ -> false
+            member s.All() = 
+                let rec loop acc = function
+                    | Empty -> acc
+                    | Stack(t,st) -> loop (t::acc) st
+                loop [] s
+
 
     [<AutoOpen>]
     module Inventory =
@@ -831,69 +857,96 @@
             | Weapon        of Weaponry * int
             | Protection    of CharacterProtection * int
         with 
-            member x.UpdateQuantity value variationProvenance = 
-                let itemVariation = 
-                    match variationProvenance with 
+            member x.Quantity = 
+                match x with 
+                | Consummable (_, q) -> q 
+                | Weapon (_,q) -> q 
+                | Protection (_,q) -> q 
+            member x.updateQuantity 
+                (value: int) 
+                (provenance: ItemVariationProvenance) : GameItem = 
+                let value = 
+                    match provenance with 
                     | FromTheShop -> value 
                     | FromTheInventory -> value * -1
-
-                let qty = x.Quantity + itemVariation
-                let qty=
-                    match qty with 
-                    | t when t > 99 -> 99
-                    | t when t <0 -> 0
-                    | _ -> qty
-                qty  
-
+                match x with 
+                | Consummable (ci, q) -> 
+                    Consummable(ci, q + value) 
+                | Weapon (w, q) -> 
+                    Weapon(w, q + value)
+                | Protection (p, q) -> 
+                    Protection(p, q + value)
+            member x.Name = 
+                match x with 
+                | _ -> x.Name 
+            member x.Weight : float<kg>= 
+                match x with 
+                | _ -> x.Weight
         let makeBagItemsDistinct (bag: GameItem array) = 
             bag |> Seq.distinct |> Seq.toArray
         
         type Inventory = {
             Bag : GameItem array
             Weight: float<kg>
+            Excess : ImmutableStack<GameItem>
         }
         with 
             member x.filterFromLightestToHeaviest() =
-                x.Bag |> Array.sortBy(fun item -> item.ItemWeight)
-
+                x.Bag |> Array.sortBy(fun item -> item.Weight)
             member x.filterFromHeaviestToLightest() = 
-                x.Bag  |> Array.sortBy (fun x -> -x.ItemWeight - 1.0<kg>) // Sort in a descending order
-
-            member x.addItem (ii: InventoryItem): Inventory = 
-                if x.Weight >= MaxWeight <> true then x 
-                elif (x.Weight + ii.ItemWeight) >= MaxWeight then x
+                x.Bag  |> Array.sortBy (fun x -> -x.Weight - 1.0<kg>) // Sort in a descending order
+            member x.isBagTooHeavy() = 
+                x.Weight > MaxWeight
+            member x.addItem (gi : GameItem): Inventory = 
+                if not (x.isBagTooHeavy()) then { x with Excess = x.Excess.Push gi }
+                elif (x.Weight + gi.Weight) >= MaxWeight then x
                 else 
-                    let oItemIndex = x.Bag |> Array.tryFindIndex(fun x -> x = ii)
+                    let oItemIndex = x.Bag |> Array.tryFindIndex(fun x -> x = gi)
                     match oItemIndex with 
                     | Some index -> 
-                        // There already an item of this type in the bag
-                        let item = x.Bag |> Array.find(fun x -> x = ii)
-                        let newBag = 
-                            x.Bag
-                            |> Array.filter((<>) item)
-                            |> Array.append 
-                                [| 
-                                    { item with Quantity = item.Quantity + ii.Quantity }
-                                |]
-                            |> makeBagItemsDistinct
-
-                        let inventory = { x with Bag = newBag }
-                        { inventory with Weight = inventory.Weight + item.ItemWeight }
+                        let item = x.Bag.[index] 
+                        let item = item.updateQuantity gi.Quantity FromTheShop
+                        let bag =  x.Bag
+                        bag.[index] <- item
+                        let itemTotalWeight = gi.Weight * (gi.Quantity |> float)
+                        { x with
+                             Bag = bag 
+                             Weight = x.Weight + itemTotalWeight
+                        }
                     | None -> 
-                        let newBag = x.Bag |> Array.append [|ii|] |> makeBagItemsDistinct
-                        let inventory = { x with Bag = newBag }
-                        { inventory with Weight = inventory.Weight + ii.ItemWeight }
+                        let newBag = x.Bag |> Array.append [|gi|] |> makeBagItemsDistinct
+                        let itemTotalWeight = gi.Weight * (gi.Quantity |> float)
+                        let inventory = { x with 
+                                            Bag = newBag 
+                                            Weight = x.Weight + itemTotalWeight
+                                        }
+                        inventory
+            member x.addItems (giArr: GameItem array) = 
+                let mutable inventory = x
+                for item in giArr do 
+                    inventory <- inventory.addItem item
+                inventory
+            member x.dropItem (item: GameItem) = 
+                let oItemIndex = x.Bag |> Array.tryFindIndex (fun x -> x = item)
+                oItemIndex 
+                |> Option.bind(fun index ->     
+                    let bag = x.Bag |> Array.filter( (<>) x.Bag.[index])
+                    let inventory = { x with Bag = bag }
+                    Some { inventory with Weight = inventory.Weight - item.Weight * (item.Quantity |> float) }
+                )
 
-            member x.addItems (iiArr: InventoryItem array) = 
-                let newBag = x.Bag |> Array.append iiArr |> makeBagItemsDistinct
-                let inventory = { x with Bag = newBag }
+            member x.canItemsBeRemovedFromExcess() =    
+                not (x.isBagTooHeavy() && x.Excess.isEmpty)
+            member x.removeItemFromExcess() =   
+                if x.canItemsBeRemovedFromExcess() then 
+                    let mutable inventory = x 
+                    while (inventory.canItemsBeRemovedFromExcess()) do 
+                        let excessItem = inventory.Excess.Pop()
+                        inventory <- inventory.addItem excessItem
+                    inventory
+                else 
+                    x
 
-                { inventory with Weight = inventory.Weight + 0.0<kg> }
-
-            member x.dropItem (ii:InventoryItem) = 
-                let newBag = x.Bag |> Array.filter( (<>) ii)
-                let inventory = { x with Bag = newBag }
-                { inventory with Weight = inventory.Weight - ii.ItemWeight }
         
         type Equipment = {
             Hat : Hat 
