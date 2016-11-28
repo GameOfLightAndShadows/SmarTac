@@ -78,6 +78,7 @@
     <Compile Include="DeadMessageServer.fs" />
     <Compile Include="GameConsoleApp.fs" />
     <None Include="Simulation.fsx" />
+    <Compile Include="InventoryItems.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core">
