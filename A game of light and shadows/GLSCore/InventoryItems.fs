@@ -2,6 +2,7 @@
 
     open System
     open System.Collections
+    open Akka.Actor
 
     //Represents unit for weight in kilograms
     [<Measure>] type kg
@@ -868,18 +869,102 @@
                     | FromTheShop -> value
                     | FromTheInventory -> value * -1
                 match x with
-                | Consummable (ci, q) ->
-                    Consummable(ci, q + value)
-                | Weapon (w, q) ->
-                    Weapon(w, q + value)
-                | Protection (p, q) ->
-                    Protection(p, q + value)
+                | Consummable (ci, q) -> Consummable(ci, q + value)
+                | Weapon (w, q) -> Weapon(w, q + value)
+                | Protection (p, q) -> Protection(p, q + value)
+
             member x.Name =
                 match x with
                 | _ -> x.Name
-            member x.Weight : float<kg>=
+
+            member x.Weight : float<kg> =
                 match x with
                 | _ -> x.Weight
+
+        type ItemCategory = 
+            | Weapon 
+            | Shield 
+            | Loot 
+            | Head 
+            | Body 
+            | Pant 
+            | Finger 
+            | Hand
+
+        type Equipment = {
+            Hat :   GameItem option
+            Armor : GameItem option
+            Legs  : GameItem option
+            Gloves : GameItem option
+            Ring  : GameItem option
+            Weapon : GameItem option
+            Shield : GameItem option
+            Loot1  : GameItem option
+            Loot2  : GameItem option 
+            Loot3  : GameItem option 
+            InventoryManager : IActorRef
+        }
+        with 
+            member x.canAddMoreLoot() = 
+                not (x.Loot1.IsSome && x.Loot2.IsSome && x.Loot3.IsSome)
+
+            member x.putItemInEquipment 
+                (gi: GameItem) 
+                (cat: ItemCategory) = 
+                let mutable equipment = x 
+                match cat with 
+                | Head -> 
+                     equipment <-  { x with Hat = Some gi } 
+                     match x.Hat with 
+                     | None ->  ()
+                     | Some h ->  x.InventoryManager <! AddItem h
+
+                | Weapon -> 
+                     equipment <- { x with Weapon = Some gi } 
+                     match x.Weapon with 
+                     | None -> () 
+                     | Some w -> x.InventoryManager <! AddItem w
+
+                | Shield -> 
+                     equipment <- { x with Weapon = Some gi } 
+                     match x.Shield with 
+                     | None -> () 
+                     | Some sh -> x.InventoryManager <! AddItem sh
+
+                | Loot -> 
+                     if not (x.canAddMoreLoot()) then x.InventoryManager <! AddItem gi
+                     else 
+                        match x.Loot1 with 
+                        | Some l -> 
+                            match x.Loot2 with 
+                            | Some l -> equipment <- { x with Loot3 = Some gi } 
+                            | None -> equipment <- { x with Loot2 = Some gi }
+                        | None -> equipment <- { x with Loot1 = Some gi } 
+
+                | Finger -> 
+                    equipment <- { x with Ring = Some gi } 
+                    match x.Ring with
+                    | None -> () 
+                    | Some r -> x.InventoryManager <! AddItem r 
+
+                | Body -> 
+                    equipment <- { x with Armor = Some gi } 
+                    match x.Armor with 
+                    | None -> () 
+                    | Some a -> x.InventoryManager <! AddItem a 
+                | Pant ->
+                    equipment <- { x with Legs = Some gi } 
+                    match x.Legs with 
+                    | None -> () 
+                    | Some l -> x.InventoryManager <! AddItem l 
+                | Hand -> 
+                    equipment <- { x with Gloves = Some gi } 
+                    match x.Gloves with 
+                    | None -> () 
+                    | Some g -> x.InventoryManager <! AddItem g 
+                equipment
+               
+      
         let makeBagItemsDistinct (bag: GameItem array) =
             bag |> Seq.distinct |> Seq.toArray
 
