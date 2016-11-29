@@ -4,6 +4,8 @@
     open System.Collections
     open Akka.Actor
 
+    open GLSManager.Protocol
+
     //Represents unit for weight in kilograms
     [<Measure>] type kg
 
@@ -123,7 +125,7 @@
             | FromTheShop
             | FromTheInventory
 
-        type ConsummableItem =
+        type ConsumableItem =
             | HealthPotion
             | HighHealthPotion
             | MegaHealthPotion
@@ -572,6 +574,17 @@
                 | MerlinsHat -> "Merlin's hat"
                 | IronHelmet -> "Iron helmet"
                 | SteelHelmet -> "Steel helmet"
+
+            member x.Price =
+                match x with 
+                | SorcererHat   -> 120<usd>     
+                | InfantryHat   -> 70<usd>
+                | JourneyManHelmet -> 180<usd>
+                | RustedHelmet -> 95<usd>
+                | MerlinsHat   -> 275<usd>
+                | IronHelmet   -> 160<usd>
+                | SteelHelmet  -> 325<usd>
+
             member x.Name =
                 match x with
                 | _ -> x.ToString()
@@ -618,6 +631,15 @@
                 | IronArmor      -> 10.0<kg>
                 | SteelArmor     -> 15.0<kg>
                 | MyrtilleArmor  -> 22.75<kg>
+
+            member x.Price =
+                match x with 
+                | InfantryArmor -> 120<usd> 
+                | RustedArmor -> 100<usd> 
+                | IronArmor -> 220<usd>
+                | SteelArmor -> 450<usd> 
+                | MyrtilleArmor -> 790<usd>
+
             member x.Name =
                 match x with
                 | _ -> x.ToString()
@@ -647,6 +669,13 @@
                 match x with
                 | _ -> x.ToString()
 
+            member x.Price =
+                match x with 
+                | InfantryPants -> 50<usd> 
+                | IronPants -> 140<usd> 
+                | SteelPants -> 190<usd> 
+                | MyrtillePants -> 400<usd> 
+
             member x.Weight =
                 match x with
                 | InfantryPants -> 4.00<kg>
@@ -674,15 +703,25 @@
                 | RustedGauntless -> "Rusted gauntlets"
                 | IronGauntless -> "Iron gauntlets"
                 | SteelGauntless -> "Steel gauntlets"
+
+            member x.Price = 
+                match x with 
+                | InfantryGauntless -> 40<usd> 
+                | RustedGauntless -> 25<usd> 
+                | IronGauntless -> 95<usd> 
+                | SteelGauntless -> 185<usd> 
+
             member x.Name =
                 match x with
                 | _ -> x.ToString()
+
             member x.Weight =
                 match x with
                 | InfantryGauntless -> 1.00<kg>
                 | RustedGauntless -> 1.70<kg>
                 | IronGauntless -> 3.20<kg>
                 | SteelGauntless -> 6.55<kg>
+
             member x.CharacterProtectionStats =
                 match x with
                 | InfantryGauntless ->
@@ -724,7 +763,11 @@
                 match x with
                 | _ -> x.ToString()
 
-            member x.Weight : float<kg> =
+            member x.Price = 
+                match x with 
+                | _ -> 275<usd>
+
+            member x.Weight =
                 match x with
                 | _ -> 0.75<kg>
 
@@ -766,6 +809,15 @@
             member x.Name =
                  match x with
                  | _ -> x.ToString()
+
+            member x.Price = 
+                match x with 
+                | RustedShield -> 100<usd> 
+                | SmallShield -> 75<usd> 
+                | KnightShield -> 215<usd> 
+                | HeavyShield -> 425<usd> 
+                | SteelShield -> 500<usd>
+
             member x.Weight =
                 match x with
                 | RustedShield -> 5.00<kg>
@@ -793,7 +845,7 @@
             | Gloves        of Gauntlets
             | Legs          of Pants
             | Armor         of Armor
-            | Hat           of Hat
+            | Helmet        of Hat
 
         with
             member x.Name =
@@ -803,7 +855,16 @@
                 | Gloves g -> g.Name
                 | Legs l -> l.Name
                 | Armor a -> a.Name
-                | Hat h -> h.Name
+                | Helmet h -> h.Name
+
+            member x.Price =
+                match x with 
+                | Shield s -> s.Price 
+                | Ring r -> r.Price
+                | Gloves g -> g.Price
+                | Legs l -> l.Price
+                | Armor a -> a.Price 
+                | Helmet a -> a.Price
 
             member x.Weight =
                 match x with
@@ -812,7 +873,7 @@
                 | Gloves g -> g.Weight
                 | Legs l -> l.Weight
                 | Armor a -> a.Weight
-                | Hat h -> h.Weight
+                | Helmet h -> h.Weight
 
             member x.ProtectionStats =
                 match x with
@@ -821,7 +882,7 @@
                 | Gloves g -> g.CharacterProtectionStats :> IStats
                 | Legs l -> l.CharacterProtectionStats :> IStats
                 | Armor a -> a.CharacterProtectionStats :> IStats
-                | Hat h -> h.CharacterProtectionStats   :> IStats
+                | Helmet h -> h.CharacterProtectionStats   :> IStats
     [<AutoOpen>]
     module ExccesItems =
         type ImmutableStack<'T> =
@@ -847,175 +908,118 @@
                     | Stack(t,st) -> loop (t::acc) st
                 loop [] s
 
-
     [<AutoOpen>]
     module Inventory =
 
         type GameItem =
-            | Consummable   of ConsummableItem * int
-            | Weapon        of Weaponry * int
-            | Protection    of CharacterProtection * int
-        with
-            member x.Quantity =
+            | Consumable   of ConsumableItem 
+            | Weapon        of Weaponry 
+            | Protection    of CharacterProtection 
+        with 
+            member x.Weight = 
+                match x with 
+                | Consumable c -> c.Weight 
+                | Weapon w -> w.Weight 
+                | Protection p -> p.Weight
+
+            member x.Name = 
                 match x with
-                | Consummable (_, q) -> q
-                | Weapon (_,q) -> q
-                | Protection (_,q) -> q
+                | Consumable c -> c.Name 
+                | Weapon w -> w.Name 
+                | Protection p -> p.Name
+
+
+            member x.Price = 
+                match x with 
+                | Consumable c -> c.Price 
+                | Weapon w -> x.Price 
+                | Protection p -> p.Price 
+
+
+        type ItemStack = {
+            Item  : GameItem 
+            Count : int
+        }
+                
+        with
+            member x.Quantity = x.Count
+
             member x.updateQuantity
                 (value: int)
-                (provenance: ItemVariationProvenance) : GameItem =
+                (provenance: ItemVariationProvenance) =
+
                 let value =
                     match provenance with
                     | FromTheShop -> value
                     | FromTheInventory -> value * -1
-                match x with
-                | Consummable (ci, q) -> Consummable(ci, q + value)
-                | Weapon (w, q) -> Weapon(w, q + value)
-                | Protection (p, q) -> Protection(p, q + value)
 
-            member x.Name =
-                match x with
-                | _ -> x.Name
-
-            member x.Weight : float<kg> =
-                match x with
-                | _ -> x.Weight
-
-        type ItemCategory = 
-            | Weapon 
-            | Shield 
-            | Loot 
-            | Head 
-            | Body 
-            | Pant 
-            | Finger 
-            | Hand
-
+                { x with Count = x.Count + value }
+               
         type Equipment = {
-            Hat :   GameItem option
-            Armor : GameItem option
-            Legs  : GameItem option
+            Helmet    : GameItem option
+            Armor  : GameItem option
+            Legs   : GameItem option
             Gloves : GameItem option
-            Ring  : GameItem option
+            Ring   : GameItem option
             Weapon : GameItem option
             Shield : GameItem option
-            Loot1  : GameItem option
-            Loot2  : GameItem option 
-            Loot3  : GameItem option 
+            Loots  : ItemStack option
             InventoryManager : IActorRef
         }
-        with 
-            member x.canAddMoreLoot() = 
-                not (x.Loot1.IsSome && x.Loot2.IsSome && x.Loot3.IsSome)
 
-            member x.putItemInEquipment 
-                (gi: GameItem) 
-                (cat: ItemCategory) = 
-                let mutable equipment = x 
-                match cat with 
-                | Head -> 
-                     equipment <-  { x with Hat = Some gi } 
-                     match x.Hat with 
-                     | None ->  ()
-                     | Some h ->  x.InventoryManager <! AddItem h
-
-                | Weapon -> 
-                     equipment <- { x with Weapon = Some gi } 
-                     match x.Weapon with 
-                     | None -> () 
-                     | Some w -> x.InventoryManager <! AddItem w
-
-                | Shield -> 
-                     equipment <- { x with Weapon = Some gi } 
-                     match x.Shield with 
-                     | None -> () 
-                     | Some sh -> x.InventoryManager <! AddItem sh
-
-                | Loot -> 
-                     if not (x.canAddMoreLoot()) then x.InventoryManager <! AddItem gi
-                     else 
-                        match x.Loot1 with 
-                        | Some l -> 
-                            match x.Loot2 with 
-                            | Some l -> equipment <- { x with Loot3 = Some gi } 
-                            | None -> equipment <- { x with Loot2 = Some gi }
-                        | None -> equipment <- { x with Loot1 = Some gi } 
-
-                | Finger -> 
-                    equipment <- { x with Ring = Some gi } 
-                    match x.Ring with
-                    | None -> () 
-                    | Some r -> x.InventoryManager <! AddItem r 
-
-                | Body -> 
-                    equipment <- { x with Armor = Some gi } 
-                    match x.Armor with 
-                    | None -> () 
-                    | Some a -> x.InventoryManager <! AddItem a 
-                | Pant ->
-                    equipment <- { x with Legs = Some gi } 
-                    match x.Legs with 
-                    | None -> () 
-                    | Some l -> x.InventoryManager <! AddItem l 
-                | Hand -> 
-                    equipment <- { x with Gloves = Some gi } 
-                    match x.Gloves with 
-                    | None -> () 
-                    | Some g -> x.InventoryManager <! AddItem g 
-                equipment
-               
-      
-        let makeBagItemsDistinct (bag: GameItem array) =
+        let makeBagItemsDistinct (bag: ItemStack array) =
             bag |> Seq.distinct |> Seq.toArray
 
         type Inventory = {
-            Bag : GameItem array
+            Bag : ItemStack array
             Weight: float<kg>
-            Excess : ImmutableStack<GameItem>
+            Excess : ImmutableStack<ItemStack>
         }
         with
             member x.filterFromLightestToHeaviest() =
-                x.Bag |> Array.sortBy(fun item -> item.Weight)
+               let filteredBag =  x.Bag |> Array.sortBy(fun is -> is.Item.Weight)
+               { x with Bag = filteredBag }
+
             member x.filterFromHeaviestToLightest() =
-                x.Bag  |> Array.sortBy (fun x -> -x.Weight - 1.0<kg>) // Sort in a descending order
+                x.Bag  |> Array.sortBy (fun x -> -x.Item.Weight - 1.0<kg>) // Sort in a descending order
+
             member x.isBagTooHeavy() =
                 x.Weight > MaxWeight
-            member x.addItem (gi : GameItem): Inventory =
-                if not (x.isBagTooHeavy()) then { x with Excess = x.Excess.Push gi }
-                elif (x.Weight + gi.Weight) >= MaxWeight then x
+
+            member x.addItem (is : ItemStack): Inventory =
+                if not (x.isBagTooHeavy()) then { x with Excess = x.Excess.Push is }
+                elif (x.Weight + is.Item.Weight) >= MaxWeight then x
                 else
-                    let oItemIndex = x.Bag |> Array.tryFindIndex(fun x -> x = gi)
+                    let oItemIndex = x.Bag |> Array.tryFindIndex(fun x -> x.Item = is.Item)
                     match oItemIndex with
                     | Some index ->
                         let item = x.Bag.[index]
-                        let item = item.updateQuantity gi.Quantity FromTheShop
+                        let item = item.updateQuantity is.Count FromTheShop
                         let bag =  x.Bag
                         bag.[index] <- item
-                        let itemTotalWeight = gi.Weight * (gi.Quantity |> float)
-                        { x with
-                             Bag = bag
-                             Weight = x.Weight + itemTotalWeight
-                        }
+                        let itemTotalWeight = is.Item.Weight * (is.Count |> float)
+                        { x with Bag = bag
+                                 Weight = x.Weight + itemTotalWeight }
                     | None ->
-                        let newBag = x.Bag |> Array.append [|gi|] |> makeBagItemsDistinct
-                        let itemTotalWeight = gi.Weight * (gi.Quantity |> float)
-                        let inventory = { x with
-                                            Bag = newBag
-                                            Weight = x.Weight + itemTotalWeight
-                                        }
+                        let newBag = x.Bag |> Array.append [| is |] |> makeBagItemsDistinct
+                        let itemTotalWeight = is.Item.Weight * (is.Count |> float)
+                        let inventory = { x with Bag = newBag
+                                                 Weight = x.Weight + itemTotalWeight }
                         inventory
-            member x.addItems (giArr: GameItem array) =
+
+            member x.addItems (giArr: ItemStack array) =
                 let mutable inventory = x
                 for item in giArr do
                     inventory <- inventory.addItem item
                 inventory
-            member x.dropItem (item: GameItem) =
-                let oItemIndex = x.Bag |> Array.tryFindIndex (fun x -> x = item)
+
+            member x.dropItem (item: ItemStack) =
+                let oItemIndex = x.Bag |> Array.tryFindIndex (fun x -> x.Item = item.Item)
                 oItemIndex
                 |> Option.bind(fun index ->
                     let bag = x.Bag |> Array.filter( (<>) x.Bag.[index])
                     let inventory = { x with Bag = bag }
-                    Some { inventory with Weight = inventory.Weight - item.Weight * (item.Quantity |> float) }
+                    Some { inventory with Weight = inventory.Weight - item.Item.Weight * (item.Quantity |> float) }
                 )
 
             member x.canItemsBeRemovedFromExcess() =
@@ -1030,3 +1034,99 @@
                     inventory
                 else
                     x
+
+
+        let addToInventory newItem inventory =
+            let newBag = inventory.Bag |> Array.append [|newItem|]
+            { inventory with Bag = newBag }
+
+        let playerWantsToAutoEquip newItem =
+            // In real game, you'd pop up a yes/no question for the player to click on
+            printfn "Do you want to auto-equip your purchase?"
+            printfn "Actually, don't bother answering; I'll just assume you said yes."
+            true
+
+        let equipHelmet newHelm equipment =
+            { equipment with Helmet = Some newHelm }
+        let getOldHelmet equipment = equipment.Helmet
+
+        let equipArmor newArmor equipment = 
+            { equipment with Armor = Some newArmor } 
+        let getOldArmor equipment = equipment.Armor 
+
+        let equipGloves newGloves equipment =
+            { equipment with Gloves = Some newGloves }
+        let getOldGloves equipment = equipment.Gloves
+
+        let equipRing newRing equipment = 
+            { equipment with Ring = Some newRing } 
+        let getOldRing equipment = equipment.Ring 
+
+        let equipPants newPants equipment =
+            { equipment with Legs = Some newPants }
+        let getOldPants equipment = equipment.Legs
+
+        let equipWeapon newWeapon equipment =
+            { equipment with Weapon = Some newWeapon }
+        let getOldWeapon equipment = equipment.Weapon
+
+        let equipShield newShield equipment = 
+            { equipment with Shield = Some newShield } 
+        let getOldShield equipment = equipment.Shield 
+
+            //match equipment.Loots with 
+            //| None -> { equipment with Loots = Some { Item = newLoot; Count = 1 } }
+            //| Some loots -> 
+            //    if loots.Count > 3 then equipment // Can't have more than 3 loot items !
+            //    else 
+            //        match newLoot, loots.Item with 
+            //        | _,_ -> equipment // Can only have one type of loot
+            //        | (Consumable(ci1), Consumable(ci2)) -> 
+            //            match ci1 with 
+            //            | :? HealthPotion as hp ->                            
+            //if not (equipment) then equipment 
+            //else 
+            //    match equipment.Loots, newLoot with 
+            //    | (ItemStack i1 where i1.Item is ConsumableItem, ItemStack i2 where i2.Item is ConsumableItem) ->
+            //            if i1 = i2 then 
+            //                let looting = { equipment.Loots with Count = equipment.Loots.Count + 1 }
+            //                { equipment with Loots = looting }
+            //            else equipment 
+            //    | (_,_) -> equipment 
+
+                        
+
+
+        let genericEquipFunction (getFunc,equipFunc) newItem equipment =
+            let oldItem = equipment |> getFunc
+            let newEquipment = equipment |> equipFunc newItem
+            match oldItem with
+            | None -> (None,newEquipment)
+            | Some _ ->
+                if playerWantsToAutoEquip newItem then
+                    (oldItem,newEquipment)
+                else
+                    (newItem,equipment)
+
+        let equipPurchasedProtection newItem (inventory,equipment) =
+            let equipFunction =
+                match newItem with
+                | Helmet -> genericEquipFunction (getOldHelmet,equipHelmet)
+                | Gloves -> genericEquipFunction (getOldGloves,equipGloves)
+                | Boots  -> genericEquipFunction (getOldBoots, equipBoots)
+            let itemForInventory,newEquipment = equipFunction newItem equipment
+            match itemForInventory with
+            | None -> (inventory,newEquipment)
+            | Some item ->
+                let newInventory = inventory |> addToInventory item
+                (newInventory,newEquipment)
+
+        let equipPurchasedWeapon newItem (inventory,equipment) =
+            // Only one possible equipFunction for weapons
+            let equipFunction = genericEquipFunction (getOldWeapon,equipWeapon)
+            let itemForInventory,newEquipment = equipFunction newItem equipment
+            match itemForInventory with
+            | None -> (inventory,newEquipment)
+            | Some item ->
+                let newInventory = inventory |> addToInventory item
+                (newInventory,newEquipment)
