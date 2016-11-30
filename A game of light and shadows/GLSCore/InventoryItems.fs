@@ -963,7 +963,7 @@
             Ring   : GameItem option
             Weapon : GameItem option
             Shield : GameItem option
-            Loots  : ItemStack option
+            Loot   : GameItem option
             InventoryManager : IActorRef
         }
 
@@ -1047,56 +1047,37 @@
             true
 
         let equipHelmet newHelm equipment =
-            { equipment with Helmet = Some newHelm }
+            { equipment with Helmet = newHelm }
         let getOldHelmet equipment = equipment.Helmet
 
         let equipArmor newArmor equipment = 
-            { equipment with Armor = Some newArmor } 
+            { equipment with Armor = newArmor } 
         let getOldArmor equipment = equipment.Armor 
 
         let equipGloves newGloves equipment =
-            { equipment with Gloves = Some newGloves }
+            { equipment with Gloves = newGloves }
         let getOldGloves equipment = equipment.Gloves
 
         let equipRing newRing equipment = 
-            { equipment with Ring = Some newRing } 
+            { equipment with Ring = newRing } 
         let getOldRing equipment = equipment.Ring 
 
         let equipPants newPants equipment =
-            { equipment with Legs = Some newPants }
+            { equipment with Legs = newPants }
         let getOldPants equipment = equipment.Legs
 
         let equipWeapon newWeapon equipment =
-            { equipment with Weapon = Some newWeapon }
+            { equipment with Weapon = newWeapon }
         let getOldWeapon equipment = equipment.Weapon
 
         let equipShield newShield equipment = 
-            { equipment with Shield = Some newShield } 
+            { equipment with Shield = newShield } 
         let getOldShield equipment = equipment.Shield 
 
-            //match equipment.Loots with 
-            //| None -> { equipment with Loots = Some { Item = newLoot; Count = 1 } }
-            //| Some loots -> 
-            //    if loots.Count > 3 then equipment // Can't have more than 3 loot items !
-            //    else 
-            //        match newLoot, loots.Item with 
-            //        | _,_ -> equipment // Can only have one type of loot
-            //        | (Consumable(ci1), Consumable(ci2)) -> 
-            //            match ci1 with 
-            //            | :? HealthPotion as hp ->                            
-            //if not (equipment) then equipment 
-            //else 
-            //    match equipment.Loots, newLoot with 
-            //    | (ItemStack i1 where i1.Item is ConsumableItem, ItemStack i2 where i2.Item is ConsumableItem) ->
-            //            if i1 = i2 then 
-            //                let looting = { equipment.Loots with Count = equipment.Loots.Count + 1 }
-            //                { equipment with Loots = looting }
-            //            else equipment 
-            //    | (_,_) -> equipment 
-
+        let equipLoot newLoot equipment = 
+            { equipment with Loot = newLoot }
+        let getOldLoot equipment = equipment.Loot 
                         
-
-
         let genericEquipFunction (getFunc,equipFunc) newItem equipment =
             let oldItem = equipment |> getFunc
             let newEquipment = equipment |> equipFunc newItem
@@ -1111,14 +1092,18 @@
         let equipPurchasedProtection newItem (inventory,equipment) =
             let equipFunction =
                 match newItem with
-                | Helmet -> genericEquipFunction (getOldHelmet,equipHelmet)
-                | Gloves -> genericEquipFunction (getOldGloves,equipGloves)
-                | Boots  -> genericEquipFunction (getOldBoots, equipBoots)
-            let itemForInventory,newEquipment = equipFunction newItem equipment
+                | Helmet(_)-> genericEquipFunction (getOldHelmet,equipHelmet)
+                | Gloves(_) -> genericEquipFunction (getOldGloves,equipGloves)
+                | Legs(_)  -> genericEquipFunction (getOldPants, equipPants)
+                | Armor(_) -> genericEquipFunction (getOldArmor, equipArmor)
+                | Ring(_) -> genericEquipFunction (getOldRing, equipRing)
+                | Shield(_) -> genericEquipFunction (getOldShield, equipShield)
+
+            let itemForInventory,newEquipment = equipFunction (Some (Protection(newItem))) equipment
             match itemForInventory with
             | None -> (inventory,newEquipment)
             | Some item ->
-                let newInventory = inventory |> addToInventory item
+                let newInventory = inventory |> addToInventory { Item = item; Count = 1 }
                 (newInventory,newEquipment)
 
         let equipPurchasedWeapon newItem (inventory,equipment) =
@@ -1128,5 +1113,43 @@
             match itemForInventory with
             | None -> (inventory,newEquipment)
             | Some item ->
-                let newInventory = inventory |> addToInventory item
+                let newInventory = inventory |> addToInventory { Item = item; Count = 1 }
+                (newInventory,newEquipment)
+
+        let equipPurchaseLoot newItem (inventory, equipment) = 
+            let equipFunction = 
+                match newItem with 
+                | _ -> genericEquipFunction (getOldLoot, equipLoot)
+
+            let itemForInventory, newEquipment = equipFunction newItem equipment
+            match itemForInventory with 
+            | None -> (inventory, newEquipment)
+            | Some item -> 
+                let inventory = inventory |> addToInventory { Item = item; Count = 1 }
+                (inventory, newEquipment)
+
+        let equipPurchasedItem newItem (inventory,equipment) =
+            let equipFunction =
+                match newItem with
+                | Protection(Helmet(_)) -> genericEquipFunction (getOldHelmet,equipHelmet)
+                | Protection(Gloves(_)) -> genericEquipFunction (getOldGloves,equipGloves)
+                | Protection(Legs(_))  -> genericEquipFunction (getOldPants, equipPants)
+                | Protection(Armor(_)) -> genericEquipFunction (getOldArmor, equipArmor)
+                | Protection(Ring(_)) -> genericEquipFunction (getOldRing, equipRing)
+                | Protection(Shield(_)) -> genericEquipFunction (getOldShield, equipShield)
+                | Weapon _ -> genericEquipFunction (getOldWeapon,equipWeapon)
+                | Consumable HealthPotion -> genericEquipFunction (getOldLoot,equipLoot)
+                | Consumable HighHealthPotion -> genericEquipFunction (getOldLoot,equipLoot)
+                | Consumable MegaHealthPotion -> genericEquipFunction (getOldLoot,equipLoot)
+                | Consumable Elixir -> genericEquipFunction (getOldLoot,equipLoot)
+                | Consumable HighElixir -> genericEquipFunction (getOldLoot,equipLoot)
+                | Consumable MegaElixir -> genericEquipFunction (getOldLoot,equipLoot)
+                | Consumable PhoenixFeather -> genericEquipFunction (getOldLoot,equipLoot)
+                | Consumable MedicinalHerb -> genericEquipFunction (getOldLoot,equipLoot)
+
+            let itemForInventory,newEquipment = equipFunction (Some newItem) equipment
+            match itemForInventory with
+            | None -> (inventory,newEquipment)
+            | Some item ->
+                let newInventory = inventory |> addToInventory { Item = item; Count = 1 }
                 (newInventory,newEquipment)
