@@ -1,6 +1,6 @@
 ﻿module GLSManager.GlobalGLSState
 
-open GLSCore.PartyCharacter
+open GLSCore.CharacterInformation
 open GLSCore.GameMap
 open GLSCore.GameElement
  
@@ -40,7 +40,7 @@ with
 
 type GLSPlayer = { 
     Username : string 
-    BestCharacter : PartyCharacter option
+    BestCharacter : GameCharacter option
 }
 with 
     static member Initial = {
@@ -70,16 +70,16 @@ type BattlePhase =
     | EndTurn
 
 type MatchState = 
-    | InProcess
+    | InProcess of numberOfTurn:int * currentPhase: BattleSequencePhase option
     | BrainWon 
     | PlayerWon
 with 
-    static member Initial = InProcess
+    static member Initial = InProcess(0, None)
 
 type BattleSequenceState = {
     ActivePhase     : BattlePhase
-    PlayerTeamParty : PartyCharacter array
-    BrainTeamParty  : PartyCharacter array
+    PlayerTeamParty : GameCharacter array
+    BrainTeamParty  : GameCharacter array
     Board           : GameBoard
     MatchState      : MatchState
 }
@@ -88,10 +88,10 @@ with
     member x.updateBoardState (b: GameBoard) = 
         { x with Board = b }
 
-    member x.updateBrainTeamParty (team: PartyCharacter array) = 
+    member x.updateBrainTeamParty (team: GameCharacter array) = 
         { x with BrainTeamParty = team }
 
-    member x.updatePlayerParty (team: PartyCharacter array) = 
+    member x.updatePlayerParty (team: GameCharacter array) = 
         { x with PlayerTeamParty = team }
 
     member x.updateMatchState (state: MatchState) = 

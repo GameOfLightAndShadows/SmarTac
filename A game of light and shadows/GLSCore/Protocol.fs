@@ -4,8 +4,14 @@ open GLSManager.GlobalGLSState
 open GLSCore.GameMap
 open GLSCore.CharacterInformation
 open GLSCore.GameElement
-open GLSCore.CharacterAction
-open GLSCore.PartyCharacter
+open GLSCore.GameItemsModel
+open GLSCore.GameItemsModel.GameItems
+open GLSCore.GameItemsModel.Units
+open GLSCore.GameItemsModel.ExccesItems
+open GLSCore.GameItemsModel.ConsummableItems
+open GLSCore.GameItemsModel.CharacterWearableProtection
+open GLSCore.GameItemsModel.Energy
+open GLSCore.GameItemsModel.Weapons
 
 type GlobalStateProtocol =
     | UpdateStoryline       of Storyline
@@ -18,9 +24,9 @@ type GlobalStateProtocol =
 
 type GameManagerProtocol =
     | UpdateGlobalState
-    | DestroyCharacter of PartyCharacter
-    | UpdateCharacterHealth of PartyCharacter
-    | UpdateCharacterPosition of PartyCharacter
+    | DestroyCharacter of GameCharacter
+    | UpdateCharacterHealth of GameCharacter
+    | UpdateCharacterPosition of GameCharacter
     | UpdateCharacterDirection
     | BroadcastInventoryUpdate of Inventory
     | StopManager
@@ -70,11 +76,5 @@ type StateServerProtocol =
     | UpdateGameBoardState
     | UpdateTeamPartyInventory
 
-type InventorySystemManagerProtocol =
-  | AddSingleItem of GameItem
-  | AddItems of GameItem array
-  | RemoveSingleItem of GameItem
-  | MoveExcessToInventory
-
 type ExperienceSystemProtocol =
-    | ComputeGain of PartyCharacter * PartyCharacter * EngageAction
+    | ComputeGain of attacker: GameCharacter * target: GameCharacter * selectedAction: EngageAction

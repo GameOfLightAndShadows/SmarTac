@@ -2,7 +2,7 @@
 
 open System
 
-open GLSCore.GLSCore.InventoryItems
+open GLSCore.GameItemsModel
 open GLSManager.Protocol
 
 open Akka
@@ -24,22 +24,17 @@ let inventorySystemProcess
         | AddSingleItem item ->
           let inventory = state.Inventory.addItem item
           let state = { state with Inventory = inventory }
-          state.GameManager <<- BroadcastInventoryUpdate(inventory)
+          state.GameManager.Self <! BroadcastInventoryUpdate(inventory)
           return! loop state
         | AddItems items ->
           let inventory = state.Inventory.addItems items
           let state = { state with Inventory = inventory }
-          state.GameManager <<- BroadcastInventoryUpdate(inventory)
+          state.GameManager.Self <! BroadcastInventoryUpdate(inventory)
           return! loop state
         | RemoveSingleItem item ->
           let inventory = state.Inventory.dropItem item
           let state = { state with Inventory = inventory }
-          state.GameManager <<- BroadcastInventoryUpdate(inventory)
-          return! loop state
-       | MoveExcessToInventory ->
-          let inventory = state.Inventory.removeItemFromExcess()
-          let state = { state with Inventory = inventory }
-          state.GameManager <<- BroadcastInventoryUpdate(inventory)
+          state.GameManager.Self <! BroadcastInventoryUpdate(inventory)
           return! loop state
     }
     loop ()

@@ -11,10 +11,6 @@ open GLSManager.Protocol
 
 open Akka
 open Akka.FSharp
-
-
-
-
 (*
  Determines the action factor which will be combine to
  the tactical advantage  and the target's tiers.
