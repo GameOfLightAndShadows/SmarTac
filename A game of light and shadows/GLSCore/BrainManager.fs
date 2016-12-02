@@ -2,6 +2,8 @@
 
 open GLSCore.HelperFunctions
 open GLSCore.GameElement
+open GLSCore.CharacterInformation
+open GLSCore.GameMap
 open System
 
 [<AutoOpen>]
@@ -45,7 +47,7 @@ module PrimitiveBrain =
                 | None -> 0.0    
             )
 
-    let activeCell (board: GameBoard) (pos: Pos) = board |> Map.tryFind pos
+    let activeCell (board: GameBoard) (pos: Position) = board |> Map.tryFind pos
 
     let offsets (range: int) = 
         [ 
@@ -58,8 +60,8 @@ module PrimitiveBrain =
         (range:int)
         (size: MapSize) 
         (board: GameBoard) 
-        (character: Character) = 
-        let dir, pos = character.Direction, character.Position
+        (character: GameCharacter) = 
+        let dir, pos = character.CurrentDirection, character.CurrentPosition 
         let visibleCells = 
             offsets range
             |> List.map(fun (x,y) -> 
@@ -82,8 +84,8 @@ module AdvancedBrain =
         | East -> (y,-x)
 
     // Modifies the perception oh the character of the game board when he changes direction
-    let visibleState (size: MapSize) (moveRange:int) (board: GameBoard) (player: Character) = 
-        let (dir, pos) = player.Direction, player.Position
+    let visibleState (size: MapSize) (moveRange:int) (board: GameBoard) (player: GameCharacter) = 
+        let (dir, pos) = player.CurrentDirection , player.CurrentPosition
         offsets moveRange
         |> List.map (rotate dir )
         |> List.map (fun (x,y) -> 

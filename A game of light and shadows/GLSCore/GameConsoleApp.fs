@@ -3,6 +3,9 @@
 open System
 open System.Threading 
 open GLSCore.GameElement
+open GLSCore.CharacterInformation
+open GLSCore.GameItemsModel
+open GLSCore.GameMap
 open GLSManager.BrainManager
 
 module Program = 
@@ -11,15 +14,15 @@ module Program =
     type Board = int[,]
     let randomizer = new Random()
 
-    let updateBoard (board: Board) (player:Character) = 
-        let pos = player.Position
+    let updateBoard (board: Board) (player:GameCharacter) = 
+        let pos = player.CurrentPosition
         let updatedBoard = Array2D.copy board   
         updatedBoard.[pos.Left,pos.Top] <- randomizer.Next(cellValues.Length)
         updatedBoard
 
     type State = int list
 
-    let activeCell (board: Board) (pos: Pos) = board.[pos.Left, pos.Top]
+    let activeCell (board: Board) (pos: Position) = board.[pos.Left, pos.Top]
 
     let initBoard (size: MapSize) = Array2D.init size.Width size.Height (fun left top -> randomizer.Next(cellValues.Length))
     
@@ -28,7 +31,8 @@ module Program =
         // Init world 
         let size = { Width = 64; Height = 64 }
         let characterMoveRange = 4
-        let character = { Position = { Top = 10; Left = 10 }; Direction = East;  } 
+        let initialCharacter = GameCharacter.InitialGameCharacter
+        let character = { initialCharacter with CurrentPosition = { Top = 10; Left = 10 }; CurrentDirection = East;  } 
         let randomizer = Random () 
 
         let gameboard = 
@@ -37,12 +41,12 @@ module Program =
                         let pos = { Top = top; Left = left }
                         let cell = 
                             let value = randomizer.NextDouble()             
-                            if value >= 0.0 && value < 0.15 then CollectibleTreasure(HealthPotion)
+                            if value >= 0.0 && value < 0.15 then CollectibleTreasure(Health(HealthPotion))
                             else if value >= 0.15 && value < 0.25 then Empty 
                             else if value >= 0.25 && value < 0.5 then HiddenTrap(ReduceMoney)
                             else if value >= 0.5 && value < 0.65 then HiddenTrap(ReduceLifePoints)
-                            else if value >= 0.65 && value < 0.90 then Enemy ( { Position = { Top = top; Left = left}; Direction = South })
-                            else CollectibleTreasure(Currency)
+                            else if value >= 0.65 && value < 0.90 then Enemy ( GameCharacter.InitialGameCharacter ) // The found enemy doesn't matter now for the training purposes !!!
+                            else CollectibleTreasure(Currency(0.00<usd>)) // The amount of money doesn't matter for the training purposes 
                         yield pos, cell]
             |> Map.ofList   
             

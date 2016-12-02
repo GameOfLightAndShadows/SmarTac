@@ -9,6 +9,8 @@ type Position = { Top: int; Left:int }
 with 
     override x.ToString() = sprintf "(Top %d, Left %d)" x.Top x.Left
 
+    static member Initial = { Top = 0; Left = 0}
+
 // Direction
 type PlayerDirection = 
     | South
@@ -22,6 +24,8 @@ with
         | North -> "North"
         | East ->  "East"
         | West ->  "West"
+
+    static member Initial = North 
 
     member x.areDirectionOpposite (dir: PlayerDirection) = 
         match x,dir with 
@@ -157,16 +161,30 @@ type UnitTiers =
 
 type GameCharacter = { 
     Name : string 
-    Job : CharacterJob
+    Job : CharacterJob option
     ExperiencePoints: float 
     LevelUpPoints: int 
-    TiersListRank : UnitTiers
-    CombatStyle : CombatStyle 
-    Equipment : Equipment
+    TiersListRank : UnitTiers option
+    CombatStyle : CombatStyle option
+    Equipment : Equipment option
     State : CharacterState
     CurrentPosition : Position 
     CurrentDirection : PlayerDirection 
 }
+with 
+    static member InitialGameCharacter = 
+        {
+            Name = ""
+            Job = None 
+            ExperiencePoints = 0.00
+            LevelUpPoints = 0
+            TiersListRank = None
+            CombatStyle = None 
+            Equipment = None 
+            State = Alive 
+            CurrentPosition = Position.Initial
+            CurrentDirection = PlayerDirection.Initial
+        }
 
 let doesHaveTacticalAdvantage (fstCharacter: CharacterJob) (sndCharacter: CharacterJob) =
     match fstCharacter.Role, sndCharacter.Role with

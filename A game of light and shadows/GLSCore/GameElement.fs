@@ -13,7 +13,6 @@ open GLSCore.GameItemsModel.Weapons
 
 open Akka.Actor
 
-
 type BattleSequencePhase = 
     | Move 
     | ``Attack or Defend``
@@ -61,9 +60,9 @@ type TileType =
     | TreasureChest of MovementCost
 
 type Treasure = 
-    | HealthPotion of ConsumableItem
-    | ManaPotion of ConsumableItem 
-    | PhoenixFeather of ConsumableItem
+    | Health of ConsumableItem
+    | Mana of ConsumableItem 
+    | MagicFeather of ConsumableItem
     | RareStaff of Staff
     | RareBlade of Blade
     | Currency of float<usd>
@@ -71,9 +70,9 @@ with
     member x.Description = 
         match x with 
         | Currency c -> sprintf "You have found %O !" c
-        | HealthPotion hp -> hp.Name
-        | ManaPotion mp -> mp.Name
-        | PhoenixFeather pf -> pf.Name 
+        | Health hp -> hp.Name
+        | Mana mp -> mp.Name
+        | MagicFeather pf -> pf.Name 
         | RareStaff rs -> rs.Name 
         | RareBlade rb -> rb.Name
 
