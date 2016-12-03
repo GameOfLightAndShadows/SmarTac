@@ -2,19 +2,13 @@
 
 open System
 
-open GLSCore.CharacterAction
 open GLSCore.CharacterInformation
 open GLSCore.GameElement
-open GLSCore.PartyCharacter
 
 open GLSManager.Protocol
 
 open Akka
 open Akka.FSharp
-
-
-
-
 (*
  Determines the action factor which will be combine to
  the tactical advantage  and the target's tiers.
@@ -23,16 +17,14 @@ open Akka.FSharp
 [<Literal>]
 let UnitExperiencePoints = 10.0
 
-let canCharacterLevelUp (pc: PartyCharacter) =
-    pc.ExperiencePoints >= 125.00
+let canCharacterLevelUp (gc: GameCharacter) =
+    gc.ExperiencePoints >= 125.00
 
-let attributeLevelUpPoints (pc: PartyCharacter) =
-    let lvlUpPoints =  Math.Floor (pc.ExperiencePoints % 125.00 ) |> int32
-    pc.LevelUpPoints <- pc.LevelUpPoints + lvlUpPoints
-    pc.ExperiencePoints <- 0.00
-
-
-let computeExperienceGains (caller: PartyCharacter) (target: PartyCharacter) (action: EngageAction) =
+let attributeLevelUpPoints (gc: GameCharacter) =
+    let lvlUpPoints =  Math.Floor (gc.ExperiencePoints % 125.00 ) |> int32
+    { gc with LevelUpPoints = gc.LevelUpPoints + lvlUpPoints; ExperiencePoints = 0.00 }
+   
+let computeExperienceGains (caller: GameCharacter) (target: GameCharacter) (action: EngageAction) =
     let actionFactor =
         match action with
         | AttackedTarget -> 1.10
@@ -43,28 +35,21 @@ let computeExperienceGains (caller: PartyCharacter) (target: PartyCharacter) (ac
 
 
     let tacticalAdvantageFactor =
-        match doesHaveTacticalAdvantage caller.Job target.Job  with
-        | true -> 0.05
-        | false -> -0.05
+        if caller.Job.IsNone || target.Job.IsNone then 0.00
+        else
+            match doesHaveTacticalAdvantage caller.Job.Value target.Job.Value  with
+            | true -> 0.05
+            | false -> -0.05
 
     let tiersFactor =
-        target.Tiers
-        |> Option.map(fun t ->
-            match t with
-            | Low -> 1.00
-            | MidLow -> 1.05
-            | Mid -> 1.08
-            | High -> 1.12
-            | HeroClass -> 1.35
-        )
-    let tiersFactor =
-        match tiersFactor with
-        | None -> 1.00
-        | Some v -> v
+        match target.TiersListRank.Value with
+        | Low -> 1.00
+        | MidLow -> 1.05
+        | Mid -> 1.08
+        | High -> 1.12
+        | HeroClass -> 1.35
 
     UnitExperiencePoints * ((actionFactor + tacticalAdvantageFactor) * tiersFactor)
-
-
 
 let system = System.create "system" <| Configuration.load ()
 
@@ -75,7 +60,13 @@ let processExperienceGain
         match message with
         | ComputeGain (c, t, action) ->
             let experiencePoints = computeExperienceGains c t action
-            if canCharacterLevelUp c then attributeLevelUpPoints c
+            if canCharacterLevelUp c then 
+                let betterGameCharacter = attributeLevelUpPoints c
+                // Send back the character to the battle sequence manager 
+                ()
+            else 
+                // give back the character to the battle sequence manager
+                ()
             // return updated party member to the battle sequence manager
 
         return! loop ()
