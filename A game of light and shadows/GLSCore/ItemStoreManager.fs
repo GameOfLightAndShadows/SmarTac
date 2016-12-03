@@ -25,11 +25,11 @@ let updateTransactionWithItem
     (op: StoreOperation)
     (is: ItemStack)
     (st: StoreTransaction) =     
-    { st with StoreStock = [is] |> List.append st.StoreStock; Bill = st.Bill + storeBill op is }
+    { st with StoreStock = [|is|] |> Array.append st.StoreStock; Bill = st.Bill + storeBill op is }
 
 let updateTransactionWithItems 
     (op: StoreOperation)
-    (isList: ItemStack list)
+    (isList: ItemStack array)
     (st: StoreTransaction) = 
     let mutable storeTransaction = st 
 
@@ -65,26 +65,26 @@ let itemStoreManager (mailbox: Actor<ItemStoreProtocol>) =
         let! message = mailbox.Receive()
         
         match message with 
-        | PurchaseMode -> return! { state with Operation = Some Purchase }
+        | PurchaseMode -> return! handleProtocol { state with Operation = Some Purchase }
         
-        | SellMode     -> return! { state with Operation = Some Sell }
+        | SellMode     -> return! handleProtocol { state with Operation = Some Sell }
         
         | ConfirmPurchase isConfirmed
         
         | ConfirmSell isConfirmed -> 
-            if not isConfirmed then return! { state with Transaction = StoreTransaction.Empty }
-            else return! state 
+            if not isConfirmed then return! handleProtocol { state with Transaction = StoreTransaction.Empty }
+            else return! handleProtocol state 
         
         | SingleAdditionToTransaction is -> 
             mailbox.Self <! UpdateGameItemQuantity (is, AddingToBill)
-            return! { state with Transaction = updateTransactionWithItem Purchase is state.Transaction }
+            return! handleProtocol { state with Transaction = updateTransactionWithItem Purchase is state.Transaction }
        
         | MultipleAdditionToTransaction isList -> 
-            return! { state with Transaction = updateTransactionWithItems Purchase isList state.Transaction }
+            return! handleProtocol { state with Transaction = updateTransactionWithItems Purchase isList state.Transaction }
         
         | SingleRemovalFromTransaction is -> 
             mailbox.Self <! UpdateGameItemQuantity (is, RemovingFromBill)
-            return! { state with Transaction = state.Transaction.StoreStock |> List.filter(fun x -> x <> is) }
+            return! handleProtocol { state with Transaction = { state.Transaction with StoreStock = state.Transaction.StoreStock |> Array.filter(fun x -> x <> is) } }
         
         | MultipleRemovalFromTransaction isList -> 
             let list = state.Transaction.StoreStock
@@ -92,22 +92,22 @@ let itemStoreManager (mailbox: Actor<ItemStoreProtocol>) =
             let mutable remainingItemStacks = list 
             
             for exItem in exclusionList do 
-                remainingItemStacks <- remainItemStacks |> List.filter(fun item -> item <> exItem)
+                remainingItemStacks <- remainingItemStacks |> Array.filter(fun item -> item <> exItem)
               
-            return! { state with Transaction = remainingItemStacks; }
+            return! handleProtocol { state with Transaction = { state.Transaction with StoreStock =remainingItemStacks; } }
 
         | UpdateGameItemQuantity (is,op) -> 
             let oFindItemStack = state.StoreStock |> Array.tryFind(fun stack -> stack = is)
             match oFindItemStack with
-            | None -> return! { state with StoreStock = state.StoreStock :: [is] }
+            | None -> return! handleProtocol { state with StoreStock = state.StoreStock |> Array.append [|is|] }
             | Some itemStack -> 
                 let qty = 
                     if op = RemovingFromBill 
                         then is.Count 
                     else is.Count * -1
-                let index = state.StoreStock |> Array.findIndex itemStack 
+                let index = state.StoreStock |> Array.findIndex(fun itemS -> itemS = itemStack) 
                 let stock = state.StoreStock
                 stock.[index] <- { itemStack with Count = itemStack.Count + qty }
-                return! { state with StoreStock = stock }
+                return! handleProtocol { state with StoreStock = stock }
     } handleProtocol ItemStoreState.Initial
         

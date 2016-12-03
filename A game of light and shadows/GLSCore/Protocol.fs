@@ -22,11 +22,11 @@ type TransactionOperation =
     | AddingToBill
 
 type StoreTransaction = {
-    StoreStock : ItemStack list 
+    StoreStock : ItemStack array 
     Bill       : int<usd>
 }
 with 
-    static member Empty = { StoreStock = []; Bill = 0<usd> }
+    static member Empty = { StoreStock = [| |]; Bill = 0<usd> }
 
 type ItemStoreProtocol = 
     | PurchaseMode 
