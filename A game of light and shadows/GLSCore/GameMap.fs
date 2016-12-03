@@ -92,7 +92,7 @@ type GameState = { Board: GameBoard ; Character: GameCharacter; Score: int }
                     | ReduceMoney      -> REDUCECURRENCYSCORE
                 | CollectibleTreasure ct -> 
                     match ct with //TODO: COMPLETE MATCHING
-                    | HealthPotion(_) ->  HEALTHPOTIONSCORE
+                    | Health(_) ->  HEALTHPOTIONSCORE
                     | Currency(_)     ->  CURRENCYSCORE
             | None -> 0
 

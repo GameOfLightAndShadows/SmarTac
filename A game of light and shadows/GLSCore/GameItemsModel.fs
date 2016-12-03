@@ -978,6 +978,9 @@ module SharedInventory =
         Excess : ImmutableStack<ItemStack>
     }
     with
+        static member InitialInventory = 
+            { Bag = [| |]; Weight = 0.00<kg>; Excess = Empty }
+
         member x.filterFromLightestToHeaviest() =
             let filteredBag =  x.Bag |> Array.sortBy(fun is -> is.Item.Weight)
             { x with Bag = filteredBag }

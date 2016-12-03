@@ -35,12 +35,14 @@ let computeExperienceGains (caller: GameCharacter) (target: GameCharacter) (acti
 
 
     let tacticalAdvantageFactor =
-        match doesHaveTacticalAdvantage caller.Job target.Job  with
-        | true -> 0.05
-        | false -> -0.05
+        if caller.Job.IsNone || target.Job.IsNone then 0.00
+        else
+            match doesHaveTacticalAdvantage caller.Job.Value target.Job.Value  with
+            | true -> 0.05
+            | false -> -0.05
 
     let tiersFactor =
-        match target.TiersListRank with
+        match target.TiersListRank.Value with
         | Low -> 1.00
         | MidLow -> 1.05
         | Mid -> 1.08

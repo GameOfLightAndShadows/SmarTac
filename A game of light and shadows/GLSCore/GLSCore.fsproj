@@ -60,6 +60,7 @@
     <Compile Include="GameMap.fs" />
     <Compile Include="GlobalGLSState.fs" />
     <Compile Include="Protocol.fs" />
+    <Compile Include="StateServer.fs" />
     <Compile Include="TeamInventory.fs" />
     <Compile Include="Pathfinding.fs" />
     <Compile Include="ChoiceSelector.fs" />
@@ -70,7 +71,6 @@
     <Compile Include="BrainManager.fs" />
     <Compile Include="ExperienceSystemManager.fs" />
     <Compile Include="TeamPartyManager.fs" />
-    <Compile Include="StateServer.fs" />
     <Compile Include="DeadMessageServer.fs" />
     <Compile Include="GameManager.fs" />
     <Compile Include="GameConsoleApp.fs" />

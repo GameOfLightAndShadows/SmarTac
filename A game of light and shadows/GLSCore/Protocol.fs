@@ -13,6 +13,40 @@ open GLSCore.GameItemsModel.CharacterWearableProtection
 open GLSCore.GameItemsModel.Energy
 open GLSCore.GameItemsModel.Weapons
 
+type StoreOperation = 
+    | Purchase
+    | Sell
+
+type TransactionOperation = 
+    | RemovingFromBill
+    | AddingToBill
+
+type StoreTransaction = {
+    StoreStock : ItemStack list 
+    Bill       : int<usd>
+}
+with 
+    static member Empty = { StoreStock = []; Bill = 0<usd> }
+
+type ItemStoreProtocol = 
+    | PurchaseMode 
+    | SellMode 
+    | ConfirmPurchase of bool
+    | ConfirmSell of bool
+    | SingleAdditionToTransaction of ItemStack 
+    | MultipleAdditionToTransaction of ItemStack array 
+    | SingleRemovalFromTransaction of ItemStack 
+    | MultipleRemovalFromTransaction of ItemStack array
+    | SendItemsToInventory of ItemStack array
+    | SendItemsToSelectedCharacter of ItemStack array
+    | UpdateGameItemQuantity of ItemStack *  TransactionOperation
+    | RemoveItemFromStock of ItemStack
+    | ShowHowMuchShouldBeBoughtInstead of ItemStack
+    | DisableStoreStock
+    | IncreasePlayerTotalMoney of StoreTransaction
+    | DecreasePlayerTotalMoney of StoreTransaction 
+
+
 type GlobalStateProtocol =
     | UpdateStoryline       of Storyline
     | UpdateBoard           of GameBoard
