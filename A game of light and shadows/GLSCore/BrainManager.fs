@@ -136,5 +136,3 @@ module AdvancedBrain =
                     | Some v -> v 
                     | None -> 0.0
                 )
-
-

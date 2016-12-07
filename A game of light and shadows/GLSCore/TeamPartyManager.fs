@@ -24,7 +24,6 @@ with
 let teamPartyManager (mailbox: Actor<TeamPartyProtocol>) =
     let rec handleProtocol (state: TeamPartyState) = actor { 
         let! message = mailbox.Receive()
-
         match message with 
         | ShareTeamInformation -> 
             mailbox.Sender() <! AcceptTeamInformation state.TeamInformation

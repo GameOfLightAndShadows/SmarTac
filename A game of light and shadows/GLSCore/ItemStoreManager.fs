@@ -144,6 +144,4 @@ let itemStoreManager (mailbox: Actor<ItemStoreProtocol>) =
                 return! handleProtocol { state with StoreStock = stock }
     } handleProtocol ItemStoreState.Initial
 
-let shopSystem = spawn system "Shop System" <| itemStoreManager
-
-        
+let shopSystem = spawn system "Shop System" <| itemStoreManager     

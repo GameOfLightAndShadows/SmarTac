@@ -927,7 +927,7 @@ module ExccesItems =
 module GameItems =
 
     type GameItem =
-        | Consumable   of ConsumableItem 
+        | Consumable    of ConsumableItem 
         | Weapon        of Weaponry 
         | Protection    of CharacterProtection 
     with 
@@ -966,11 +966,6 @@ module GameItems =
 
 [<AutoOpen>]
 module SharedInventory = 
-    type InventorySystemManagerProtocol =
-      | AddSingleItem of ItemStack
-      | AddItems of ItemStack array
-      | RemoveSingleItem of ItemStack
-      | MoveExcessToInventory
 
     type Inventory = {
         Bag : ItemStack array

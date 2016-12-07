@@ -241,5 +241,3 @@ let doesHaveTacticalAdvantage (fstCharacter: CharacterJob) (sndCharacter: Charac
     | Sniper _, CharacterRole.Knight _ -> true // 5% more damage
     | MagicSoldier _, CharacterRole.Knight _ -> true // 3 % by sword only
     | _, _ -> false
-
-

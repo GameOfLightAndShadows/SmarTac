@@ -6,12 +6,6 @@ open GLSCore.CharacterInformation
 open GLSCore.GameElement
 open GLSCore.GameItemsModel
 open GLSCore.GameItemsModel.GameItems
-open GLSCore.GameItemsModel.Units
-open GLSCore.GameItemsModel.ExccesItems
-open GLSCore.GameItemsModel.ConsummableItems
-open GLSCore.GameItemsModel.CharacterWearableProtection
-open GLSCore.GameItemsModel.Energy
-open GLSCore.GameItemsModel.Weapons
 
 (*
 For all types defined in protocol
@@ -40,6 +34,14 @@ type TeamInformation = {
 with 
     static member Initial = { Inventory = Inventory.InitialInventory; Members = [] }
 
+type InventorySystemManagerProtocol =
+      | AddSingleItem of ItemStack
+      | AddItems of ItemStack array
+      | RemoveSingleItem of ItemStack
+      | MoveExcessToInventory
+      | BindItemToEquipment of GameItem
+      | ReleaseItemFromEquipment of GameItem
+
 type EquipmentSystemProtocol = 
     | UpdateWithCharacter of GameCharacter
     | UpdateCharacterWithHelmet of Hat 
@@ -49,8 +51,15 @@ type EquipmentSystemProtocol =
     | UpdateCharacterWithRing of Ring 
     | UpdateCharacterWithPants of Pants
     | UpdateCharacterWithShield of Shield 
-    | MoveBackToInventory of GameItem
-    | DropFromEquipment of GameItem
+    | UpdateCharacterWithLoot of ConsumableItem
+    | MoveBackHelmetToInventory 
+    | MoveBackArmorToInventory  
+    | MoveBackWeaponToInventory 
+    | MoveBackGlovesToInventory 
+    | MoveBackRingToInventory   
+    | MoveBackPantsToInventory  
+    | MoveBackShieldToInventory     
+    | MoveBackLootToInventory
 
 type ItemStoreProtocol = 
     | PurchaseMode 

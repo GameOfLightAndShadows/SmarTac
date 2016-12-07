@@ -41,4 +41,4 @@ let inventorySystemProcess (mailbox: Actor<InventorySystemManagerProtocol>) =
     }
     loop InventorySystemState.InitialState
 
-let commandManagerRef = spawn system "Inventory System" <| inventorySystemProcess 
+let inventoryManager = spawn system "Inventory System" <| inventorySystemProcess 
