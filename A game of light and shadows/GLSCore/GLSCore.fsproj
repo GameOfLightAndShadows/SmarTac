@@ -66,6 +66,7 @@
     <Compile Include="ChoiceSelector.fs" />
     <Compile Include="CommandManager.fs" />
     <Compile Include="BattleSequenceManager.fs" />
+    <Compile Include="EquipmentSystemManager.fs" />
     <Compile Include="InventoryManager.fs" />
     <Compile Include="TeamPartyManager.fs" />
     <Compile Include="ItemStoreManager.fs" />

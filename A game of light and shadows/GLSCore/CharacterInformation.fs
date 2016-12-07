@@ -125,17 +125,51 @@ with
         | ``Sword and shield`` ap -> ap 
         | ``Staff wielder`` ap -> ap 
 
-type Equipment = {
-    Helmet    : GameItem option
-    Armor  : GameItem option
-    Legs   : GameItem option
-    Gloves : GameItem option
-    Ring   : GameItem option
-    Weapon : GameItem option
-    Shield : GameItem option
-    Loot   : GameItem option
-    InventoryManager : IActorRef
-}
+[<AutoOpen>]
+module CharacterEquipment =
+    type Equipment = {
+        Helmet      : Hat option
+        Armor       : Armor option
+        Legs        : Pants option
+        Gloves      : Gauntlets option
+        Ring        : Ring option
+        Weapon      : Weaponry option
+        Shield      : Shield option
+        Loot        : ConsumableItem option
+    }
+
+    let getHelmetFun e = e.Helmet
+    let equipHelmetFun newHelm e = { e with Helmet = newHelm }
+    let HelmetFun_ = (getHelmetFun, equipHelmetFun)
+
+    let getArmorFun e = e.Armor
+    let equipArmorFun newArmor e = { e with Armor = newArmor }
+    let ArmorFun_ = (getArmorFun, equipArmorFun)
+
+    let getLegsFun e = e.Legs
+    let equipLegsFun newLegs e = { e with Legs = newLegs }
+    let LegsFun_ = (getLegsFun, equipLegsFun)
+
+    let getGlovesFun e = e.Gloves 
+    let equipGlovesFun newGloves e = { e with Gloves = newGloves }
+    let GlovesFun_ = (getGlovesFun, equipGlovesFun)
+
+    let getRingFun e = e.Ring 
+    let equipRingFun newRing e = { e with Ring = newRing }
+    let RingFun_ = (getRingFun, equipRingFun)
+
+    let getWeaponFun e = e.Weapon 
+    let equipWeaponFun newWeapon e = { e with Weapon = newWeapon }
+    let WeaponFun_ = (getWeaponFun, equipWeaponFun)
+
+    let getShieldFun e = e.Shield 
+    let equipShieldFun newShield e = { e with Shield = newShield }
+    let ShieldFun_ = (getShieldFun, equipShieldFun)
+
+    let getLootFun e = e.Loot 
+    let equipLootFun newLoot e = { e with Loot = newLoot }
+    let LootFun_ = (getLootFun, equipLootFun)
+
 
 [<Literal>]
 let lowTiersStatsFactor = 1
