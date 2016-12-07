@@ -40,6 +40,18 @@ type TeamInformation = {
 with 
     static member Initial = { Inventory = Inventory.InitialInventory; Members = [] }
 
+type EquipmentSystemProtocol = 
+    | UpdateWithCharacter of GameCharacter
+    | UpdateCharacterWithHelmet of Hat 
+    | UpdateCharacterWithArmor of Armor 
+    | UpdateCharacterWithWeapon of Weaponry 
+    | UpdateCharacterWithGloves of Gauntlets
+    | UpdateCharacterWithRing of Ring 
+    | UpdateCharacterWithPants of Pants
+    | UpdateCharacterWithShield of Shield 
+    | MoveBackToInventory of GameItem
+    | DropFromEquipment of GameItem
+
 type ItemStoreProtocol = 
     | PurchaseMode 
     | SellMode 

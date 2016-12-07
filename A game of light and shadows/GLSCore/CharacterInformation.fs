@@ -137,6 +137,18 @@ module CharacterEquipment =
         Shield      : Shield option
         Loot        : ConsumableItem option
     }
+    with 
+        static member Empty = 
+        {
+            Helmet = None 
+            Armor = None 
+            Legs = None 
+            Gloves = None 
+            Ring = None 
+            Weapon = None 
+            Shield = None 
+            Loot = None  
+        }
 
     let getHelmetFun e = e.Helmet
     let equipHelmetFun newHelm e = { e with Helmet = newHelm }
@@ -200,7 +212,7 @@ type GameCharacter = {
     LevelUpPoints: int 
     TiersListRank : UnitTiers option
     CombatStyle : CombatStyle option
-    Equipment : Equipment option
+    Equipment : Equipment
     State : CharacterState
     CurrentPosition : Position 
     CurrentDirection : PlayerDirection 
@@ -214,7 +226,7 @@ with
             LevelUpPoints = 0
             TiersListRank = None
             CombatStyle = None 
-            Equipment = None 
+            Equipment = Equipment.Empty
             State = Alive 
             CurrentPosition = Position.Initial
             CurrentDirection = PlayerDirection.Initial
