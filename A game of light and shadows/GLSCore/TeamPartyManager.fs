@@ -13,19 +13,23 @@ open Akka.FSharp
 [<Literal>]
 let MaxSizePartyAdmissable = 5 
 
+
 type TeamPartyState = { 
-    TeamInventory : Inventory 
     PartyMembers  : GameCharacter array 
-    AllMembers    : GameCharacter list 
+    TeamInformation : TeamInformation
 }
 with    
-    static member InitialState = { TeamInventory = Inventory.InitialInventory; PartyMembers = [||]; AllMembers = [] }
+    static member InitialState = { PartyMembers = [||]; TeamInformation = TeamInformation.Initial }
 
 let teamPartyManager (mailbox: Actor<TeamPartyProtocol>) =
     let rec handleProtocol (state: TeamPartyState) = actor { 
         let! message = mailbox.Receive()
 
         match message with 
+        | ShareTeamInformation -> 
+            mailbox.Sender() <! AcceptTeamInformation state.TeamInformation
+            return! handleProtocol state
+
         | RemoveCharacterFromParty gc -> 
             let oPartyMember = state.PartyMembers |> Array.tryFind(fun character -> character = gc)
             match oPartyMember with 
@@ -35,7 +39,8 @@ let teamPartyManager (mailbox: Actor<TeamPartyProtocol>) =
                 return! handleProtocol { state with PartyMembers = state.PartyMembers |> Array.filter(fun c -> c <> gc) }    
 
         | RemoveCharacterFromTeam gc -> 
-            let state = { state with AllMembers = state.AllMembers |> List.filter(fun c -> c <> gc) }
+            let teamInfo = { state.TeamInformation with Members = state.TeamInformation.Members |> List.filter(fun c -> c <> gc) }
+            let state = { state with TeamInformation = teamInfo }
             let oPartyMember = state.PartyMembers |> Array.tryFind(fun character -> character = gc)
             match oPartyMember with 
             | None -> 
@@ -53,3 +58,4 @@ let teamPartyManager (mailbox: Actor<TeamPartyProtocol>) =
     } handleProtocol TeamPartyState.InitialState
 
 
+let teamPartySystem = spawn system "Team party System" <| teamPartyManager

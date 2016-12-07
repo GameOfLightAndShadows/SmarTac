@@ -3,10 +3,14 @@
 open GLSCore.GameItemsModel
 open GLSCore.CharacterInformation
 open GLSCore.HelperFunctions
+
 open GLSManager.Protocol
+open GLSManager.TeamPartyManager
 
 open Akka.Actor
 open Akka.FSharp
+
+open Microsoft.FSharp.Collections
 
 //Will be used to determine if the merchand can show the stock
 //to the player based on the total currency and the cheapest item
@@ -41,10 +45,10 @@ let updateTransactionWithItems
 let transactionWeight st = 
     st |> List.fold(fun acc itemStack -> acc + itemStack.Item.Weight) 0.00<kg>
 
+
 type ItemStoreState = {
-//    TeamPartyRef : IActorRef
-//    PlayerParty  : GameCharacter array 
-//    SelectedCharacter : GameCharacter option
+    TeamInformation : TeamInformation option
+    ActiveCharacter : GameCharacter option
     BagTotalWeight : float<kg> 
     PlayerTotalCurrency : float<usd> 
     StoreStock   : ItemStack array 
@@ -52,7 +56,9 @@ type ItemStoreState = {
     Operation    : StoreOperation option
 }
 with 
-    static member Initial = {
+    static member Initial = {        
+        TeamInformation = None
+        ActiveCharacter = None
         BagTotalWeight = 0.00<kg>
         PlayerTotalCurrency = 0.00<usd>
         StoreStock = [| |]
@@ -60,42 +66,68 @@ with
         Operation = None // We don't know every time the player enters what operation has to be done
     }
 
+let isInOperationMode state operation = 
+    match state.Operation with 
+    | None -> None 
+    | Some op -> 
+        match op,operation with 
+        | (Purchase, Purchase) -> Some true 
+        | (Sell, Sell) -> Some true 
+        | (_,_) -> Some false
+        
 
 let itemStoreManager (mailbox: Actor<ItemStoreProtocol>) =
     let rec handleProtocol (state: ItemStoreState) = actor { 
         let! message = mailbox.Receive()
-        
+        teamPartySystem <! ShareTeamInformation
         match message with 
-        | PurchaseMode -> return! handleProtocol { state with Operation = Some Purchase }
-        
-        | SellMode     -> return! handleProtocol { state with Operation = Some Sell }
-        
-        | ConfirmPurchase isConfirmed
-        
+        | AcceptTeamInformation ti -> 
+            return! handleProtocol { state with TeamInformation = Some ti }
+        | PurchaseMode ->   
+            return! handleProtocol { state with Operation = Some Purchase }       
+        | SellMode     -> 
+            return! handleProtocol { state with Operation = Some Sell }       
+        | ConfirmPurchase isConfirmed       
         | ConfirmSell isConfirmed -> 
             if not isConfirmed then return! handleProtocol { state with Transaction = StoreTransaction.Empty }
             else return! handleProtocol state 
         
         | SingleAdditionToTransaction is -> 
-            mailbox.Self <! UpdateGameItemQuantity (is, AddingToBill)
-            return! handleProtocol { state with Transaction = updateTransactionWithItem Purchase is state.Transaction }
-       
+            if (isInOperationMode state Purchase |> optionDefaultsToValue <| false) = true then 
+                return! handleProtocol { state with Transaction = updateTransactionWithItem Purchase is state.Transaction }
+            else    
+                return! handleProtocol state
+                
         | MultipleAdditionToTransaction isList -> 
-            return! handleProtocol { state with Transaction = updateTransactionWithItems Purchase isList state.Transaction }
+            if (isInOperationMode state Purchase |> optionDefaultsToValue <| false) = true then 
+                return! handleProtocol { state with Transaction = updateTransactionWithItems Purchase isList state.Transaction }
+            else 
+                return! handleProtocol state
         
         | SingleRemovalFromTransaction is -> 
-            mailbox.Self <! UpdateGameItemQuantity (is, RemovingFromBill)
-            return! handleProtocol { state with Transaction = { state.Transaction with StoreStock = state.Transaction.StoreStock |> Array.filter(fun x -> x <> is) } }
+            if (isInOperationMode state Sell |> optionDefaultsToValue <| false) = true then 
+                mailbox.Self <! UpdateGameItemQuantity (is, RemovingFromBill)
+                return! handleProtocol 
+                    { state with 
+                        Transaction = 
+                            { state.Transaction with 
+                                StoreStock = state.Transaction.StoreStock 
+                                    |> Array.filter(fun x -> x <> is) 
+                            }
+                    }
+            else return! handleProtocol state
         
         | MultipleRemovalFromTransaction isList -> 
-            let list = state.Transaction.StoreStock
-            let exclusionList = isList 
-            let mutable remainingItemStacks = list 
-            
-            for exItem in exclusionList do 
-                remainingItemStacks <- remainingItemStacks |> Array.filter(fun item -> item <> exItem)
-              
-            return! handleProtocol { state with Transaction = { state.Transaction with StoreStock =remainingItemStacks; } }
+            if (isInOperationMode state Sell |> optionDefaultsToValue <| false) = true then 
+                let remainingItemStacks = 
+                    state.Transaction.StoreStock 
+                        |> Array.filter (fun itemStack ->
+                            isList |> Array.exists(fun item -> item.Item <> itemStack.Item))
+
+                return! handleProtocol { state with Transaction = { state.Transaction with StoreStock = remainingItemStacks; } }
+
+            else 
+                return! handleProtocol state 
 
         | UpdateGameItemQuantity (is,op) -> 
             let oFindItemStack = state.StoreStock |> Array.tryFind(fun stack -> stack = is)

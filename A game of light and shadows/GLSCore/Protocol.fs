@@ -13,6 +13,11 @@ open GLSCore.GameItemsModel.CharacterWearableProtection
 open GLSCore.GameItemsModel.Energy
 open GLSCore.GameItemsModel.Weapons
 
+(*
+For all types defined in protocol
+Define an OperationDataModel.fs where they shall be stored
+Move the unrelevant content to the protocol definition
+*)
 type StoreOperation = 
     | Purchase
     | Sell
@@ -27,6 +32,13 @@ type StoreTransaction = {
 }
 with 
     static member Empty = { StoreStock = [| |]; Bill = 0<usd> }
+
+type TeamInformation = {
+    Inventory : Inventory 
+    Members  : GameCharacter list
+}
+with 
+    static member Initial = { Inventory = Inventory.InitialInventory; Members = [] }
 
 type ItemStoreProtocol = 
     | PurchaseMode 
@@ -45,6 +57,7 @@ type ItemStoreProtocol =
     | DisableStoreStock
     | IncreasePlayerTotalMoney of StoreTransaction
     | DecreasePlayerTotalMoney of StoreTransaction 
+    | AcceptTeamInformation of TeamInformation
 
 
 type GlobalStateProtocol =
@@ -120,6 +133,7 @@ type TeamPartyProtocol =
     | ShowActiveParty 
     | ShowCharacterStats 
     | ShowEveryTeamMember
+    | ShareTeamInformation
     | RemoveCharacterFromParty of GameCharacter
     | RemoveCharacterFromTeam of GameCharacter
     | AddCharacterToParty of GameCharacter

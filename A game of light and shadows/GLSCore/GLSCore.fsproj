@@ -67,10 +67,10 @@
     <Compile Include="CommandManager.fs" />
     <Compile Include="BattleSequenceManager.fs" />
     <Compile Include="InventoryManager.fs" />
+    <Compile Include="TeamPartyManager.fs" />
     <Compile Include="ItemStoreManager.fs" />
     <Compile Include="BrainManager.fs" />
     <Compile Include="ExperienceSystemManager.fs" />
-    <Compile Include="TeamPartyManager.fs" />
     <Compile Include="DeadMessageServer.fs" />
     <Compile Include="GameManager.fs" />
     <Compile Include="GameConsoleApp.fs" />
