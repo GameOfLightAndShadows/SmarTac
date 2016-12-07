@@ -2,6 +2,7 @@
 
 open GLSCore.GameItemsModel
 open GLSCore.CharacterInformation
+open GLSCore.HelperFunctions
 open GLSManager.Protocol
 
 open Akka.Actor
@@ -110,4 +111,7 @@ let itemStoreManager (mailbox: Actor<ItemStoreProtocol>) =
                 stock.[index] <- { itemStack with Count = itemStack.Count + qty }
                 return! handleProtocol { state with StoreStock = stock }
     } handleProtocol ItemStoreState.Initial
+
+let shopSystem = spawn system "Shop System" <| itemStoreManager
+
         

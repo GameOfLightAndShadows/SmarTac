@@ -73,4 +73,4 @@ let processExperienceGain
     }
     loop ()
 
-let commandManagerRef = spawn system "Experience System" <| processExperienceGain
+let experienceSystem = spawn system "Experience System" <| processExperienceGain

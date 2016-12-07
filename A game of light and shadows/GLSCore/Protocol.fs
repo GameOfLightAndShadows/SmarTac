@@ -112,3 +112,15 @@ type StateServerProtocol =
 
 type ExperienceSystemProtocol =
     | ComputeGain of attacker: GameCharacter * target: GameCharacter * selectedAction: EngageAction
+
+type TeamPartyProtocol = 
+    (*From ViewTeamInventory to ShowEveryTeamMember, it's related to the dynamic prototype which would load a UI*)
+    | ViewTeamInventory 
+    | ModifyActiveParty 
+    | ShowActiveParty 
+    | ShowCharacterStats 
+    | ShowEveryTeamMember
+    | RemoveCharacterFromParty of GameCharacter
+    | RemoveCharacterFromTeam of GameCharacter
+    | AddCharacterToParty of GameCharacter
+    | AddCharacterToTeam of GameCharacter 
