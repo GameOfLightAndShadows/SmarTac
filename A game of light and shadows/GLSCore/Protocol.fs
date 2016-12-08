@@ -72,13 +72,13 @@ type GameManagerProtocol =
 
 type BattleSequenceManagerProtocol =
     | UpdateBattlePhase of turn: int * actualPhase : BattleSequencePhase
-    | InitializeCommandManager
-    | InitializeExperienceManager 
+    | LoadCommandManager
+    | LoadExperienceManager 
+    | LoadBrainManager
     | CreateGameMap
     | UpdateCharacterPosition of HumanCharacter 
     | RemoveGameCharacterFromBattle of HumanCharacter
     | MoveToNextActiveCharacter 
-    | InitializeBrainManager
     | ExecuteHumanTurn of HumanCharacter
     | ExecuteBrainTurn of HumanCharacter 
     | CharacterDied of IGameCharacter

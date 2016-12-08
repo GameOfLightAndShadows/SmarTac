@@ -40,8 +40,17 @@ type BattleSequencePhase =
     | EndTurn
 
 type MatchState = 
-    | InProcess of numberOfTurn:int * currentPhase: BattleSequencePhase 
+    | InProcess 
     | BrainWon 
     | PlayerWon
 with 
-    static member Initial = InProcess(0, InitializingLevel)
+    static member Initial = InProcess
+
+type BattlePhaseState = {
+    NumberOfTurns : int 
+    Current : BattleSequencePhase
+}
+with    
+    static member Initial = { NumberOfTurns = 0 ; Current = InProcess }
+
+// of numberOfTurn:int * currentPhase: BattleSequencePhase 
