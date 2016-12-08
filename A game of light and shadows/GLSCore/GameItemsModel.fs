@@ -202,6 +202,24 @@ module ConsummableItems =
 
 [<AutoOpen>]
 module Weapons =
+    type CombatStyle = 
+        | DualWielder of int
+        | MaceUser of int 
+        |  ``Sword and shield`` of int
+        | Archer of int 
+        | ``Staff wielder`` of int
+        | Polyvalent of int
+    with 
+        member x.actionPoints = 
+            match x with 
+            | DualWielder ap -> ap 
+            | MaceUser ap -> ap
+            | Archer ap -> ap 
+            | Polyvalent ap -> ap 
+            | ``Sword and shield`` ap -> ap 
+            | ``Staff wielder`` ap -> ap 
+
+
     type WeaponRank =
         | RankE
         | RankD
@@ -209,6 +227,15 @@ module Weapons =
         | RankB
         | RankA
         | RankS
+    with 
+        member x.rankMultiplier = 
+            match x with
+            | RankE -> 1.0100
+            | RankD -> 1.0375
+            | RankC -> 1.0925
+            | RankB -> 1.1250
+            | RankA -> 1.1785
+            | RankS -> 1.2105
 
     type WeaponStat = {
         Damage : float<dmg>
@@ -230,219 +257,6 @@ module Weapons =
                 sprintf "Weapon damage : %O - Intelligence : %O - Defense : %O - Speed : %O - Critical hit : %O - Weapon hit limit : %O - Weapon rank : %O"
                     x.Damage oIntelVal x.Defense x.Speed x.Critical x.HitLimit x.Rank
 
-    type Dagger =
-        | RustedDagger
-        | IronDagger
-        | SteelDagger
-    with
-        override x.ToString() =
-            match x with
-            | RustedDagger  -> "Rusted dagger"
-            | IronDagger    -> "Iron dagger"
-            | SteelDagger   -> "Steel dagger"
-
-        member x.Name = match x with | _ -> x.ToString()
-
-        member x.WeaponStats =
-            match x with
-            | RustedDagger -> { Damage = 5.60<dmg>; Defense = 1.20<def>; Intelligence = None; Speed = 1.00<spd>; Critical = 0.02<ctr>; HitLimit = 20<hl>; Rank = RankE }
-            | IronDagger   -> { Damage = 9.80<dmg>; Defense = 2.30<def>; Intelligence = None; Speed = 1.10<spd>; Critical = 0.04<ctr>; HitLimit = 25<hl>; Rank = RankD }
-            | SteelDagger  -> { Damage = 13.10<dmg>; Defense = 3.00<def>; Intelligence = None; Speed = 1.15<spd>; Critical = 0.05<ctr>; HitLimit = 30<hl>; Rank = RankC }
-
-        member x.Weight =
-            match x with
-            | RustedDagger -> 2.10<kg>
-            | IronDagger   -> 2.80<kg>
-            | SteelDagger  -> 4.25<kg>
-
-        member x.Price =
-            match x with
-            | RustedDagger -> 80<usd>
-            | IronDagger   -> 200<usd>
-            | SteelDagger  -> 350<usd>
-
-    type Sword =
-        | BrokenSword
-        | RustedSword
-        | IronSword
-        | SteelSword
-    with
-        override x.ToString() =
-            match x with
-            | BrokenSword -> "Broken sword"
-            | RustedSword -> "Rusted sword"
-            | IronSword   -> "Iron sword"
-            | SteelSword  -> "Steel sword"
-
-        member x.Name = match x with | _ -> x.ToString()
-
-        member x.WeaponStats =
-            match x with
-            | BrokenSword -> { Damage = 5.4<dmg>; Defense = 2.50<def>; Intelligence = None; Speed = 1.2<spd>; Critical = 0.01<ctr>; HitLimit = 10<hl>; Rank = RankE }
-            | RustedSword -> { Damage = 8.75<dmg>; Defense = 2.90<def>; Intelligence = None ;Speed = 1.05<spd>; Critical = 0.03<ctr>; HitLimit = 20<hl>; Rank = RankD }
-            | IronSword   -> { Damage = 11.1<dmg>; Defense = 3.40<def>; Intelligence = None ;Speed = 1.00<spd>; Critical = 0.04<ctr>; HitLimit = 25<hl>; Rank = RankC }
-            | SteelSword  -> { Damage = 15.25<dmg>; Defense = 4.30<def>;Intelligence = None ; Speed = 0.85<spd>; Critical = 0.06<ctr>; HitLimit = 35<hl>; Rank = RankB }
-        member x.Weight =
-            match x with
-            | BrokenSword  -> 7.20<kg>
-            | RustedSword  -> 8.50<kg>
-            | IronSword    -> 12.35<kg>
-            | SteelSword   -> 15.00<kg>
-
-        member x.Price =
-            match x with
-            | BrokenSword  -> 90<usd>
-            | RustedSword  -> 120<usd>
-            | IronSword    -> 250<usd>
-            | SteelSword   -> 525<usd>
-
-    type Axe =
-        | RustedAxe
-        | IronAxe
-        | RustedBattleAxe
-        | IronBattleAxe
-        | SteelBattleAxe
-    with
-        override x.ToString() =
-            match x with
-            | RustedAxe -> "Rusted axe"
-            | IronAxe -> "Iron axe"
-            | RustedBattleAxe -> "Rusted battle axe"
-            | IronBattleAxe -> "Iron battle axe"
-            | SteelBattleAxe -> "SteelBattleAxe"
-         
-        member x.Name = match x with | _ -> x.ToString()
-
-        member x.Weight =
-            match x with
-            | RustedAxe       -> 8.00<kg>
-            | IronAxe         -> 10.00<kg>
-            | RustedBattleAxe -> 9.00<kg>
-            | IronBattleAxe   -> 13.00<kg>
-            | SteelBattleAxe  -> 16.00<kg>
-        member x.Price =
-            match x with
-            | RustedAxe        ->  125<usd>
-            | IronAxe          ->  280<usd>
-            | RustedBattleAxe  ->  150<usd>
-            | IronBattleAxe    ->  300<usd>
-            | SteelBattleAxe   ->  425<usd>
-
-        member x.WeaponStats =
-            match x with
-            | RustedAxe ->          { Damage = 7.20<dmg>; Defense = 2.10<def>; Speed = -1.00<spd>;  Intelligence = None ; Critical =0.03<ctr> ; HitLimit =   20<hl>; Rank = RankE }
-            | IronAxe ->            { Damage = 11.80<dmg>; Defense = 2.90<def>; Speed = -1.50<spd>; Intelligence = None ; Critical = 0.06<ctr> ;  HitLimit = 25<hl>; Rank = RankD }
-            | RustedBattleAxe ->    { Damage = 7.10<dmg>; Defense = 2.30<def>; Speed = -1.20<spd>; Intelligence = None ; Critical = 0.04<ctr> ; HitLimit =  20<hl>; Rank = RankE }
-            | IronBattleAxe ->      { Damage = 12.00<dmg>; Defense = 3.05<def>; Speed = -1.60<spd>;Intelligence = None ; Critical = 0.07<ctr> ; HitLimit =  25<hl>; Rank = RankD }
-            | SteelBattleAxe ->     { Damage = 16.20<dmg>; Defense = 3.50<def>; Speed = -2.60<spd>;Intelligence = None ; Critical = 0.095<ctr> ; HitLimit =  30<hl>; Rank = RankC }
-
-    type Spear =
-        | RustedSpear
-        | IronSpear
-        | SteelSpear
-    with
-        override x.ToString() =
-            match x with
-            | RustedSpear -> "Rusted spear"
-            | IronSpear -> "Iron spear"
-            | SteelSpear -> "Steel spear"
-
-        member x.Name = match x with | _ -> x.ToString()
-
-        member x.WeaponStats =
-            match x with
-            | RustedSpear  -> { Damage = 8.20<dmg>; Intelligence = None; Defense = -3.30<def>; Speed = -1.10<spd>; Critical = 0.05<ctr>; HitLimit = 12<hl>; Rank = RankE }
-            | IronSpear    -> { Damage = 12.00<dmg>; Intelligence = None; Defense = -4.25<def>; Speed = -1.50<spd>; Critical = 0.075<ctr>; HitLimit = 15<hl>; Rank = RankD }
-            | SteelSpear   -> { Damage = 14.75<dmg>; Intelligence = None; Defense = -5.05<def>; Speed = -1.75<spd>; Critical = 0.0925<ctr>; HitLimit = 20<hl>; Rank = RankC }
-        member x.Weight =
-            match x with
-            | RustedSpear -> 15.0<kg>
-            | IronSpear   -> 20.0<kg>
-            | SteelSpear  -> 30.0<kg>
-        member x.Price =
-            match x with
-            | RustedSpear  -> 200<usd>
-            | IronSpear    -> 325<usd>
-            | SteelSpear   -> 550<usd>
-
-    type Staff =
-        | RookieStaff
-        | AdeptStaff
-        | SorcererStaff
-        | NecromancerStaff
-    with
-        override x.ToString() =
-            match x with
-            | RookieStaff -> "Rookie staff"
-            | AdeptStaff -> "Adept staff"
-            | SorcererStaff -> "Sorcerer staff"
-            | NecromancerStaff  -> "Necromancer staff"
-
-        member x.Name = match x with | _ -> x.ToString()
-
-        member x.WeaponStats =
-            match x with
-            | RookieStaff       ->  { Damage = 3.00<dmg>; Defense = 1.50<def>; Intelligence = Some 4.00<intel>; Speed = 1.00<spd>; Critical = 0.02<ctr>; HitLimit= 10<hl>; Rank = RankE }
-            | AdeptStaff        ->{ Damage = 5.00<dmg>; Defense = 2.00<def>; Intelligence = Some 7.00<intel>; Speed = 0.80<spd>; Critical = 0.045<ctr>; HitLimit= 12<hl>; Rank = RankD }
-            | SorcererStaff     ->{ Damage = 6.70<dmg>; Defense = 4.50<def>; Intelligence = Some 9.20<intel>; Speed = 1.10<spd>; Critical = 0.075<ctr>; HitLimit = 20<hl>; Rank = RankC }
-            | NecromancerStaff  ->{ Damage = 8.00<dmg>; Defense = 5.00<def>; Intelligence = Some 13.00<intel>; Speed = 1.00<spd>; Critical = 0.00<ctr>; HitLimit = 25<hl>; Rank = RankA }
-        member x.Weight =
-            match x with
-            | RookieStaff       -> 2.20<kg>
-            | AdeptStaff        -> 4.20<kg>
-            | SorcererStaff     -> 5.10<kg>
-            | NecromancerStaff  -> 3.20<kg>
-        member x.Price =
-            match x with
-            | RookieStaff      -> 180<usd>
-            | AdeptStaff       -> 270<usd>
-            | SorcererStaff    -> 445<usd>
-            | NecromancerStaff -> 650<usd>
-
-    type Blade =
-        | RustedLongBlade
-        | RustedKatana
-        | IronLongBlade
-        | CurvedLongBlade
-        | SteelKatana
-        | SteelLongBlade
-    with
-        override x.ToString() =
-            match x with
-            | RustedLongBlade -> "Rusted long blade"
-            | RustedKatana    -> "Rusted katana"
-            | IronLongBlade   -> "Iron long blade"
-            | CurvedLongBlade  -> "Curved long blade"
-            | SteelKatana     -> "Steel katana"
-            | SteelLongBlade  -> "Steel long blade"
-
-        member x.Name =  match x with | _ -> x.ToString()
-
-        member x.WeaponStats =
-            match x with
-            | RustedLongBlade -> { Damage = 6.00<dmg>; Defense = 0.5<def>; Intelligence = None; Speed = 1.10<spd>; Critical = 0.01<ctr>; HitLimit = 10<hl>; Rank = RankE }
-            | RustedKatana    -> { Damage = 5.50<dmg>; Defense = 0.45<def>; Intelligence = None; Speed = 1.07<spd>; Critical = 0.02<ctr>; HitLimit = 10<hl>; Rank = RankE }
-            | IronLongBlade   -> { Damage = 8.50<dmg>; Defense = 0.65<def>; Intelligence = None; Speed = 1.20<spd>; Critical = 0.03<ctr>; HitLimit = 10<hl>; Rank = RankD }
-            | CurvedLongBlade -> { Damage = 7.00<dmg>; Defense = 0.80<def>; Intelligence = None; Speed = 1.25<spd>; Critical = 0.055<ctr>; HitLimit = 10<hl>; Rank = RankD }
-            | SteelKatana     -> { Damage = 13.0<dmg>; Defense = 1.00<def>; Intelligence = None; Speed = 1.60<spd>; Critical = 0.07<ctr>; HitLimit = 15<hl>; Rank = RankC }
-            | SteelLongBlade  -> { Damage = 15.00<dmg>; Defense = 1.10<def>; Intelligence = None; Speed = 1.55<spd>; Critical = 0.085<ctr>; HitLimit = 15<hl>; Rank = RankC }
-        member x.Weight =
-            match x with
-            | RustedLongBlade -> 6.00<kg>
-            | RustedKatana    -> 7.75<kg>
-            | IronLongBlade   -> 14.25<kg>
-            | CurvedLongBlade -> 11.20<kg>
-            | SteelKatana     -> 16.78<kg>
-            | SteelLongBlade  -> 15.30<kg>
-        member x.Price =
-            match x with
-            | RustedLongBlade ->  120<usd>
-            | RustedKatana    ->  100<usd>
-            | IronLongBlade   ->  215<usd>
-            | CurvedLongBlade ->  240<usd>
-            | SteelKatana     ->  350<usd>
-            | SteelLongBlade  ->  410<usd>
-
     type SpellbookStats = {
         AttackRange : int
         Damage      : float<dmg>
@@ -455,131 +269,255 @@ module Weapons =
             member x.showStat() =
                 sprintf "Damage : %O - Attack range : %O - Mana cost: %O - Number of use: %O - Rank of spell: %O" x.Damage x.AttackRange x.ManaCost x.Uses x.Rank
 
-    type Spellbook =
-        | Fireball
-        | Thunder
-        | Frost
-        | Hellfire
-        | BlackFire
-        | StormOfBlades
-    with
-        override x.ToString() =
-            match x with
-            | Fireball -> "Fireball"
-            | Thunder -> "Thunder"
-            | Frost -> "Frost"
-            | Hellfire -> "Hellfire"
-            | BlackFire -> "Black fire"
-            | StormOfBlades -> "Storm of blades"
+    type ItemDetails = { Weight: float<kg>; Price: int<usd> }
 
-        member x.Name = match x with | _ -> x.ToString()
-        member x.SpellStats =
-            match x with
-            | Fireball         -> { Damage = 8.0<dmg>; AttackRange = 1; Rank = RankE; Uses = 30 ; ManaCost = 12.0<mp> }
-            | Thunder          -> { Damage = 8.0<dmg>; AttackRange = 1; Rank = RankE; Uses = 30 ; ManaCost = 12.0<mp> }
-            | Frost            -> { Damage = 8.0<dmg>; AttackRange = 1; Rank = RankE; Uses = 30 ; ManaCost = 12.0<mp> }
-            | Hellfire         -> { Damage = 6.50<dmg>; AttackRange = 2; Rank = RankD; Uses = 25; ManaCost = 20.0<mp> }
-            | BlackFire        -> { Damage = 11.2<dmg>; AttackRange = 2; Rank = RankC; Uses = 20; ManaCost = 25.0<mp> }
-            | StormOfBlades    -> { Damage = 5.80<dmg>; AttackRange = 3; Rank = RankD; Uses = 30; ManaCost = 22.0<mp> }
-        member x.Weight =
-            match x with
-            | Fireball         -> 0.05<kg>
-            | Thunder          -> 0.05<kg>
-            | Frost            -> 0.05<kg>
-            | Hellfire         -> 0.05<kg>
-            | BlackFire        -> 0.05<kg>
-            | StormOfBlades    -> 0.05<kg>
-        member x.Price =
-            match x with
-            | Fireball        -> 150<usd>
-            | Thunder         -> 150<usd>
-            | Frost           -> 150<usd>
-            | Hellfire        -> 350<usd>
-            | BlackFire       -> 350<usd>
-            | StormOfBlades   -> 350<usd>
+    type PhysicalWeaponType =
+        | Dagger
+        | Sword
+        | Axe
+        | Spear
+        | Blade
+        | Staff 
 
+    type MagicalWeaponType =
+        | Spellbook
+        // Could later add wands, amulets, etc.
+
+    type WeaponDetails =
+        | PhysicalWeapon of PhysicalWeaponType * WeaponStat
+        | MagicalWeapon of MagicalWeaponType * SpellbookStats
+        
     type Weaponry =
-        | Fist
-        | Dagger        of Dagger
-        | Sword         of Sword
-        | Axe           of Axe
-        | Spear         of Spear
-        | Staff         of Staff
-        | LongBlade     of Blade
-        | Spellbook     of Spellbook
-    with
-        member x.Name =
-            match x with
-            | Dagger d -> d.ToString()
-            | Sword  s -> s.ToString()
-            | Axe    a -> a.ToString()
-            | Spear  s -> s.ToString()
-            | Staff  s -> s.ToString()
-            | LongBlade lb -> lb.ToString()
-            | Spellbook sb -> sb.ToString()
+        { Name: string
+          ItemDetails: ItemDetails
+          WeaponDetails: WeaponDetails }
+        with member x.Weight = x.ItemDetails.Weight
+             member x.Price  = x.ItemDetails.Price
+             member x.Stats  = match x.WeaponDetails with
+                               | PhysicalWeapon (_, stats) -> stats :> IStats
+                               | MagicalWeapon  (_, stats) -> stats :> IStats
 
-        member x.Price =
-            match x with
-            | Dagger     w -> w.Price
-            | Sword      w -> w.Price
-            | Axe        w -> w.Price
-            | Spear      w -> w.Price
-            | Staff      w -> w.Price
-            | LongBlade  w -> w.Price
-            | Spellbook  w -> w.Price
+    [<AutoOpen>]
+    module PhysicalWeapons =
+        [<AutoOpen>]
+        module Daggers =
+            let rustedDagger = {
+                Name = "Rusted dagger"
+                ItemDetails = { Weight = 2.10<kg>; Price = 80<usd> }
+                WeaponDetails = PhysicalWeapon (Dagger, { Damage = 5.60<dmg>; Defense = 1.20<def>; Intelligence = None; Speed = 1.00<spd>; Critical = 0.02<ctr>; HitLimit = 20<hl>; Rank = RankE })
+            }
 
-        member x.Weight =
-            match x with
-            | Dagger     w -> w.Weight
-            | Sword      w -> w.Weight
-            | Axe        w -> w.Weight
-            | Spear      w -> w.Weight
-            | Staff      w -> w.Weight
-            | LongBlade  w -> w.Weight
-            | Spellbook  w -> w.Weight
+            let ironDagger = {
+                Name = "Iron dagger"
+                ItemDetails = { Weight = 2.80<kg>; Price = 200<usd> }
+                WeaponDetails = PhysicalWeapon (Dagger, { Damage = 9.80<dmg>; Defense = 2.30<def>; Intelligence = None; Speed = 1.10<spd>; Critical = 0.04<ctr>; HitLimit = 25<hl>; Rank = RankD })
+            }
 
-        member x.Stats =
-            match x with
-            | Dagger     w -> w.WeaponStats :> IStats
-            | Sword      w -> w.WeaponStats :> IStats
-            | Axe        w -> w.WeaponStats :> IStats
-            | Spear      w -> w.WeaponStats :> IStats
-            | Staff      w -> w.WeaponStats :> IStats
-            | LongBlade  w -> w.WeaponStats :> IStats
-            | Spellbook  w -> w.SpellStats  :> IStats
+            let steelDagger = {
+                Name = "Steel dagger"
+                ItemDetails = { Weight = 4.25<kg>; Price = 350<usd> }
+                WeaponDetails = PhysicalWeapon (Dagger, { Damage = 13.10<dmg>; Defense = 3.00<def>; Intelligence = None; Speed = 1.15<spd>; Critical = 0.05<ctr>; HitLimit = 30<hl>; Rank = RankC })
+            }
 
+        [<AutoOpen>]
+        module Swords =
+            let brokenSword = {
+                Name = "Broken sword"
+                ItemDetails = { Weight = 7.20<kg>; Price = 90<usd> }
+                WeaponDetails = PhysicalWeapon (Sword, { Damage = 5.40<dmg>; Defense = 2.50<def>; Intelligence = None; Speed = 1.20<spd>; Critical = 0.01<ctr>; HitLimit = 10<hl>; Rank = RankE })
+            }
+
+            let rustedSword = {
+                Name = "Rusted sword"
+                ItemDetails = { Weight = 8.50<kg>; Price = 120<usd> }
+                WeaponDetails = PhysicalWeapon (Sword, { Damage = 8.75<dmg>; Defense = 2.90<def>; Intelligence = None; Speed = 1.05<spd>; Critical = 0.03<ctr>; HitLimit = 20<hl>; Rank = RankD })
+            }
+
+            let ironSword =  {
+                Name = "Iron sword"
+                ItemDetails = { Weight = 12.35<kg>; Price = 250<usd> }
+                WeaponDetails = PhysicalWeapon(Sword, { Damage = 11.1<dmg>; Defense = 3.40<def>; Intelligence = None ;Speed = 1.00<spd>; Critical = 0.04<ctr>; HitLimit = 25<hl>; Rank = RankC })
+            }
+
+            let steelSword = { 
+                Name = "Steel sword"
+                ItemDetails = { Weight = 15.00<kg>; Price = 525<usd>}
+                WeaponDetails = PhysicalWeapon(Sword, { Damage = 15.25<dmg>; Defense = 4.30<def>;Intelligence = None ; Speed = 0.85<spd>; Critical = 0.06<ctr>; HitLimit = 35<hl>; Rank = RankB } )
+            }
+
+        [<AutoOpen>]
+        module Axes = 
+            let rustedAxe = {
+                Name = "Rusted axe"
+                ItemDetails = { Weight = 8.00<kg>; Price = 125<usd> }
+                WeaponDetails = PhysicalWeapon(Axe, { Damage = 7.20<dmg>; Defense = 2.10<def>; Speed = -1.00<spd>;  Intelligence = None ; Critical =0.03<ctr> ; HitLimit =   20<hl>; Rank = RankE } )
+            }
+
+            let ironAxe = {
+                Name = "Iron axe"
+                ItemDetails = { Weight = 10.00<kg>; Price = 280<usd>}
+                WeaponDetails = PhysicalWeapon(Axe, { Damage = 11.80<dmg>; Defense = 2.90<def>; Speed = -1.50<spd>; Intelligence = None ; Critical = 0.06<ctr> ;  HitLimit = 25<hl>; Rank = RankD } )
+            }
+
+            let rustedBattleAxe = {
+                Name = "Rusted battle axe"
+                ItemDetails = { Weight = 9.00<kg>; Price = 150<usd>}
+                WeaponDetails = PhysicalWeapon(Axe, { Damage = 7.10<dmg>; Defense = 2.30<def>; Speed = -1.20<spd>; Intelligence = None ; Critical = 0.04<ctr> ; HitLimit =  20<hl>; Rank = RankE } )
+            }
+
+            let ironBattleAxe = {
+                Name = "Iron battle axe"
+                ItemDetails = { Weight = 13.00<kg>; Price = 300<usd>}
+                WeaponDetails = PhysicalWeapon(Axe, { Damage = 12.00<dmg>; Defense = 3.05<def>; Speed = -1.60<spd>;Intelligence = None ; Critical = 0.07<ctr> ; HitLimit =  25<hl>; Rank = RankD } )
+            }
+
+            let steelBattleAxe = {
+                Name = "Steel battle axe"
+                ItemDetails = { Weight = 16.00<kg>; Price = 425<usd>}
+                WeaponDetails = PhysicalWeapon(Axe, { Damage = 16.20<dmg>; Defense = 3.50<def>; Speed = -2.60<spd>;Intelligence = None ; Critical = 0.095<ctr> ; HitLimit =  30<hl>; Rank = RankC })
+            }
+
+        [<AutoOpen>]
+        module Spears = 
+            let rustedSpear = {
+                Name = "Rusted spear"
+                ItemDetails = { Weight = 15.00<kg>; Price = 325<usd>}
+                WeaponDetails = PhysicalWeapon(Spear, { Damage = 8.20<dmg>; Intelligence = None; Defense = -3.30<def>; Speed = -1.10<spd>; Critical = 0.05<ctr>; HitLimit = 12<hl>; Rank = RankE } )
+            }
+
+            let ironSpear = {
+                Name = "Iron spear"
+                ItemDetails = { Weight = 20.00<kg>; Price = 325<usd>}
+                WeaponDetails = PhysicalWeapon(Spear, { Damage = 12.00<dmg>; Intelligence = None; Defense = -4.25<def>; Speed = -1.50<spd>; Critical = 0.075<ctr>; HitLimit = 15<hl>; Rank = RankD } )
+            }
+
+            let steelSpear = {
+                Name = "Steel spear"
+                ItemDetails = { Weight = 30.00<kg>; Price = 550<usd>}
+                WeaponDetails = PhysicalWeapon(Spear, { Damage = 14.75<dmg>; Intelligence = None; Defense = -5.05<def>; Speed = -1.75<spd>; Critical = 0.0925<ctr>; HitLimit = 20<hl>; Rank = RankC } )
+            }
+
+        [<AutoOpen>]
+        module Blades = 
+            let rustedLongBlade = {
+                Name = "Rusted long blade"
+                ItemDetails = { Weight = 6.00<kg>; Price = 120<usd>}
+                WeaponDetails = PhysicalWeapon(Blade, { Damage = 6.00<dmg>; Defense = 0.5<def>; Intelligence = None; Speed = 1.10<spd>; Critical = 0.01<ctr>; HitLimit = 10<hl>; Rank = RankE } )
+            }
+
+            let rustedKatana = {
+                Name = "Rusted katana"
+                ItemDetails = { Weight = 7.75<kg>; Price = 100<usd>}
+                WeaponDetails = PhysicalWeapon(Blade, { Damage = 5.50<dmg>; Defense = 0.45<def>; Intelligence = None; Speed = 1.07<spd>; Critical = 0.02<ctr>; HitLimit = 10<hl>; Rank = RankE })
+            }
+
+            let ironLongBlade = {
+                Name = "Iron long blade"
+                ItemDetails = { Weight = 14.25<kg>; Price = 215<usd>}
+                WeaponDetails = PhysicalWeapon(Blade, { Damage = 8.50<dmg>; Defense = 0.65<def>; Intelligence = None; Speed = 1.20<spd>; Critical = 0.03<ctr>; HitLimit = 10<hl>; Rank = RankD })
+            }
+
+            let curvedLongBlade = {
+                Name = "Curved long blade"
+                ItemDetails = { Weight = 11.20<kg>; Price = 240<usd>}
+                WeaponDetails = PhysicalWeapon(Blade, { Damage = 7.00<dmg>; Defense = 0.80<def>; Intelligence = None; Speed = 1.25<spd>; Critical = 0.055<ctr>; HitLimit = 10<hl>; Rank = RankD })
+            }
+
+            let steelKatana = {
+                Name = "Steel katana"
+                ItemDetails = { Weight = 16.78<kg>; Price = 350<usd>}
+                WeaponDetails = PhysicalWeapon(Blade, { Damage = 13.0<dmg>; Defense = 1.00<def>; Intelligence = None; Speed = 1.60<spd>; Critical = 0.07<ctr>; HitLimit = 15<hl>; Rank = RankC })
+            }
+
+            let steelLongBlade = {
+                Name = "Steel long blade"
+                ItemDetails = { Weight = 15.30<kg>; Price = 410<usd>}
+                WeaponDetails = PhysicalWeapon(Blade, { Damage = 15.00<dmg>; Defense = 1.10<def>; Intelligence = None; Speed = 1.55<spd>; Critical = 0.085<ctr>; HitLimit = 15<hl>; Rank = RankC })
+            }
+
+        [<AutoOpen>]
+        module MagicalStaffs = 
+            let rookieStaff = {
+                Name = "Rookie staff"
+                ItemDetails = { Weight = 2.20<kg>; Price = 180<usd>}
+                WeaponDetails = PhysicalWeapon(Staff, { Damage = 3.00<dmg>; Defense = 1.50<def>; Intelligence = Some 4.00<intel>; Speed = 1.00<spd>; Critical = 0.02<ctr>; HitLimit= 10<hl>; Rank = RankE })
+            }
+
+            let adeptStaff = {
+                Name = "Adept staff"
+                ItemDetails = { Weight = 4.20<kg>; Price = 270<usd>}
+                WeaponDetails = PhysicalWeapon(Staff, { Damage = 5.00<dmg>; Defense = 2.00<def>; Intelligence = Some 7.00<intel>; Speed = 0.80<spd>; Critical = 0.045<ctr>; HitLimit= 12<hl>; Rank = RankD })
+            }
+
+            let sorcererStaff = {
+                Name = "Sorcerer staff"
+                ItemDetails = { Weight = 5.10<kg>; Price = 445<usd>}
+                WeaponDetails = PhysicalWeapon(Blade, { Damage = 15.00<dmg>; Defense = 1.10<def>; Intelligence = None; Speed = 1.55<spd>; Critical = 0.085<ctr>; HitLimit = 15<hl>; Rank = RankC })
+            }
+
+            let necromancerStaff = {
+                Name = "Necromancer staff"
+                ItemDetails = { Weight = 3.20<kg>; Price = 550<usd>}
+                WeaponDetails = PhysicalWeapon(Blade, { Damage = 15.00<dmg>; Defense = 1.10<def>; Intelligence = None; Speed = 1.55<spd>; Critical = 0.085<ctr>; HitLimit = 15<hl>; Rank = RankC })
+            }
+
+
+    [<AutoOpen>]
+    module MagicalWeapons = 
+        let rank1SpellbookDetails = { Weight = 0.05<kg>; Price = 150<usd> }
+        let rank2SpellbookDetails = { Weight = 0.05<kg>; Price = 350<usd> }
+
+        let bookOfFireball = {
+            Name = "Fireball"
+            ItemDetails = rank1SpellbookDetails
+            WeaponDetails = MagicalWeapon (Spellbook, { Damage = 8.0<dmg>; AttackRange = 1; Rank = RankE; Uses = 30 ; ManaCost = 12.0<mp> })
+        }
+
+        let bookOfThunder = {
+            Name = "Thunder"
+            ItemDetails = rank1SpellbookDetails
+            WeaponDetails = MagicalWeapon (Spellbook, { Damage = 8.0<dmg>; AttackRange = 1; Rank = RankE; Uses = 30 ; ManaCost = 12.0<mp> })
+        }
+
+        let bookOfFrost= {
+            Name = "Thunder"
+            ItemDetails = rank1SpellbookDetails
+            WeaponDetails = MagicalWeapon (Spellbook, { Damage = 8.0<dmg>; AttackRange = 1; Rank = RankE; Uses = 30 ; ManaCost = 12.0<mp> })
+        }
+
+        let bookOfHellfire = {
+            Name = "Hellfire"
+            ItemDetails = rank2SpellbookDetails
+            WeaponDetails = MagicalWeapon (Spellbook, { Damage = 6.50<dmg>; AttackRange = 2; Rank = RankD; Uses = 25; ManaCost = 20.0<mp> })
+        }
+
+        let bookOfBlackFire = {
+            Name = "Black fire"
+            ItemDetails = rank2SpellbookDetails
+            WeaponDetails = MagicalWeapon (Spellbook, { Damage = 11.2<dmg>; AttackRange = 2; Rank = RankC; Uses = 20; ManaCost = 25.0<mp> })
+        }
+
+        let bookOfStormOfBlades = {
+            Name = "Storm of blades"
+            ItemDetails = rank2SpellbookDetails
+            WeaponDetails = MagicalWeapon (Spellbook, { Damage = 5.80<dmg>; AttackRange = 3; Rank = RankD; Uses = 30; ManaCost = 22.0<mp> })
+        }
+        
     let computeCharacterOverallOffensive
-        (rank: WeaponRank)
         (weapon: Weaponry)
         (cStats: CharacterStats) =
-        let strength =
-            cStats.Strength *
-                match rank with
-                | RankE -> 1.0100
-                | RankD -> 1.0375
-                | RankC -> 1.0925
-                | RankB -> 1.1250
-                | RankA -> 1.1785
-                | RankS -> 1.2105
 
-        let overallDamage =
-            strength *
-                match weapon with
-                | Dagger d ->
-                    d.WeaponStats.Damage
-                | Sword s ->
-                    s.WeaponStats.Damage
-                | Axe a ->
-                    a.WeaponStats.Damage
-                | Spear s ->
-                    s.WeaponStats.Damage
-                | Staff s ->
-                    s.WeaponStats.Damage
-                | LongBlade lb ->
-                    lb.WeaponStats.Damage
-                | Spellbook sb ->
-                    sb.SpellStats.Damage
-        overallDamage
+        let weaponDamage =
+            match weapon.WeaponDetails with
+            | PhysicalWeapon (_, stats) -> stats.Damage
+            | MagicalWeapon  (_, stats) -> stats.Damage
+
+        let weaponRank =
+            match weapon.WeaponDetails with
+            | PhysicalWeapon (_, stats) -> stats.Rank
+            | MagicalWeapon  (_, stats) -> stats.Rank
+
+        cStats.Strength * weaponRank.rankMultiplier * weaponDamage
 
 [<AutoOpen>]
 module CharacterWearableProtection =

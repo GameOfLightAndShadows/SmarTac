@@ -117,22 +117,6 @@ let findCharacterRoleType (job: CharacterJob) =
     | Necromancer(_) -> Necromancer
     | Nightblade(_) -> Nightblade 
 
-type CombatStyle = 
-    | DualWielder of int
-    | MaceUser of int 
-    |  ``Sword and shield`` of int
-    | Archer of int 
-    | ``Staff wielder`` of int
-    | Polyvalent of int
-with 
-    member x.actionPoints = 
-        match x with 
-        | DualWielder ap -> ap 
-        | MaceUser ap -> ap
-        | Archer ap -> ap 
-        | Polyvalent ap -> ap 
-        | ``Sword and shield`` ap -> ap 
-        | ``Staff wielder`` ap -> ap 
 
 [<AutoOpen>]
 module CharacterEquipment =
