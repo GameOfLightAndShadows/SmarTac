@@ -255,6 +255,7 @@ type BrainCharacter =
         Job         : CharacterJob option
         Rank        : UnitTiers option
         Style       : CombatStyle option
+        MoneyDrop   : float<usd>
         Equipment   : Equipment 
         Position    : Position 
         Direction   : PlayerDirection }
@@ -277,6 +278,7 @@ type BrainCharacter =
             Equipment = Equipment.Empty
             Position = Position.Initial
             Direction = PlayerDirection.Initial
+            MoneyDrop = 20.00<usd>
     }
 
 let doesHaveTacticalAdvantage (fstCharacter: CharacterJob) (sndCharacter: CharacterJob) =

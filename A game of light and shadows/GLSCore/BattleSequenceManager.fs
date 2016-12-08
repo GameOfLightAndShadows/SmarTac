@@ -85,7 +85,7 @@ let inventorySystemProcess (mailbox: Actor<BattleSequenceManagerProtocol>) =
                                 else if value >= 0.25 && value < 0.5 then HiddenTrap(ReduceMoney)
                                 else if value >= 0.5 && value < 0.65 then HiddenTrap(ReduceLifePoints)
                                 else if value >= 0.65 && value < 0.90 then Enemy ( HumanCharacter.InitialGameCharacter ) // The found enemy doesn't matter now for the training purposes !!!
-                                else CollectibleTreasure(Currency(0.00<usd>)) // The amount of money doesn't matter for the training purposes 
+                                else CollectibleTreasure(Currency(30.00<usd>)) // The amount of money doesn't matter for the training purposes 
                             yield pos, cell]
                 |> Map.ofList  
             
