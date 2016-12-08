@@ -5,34 +5,13 @@ open GLSCore.GameMap
 open GLSCore.CharacterInformation
 open GLSCore.GameElement
 open GLSCore.GameItemsModel
-open GLSCore.GameItemsModel.GameItems
+open GLSCore.OperationDataModel
 
 (*
 For all types defined in protocol
 Define an OperationDataModel.fs where they shall be stored
 Move the unrelevant content to the protocol definition
 *)
-type StoreOperation = 
-    | Purchase
-    | Sell
-
-type TransactionOperation = 
-    | RemovingFromBill
-    | AddingToBill
-
-type StoreTransaction = {
-    StoreStock : ItemStack array 
-    Bill       : int<usd>
-}
-with 
-    static member Empty = { StoreStock = [| |]; Bill = 0<usd> }
-
-type TeamInformation = {
-    Inventory : Inventory 
-    Members  : GameCharacter list
-}
-with 
-    static member Initial = { Inventory = Inventory.InitialInventory; Members = [] }
 
 type InventorySystemManagerProtocol =
       | AddSingleItem of ItemStack

@@ -59,6 +59,7 @@
     <Compile Include="GameElement.fs" />
     <Compile Include="GameMap.fs" />
     <Compile Include="GlobalGLSState.fs" />
+    <Compile Include="OperationDataModel.fs" />
     <Compile Include="Protocol.fs" />
     <Compile Include="StateServer.fs" />
     <Compile Include="TeamInventory.fs" />
