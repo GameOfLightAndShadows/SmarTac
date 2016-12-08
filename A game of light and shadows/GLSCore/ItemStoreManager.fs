@@ -49,7 +49,7 @@ let transactionWeight st =
 
 type ItemStoreState = {
     TeamInformation : TeamInformation option
-    ActiveCharacter : GameCharacter option
+    ActiveCharacter : HumanCharacter option
     BagTotalWeight : float<kg> 
     PlayerTotalCurrency : float<usd> 
     StoreStock   : ItemStack array 
@@ -77,7 +77,7 @@ let isInOperationMode state operation =
         | (_,_) -> Some false
         
 
-let itemStoreManager (mailbox: Actor<ItemStoreProtocol>) =
+let itemStoreManager (mailbox: Actor<StoreProtocol>) =
     let rec handleProtocol (state: ItemStoreState) = actor { 
         let! message = mailbox.Receive()
         teamPartySystem <! ShareTeamInformation

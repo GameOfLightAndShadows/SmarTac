@@ -16,7 +16,7 @@ let MaxSizePartyAdmissable = 5
 
 
 type TeamPartyState = { 
-    PartyMembers  : GameCharacter array 
+    PartyMembers  : HumanCharacter array 
     TeamInformation : TeamInformation
 }
 with    

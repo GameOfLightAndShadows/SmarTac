@@ -12,9 +12,9 @@ open GLSCore.OperationDataModel
 open GLSManager.Protocol
 
 type BattleSequenceState = {
-    ActivePhase     : BattlePhase
     PlayerTeamParty : HumanCharacter array
     BrainTeamParty  : BrainCharacter array
+    AliveAvatars    : IGameCharacter list 
     Board           : GameBoard
     MatchState      : MatchState
 }
@@ -34,17 +34,9 @@ with
 
 
     static member Initial = {
-        ActivePhase = Move 
         PlayerTeamParty = [| |]
         BrainTeamParty = [| |]
+        AliveAvatars = []
         Board = Map.empty
         MatchState = MatchState.Initial
     }
-
-type BattleSystemState = {
-    HumanParty : HumanCharacter list 
-    BrainParty : BrainCharacter list 
-    AliveAvatars : IGameCharacter list
-    Map        : GameBoard
-    BattlePhase : int * BattleSequencePhase
-}

@@ -34,7 +34,7 @@ type EquipmentSystemProtocol =
     | MoveBackShieldToInventory     
     | MoveBackLootToInventory
 
-type ItemStoreProtocol = 
+type StoreProtocol = 
     | PurchaseMode 
     | SellMode 
     | ConfirmPurchase of bool
@@ -57,7 +57,7 @@ type GlobalStateProtocol =
     | UpdateStoryline       of Storyline
     | UpdateBoard           of GameBoard
     | UpdateMenu            of MenuState
-    | UpdateBattleSequence  of BattleSequenceState
+//    | UpdateBattleSequence  of BattleSequenceState
     | UpdateWeaponStore     of WeaponStoreState
     | UpdateItemStore       of ItemStoreState
 
@@ -81,21 +81,15 @@ type BattleSequenceManagerProtocol =
     | InitializeBrainManager
     | ExecuteHumanTurn of HumanCharacter
     | ExecuteBrainTurn of HumanCharacter 
+    | CharacterDied of IGameCharacter
     | DisposeRessources
 
-
-type BattleViewManagerProtocol =
-    | TryEvade
-    | UseMeleeAttack
-    | UseCharacterSpecialMove
-    | ApplyTemporaryDefenseUpgrade
-    | StopManager
-
-type StoreManagerProtocol =
-    | ShowStock
-    | BuyItem
-    | SellItem
-    | StopManager
+//type BattleViewManagerProtocol =
+//    | TryEvade
+//    | UseMeleeAttack
+//    | UseCharacterSpecialMove
+//    | ApplyTemporaryDefenseUpgrade
+//    | StopManager
 
 type WorldMapManagerProtocol =
     | RenderStoryPoint
@@ -116,7 +110,7 @@ type StateServerProtocol =
     | UpdateTeamPartyInventory
 
 type ExperienceSystemProtocol =
-    | ComputeGain of attacker: HumanCharacter * target: HumanCharacter * selectedAction: EngageAction
+    | ComputeGain of attacker: HumanCharacter * target: BrainCharacter * selectedAction: EngageAction
 
 type TeamPartyProtocol = 
     (*From ViewTeamInventory to ShowEveryTeamMember, it's related to the dynamic prototype which would load a UI*)
