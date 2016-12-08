@@ -4,6 +4,8 @@ open System
 open System.Collections
 open Akka.Actor
 
+open GLSCore.HelperFunctions
+
 [<AutoOpen>]
 module Units = 
     //Used to represent coordinates in the map
@@ -123,11 +125,6 @@ module Energy =
             Evade = 0<evd> 
             Luck = 2<lck> 
         }
-
-    let removeUnitFromFloat (x: float<_>) =
-        float x
-    let removeUnitFromInt (x: int<_>) =
-        int x
 
     //Max weight of the inventory bag
     [<Literal>]
@@ -502,6 +499,7 @@ module Weapons =
             | StormOfBlades   -> 350<usd>
 
     type Weaponry =
+        | Fist
         | Dagger        of Dagger
         | Sword         of Sword
         | Axe           of Axe
@@ -519,6 +517,7 @@ module Weapons =
             | Staff  s -> s.ToString()
             | LongBlade lb -> lb.ToString()
             | Spellbook sb -> sb.ToString()
+
         member x.Price =
             match x with
             | Dagger     w -> w.Price
@@ -528,6 +527,7 @@ module Weapons =
             | Staff      w -> w.Price
             | LongBlade  w -> w.Price
             | Spellbook  w -> w.Price
+
         member x.Weight =
             match x with
             | Dagger     w -> w.Weight

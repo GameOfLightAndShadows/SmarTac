@@ -18,3 +18,11 @@ let optionDefaultsToValue opt v =
     | None -> v 
 
 let flipFunction a b = b a 
+
+let removeUnitFromFloat (x: float<_>) =
+    float x
+
+let removeUnitFromInt (x: int<_>) =
+    int x
+
+let killActor = ()

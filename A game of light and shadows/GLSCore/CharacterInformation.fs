@@ -42,7 +42,6 @@ with
         | East -> West 
         | West -> East 
 
-
 type CharacterState = 
     | Alive 
     | NeedsHealth
@@ -107,6 +106,16 @@ with
         | Necromancer  (role, _) -> role
         | Nightblade   (role, _) -> role
 
+let findCharacterRoleType (job: CharacterJob) = 
+    match job with 
+    | Healer(_) -> Healer
+    | Knight(_) -> Knight
+    | Berserker(_) -> Berserker 
+    | Rider(_) -> Rider
+    | Paladin(_) -> Paladin 
+    | BowAndBlade(_) -> BowAndBlade 
+    | Necromancer(_) -> Necromancer
+    | Nightblade(_) -> Nightblade 
 
 type CombatStyle = 
     | DualWielder of int

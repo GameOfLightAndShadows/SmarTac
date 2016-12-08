@@ -4,6 +4,7 @@ open System
 
 open GLSCore.CharacterInformation
 open GLSCore.GameElement
+open GLSCore.HelperFunctions
 
 open GLSManager.Protocol
 
@@ -52,24 +53,33 @@ let computeExperienceGains (caller: HumanCharacter) (target: BrainCharacter) (ac
 
 let system = System.create "system" <| Configuration.load ()
 
+
+type ExperienceState = {
+    UpgradedCharacter : HumanCharacter option 
+}
+with 
+    static member Initial = { UpgradedCharacter = None }
 let processExperienceGain
     (mailbox: Actor<ExperienceSystemProtocol>) =
-    let rec loop () = actor {
+    let rec loop (state: ExperienceState) = actor {
         let! message = mailbox.Receive ()
         match message with
         | ComputeGain (c, t, action) ->
             let experiencePoints = computeExperienceGains c t action
             if canCharacterLevelUp c then 
                 let betterGameCharacter = attributeLevelUpPoints c
-                // Send back the character to the battle sequence manager 
-                ()
+                return! loop { state with UpgradedCharacter = Some betterGameCharacter }
             else 
-                // give back the character to the battle sequence manager
-                ()
-            // return updated party member to the battle sequence manager
+               return! loop state 
 
-        return! loop ()
+        | ProvideUpgradedCharacterWhenPossible -> 
+            match state.UpgradedCharacter with 
+            | Some char -> mailbox.Sender() <! ReceiveBetterCharacter char 
+            | None -> () 
+            return! loop { state with UpgradedCharacter = None }
+
+        | Stop ->  return killActor
     }
-    loop ()
+    loop ExperienceState.Initial
 
 let experienceSystem = spawn system "Experience System" <| processExperienceGain

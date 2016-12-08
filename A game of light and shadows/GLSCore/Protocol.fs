@@ -14,6 +14,7 @@ type InventorySystemManagerProtocol =
       | MoveExcessToInventory
       | BindItemToEquipment of GameItem
       | ReleaseItemFromEquipment of GameItem
+      | Stop
 
 type EquipmentSystemProtocol = 
     | UpdateWithCharacter of HumanCharacter
@@ -52,6 +53,7 @@ type StoreProtocol =
     | IncreasePlayerTotalMoney of StoreTransaction
     | DecreasePlayerTotalMoney of StoreTransaction 
     | AcceptTeamInformation of TeamInformation
+    | Stop
 
 type GlobalStateProtocol =
     | UpdateStoryline       of Storyline
@@ -80,8 +82,11 @@ type BattleSequenceManagerProtocol =
     | MoveToNextActiveCharacter 
     | CharacterDied of IGameCharacter
     | ValidateIfGameFinished of MatchState
+    | UpdateWithInjuredHumanCharacter of HumanCharacter 
+    | UpdateWithInjuredBrainCharacter of BrainCharacter 
+    | UpdateCharacterWithExperienceIncreased of HumanCharacter
+    | DisposeResources
     
-
 type WorldMapManagerProtocol =
     | RenderStoryPoint
     | MoveCharacterToStoryPoint
@@ -92,11 +97,13 @@ type BrainManagerProtocol =
 
 type CommandManagerProtocol =
     | ReceiveActiveHumanCharacter of HumanCharacter
+    | ReceiveBetterCharacter of HumanCharacter
     | PerformAttackCommandOn of BrainCharacter
-    | PerformMoveCommandWith of HumanCharacter 
-    | PerformDefendCommandWith of HumanCharacter 
-    | PerformRotateCommandWith of HumanCharacter 
+    | PerformMoveCommandOn of Position 
+    | PerformDefendCommand
+    | PerformRotateCommand 
     | PerformEndTurn of IGameCharacter 
+    | Stop 
 
 type StateServerProtocol =
     | UpdateTeamPartyState
@@ -106,6 +113,8 @@ type StateServerProtocol =
 
 type ExperienceSystemProtocol =
     | ComputeGain of attacker: HumanCharacter * target: BrainCharacter * selectedAction: EngageAction
+    | ProvideUpgradedCharacterWhenPossible
+    | Stop
 
 type TeamPartyProtocol = 
     (*From ViewTeamInventory to ShowEveryTeamMember, it's related to the dynamic prototype which would load a UI*)
