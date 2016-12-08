@@ -21,7 +21,27 @@ with
 
 type TeamInformation = {
     Inventory : Inventory 
-    Members  : GameCharacter list
+    Members  : HumanCharacter list
 }
 with 
     static member Initial = { Inventory = Inventory.InitialInventory; Members = [] }
+
+type BattleChoice = 
+    | MeleeAttack 
+    | ClassAttack 
+    | Defense 
+    | SelectItem 
+
+type BattleSequencePhase = 
+    | InitializingLevel
+    | Move 
+    | ``Attack or Defend`` of BattleChoice
+    | Rotate 
+    | EndTurn
+
+type MatchState = 
+    | InProcess of numberOfTurn:int * currentPhase: BattleSequencePhase 
+    | BrainWon 
+    | PlayerWon
+with 
+    static member Initial = InProcess(0, InitializingLevel)

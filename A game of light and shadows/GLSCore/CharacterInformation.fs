@@ -61,11 +61,11 @@ type EngageAction =
     | NoAction
 
 type CharacterRole = 
-    | Wizard of int
-    | Knight of int 
-    | Fighter of int
-    | MagicSoldier of int 
-    | Sniper  of int
+    | Wizard of moveRange: int
+    | Knight of moverange: int 
+    | Fighter of moveRange: int
+    | MagicSoldier of moveRange: int 
+    | Sniper  of moveRange: int
 with    
     member x.moveRange = 
         match x with 
@@ -139,15 +139,15 @@ module CharacterEquipment =
     }
     with 
         static member Empty = 
-        {
-            Helmet = None 
-            Armor = None 
-            Legs = None 
-            Gloves = None 
-            Ring = None 
-            Weapon = None 
-            Shield = None 
-            Loot = None  
+            {
+                Helmet = None 
+                Armor = None 
+                Legs = None 
+                Gloves = None 
+                Ring = None 
+                Weapon = None 
+                Shield = None 
+                Loot = None  
         }
 
     let getHelmetFun e = e.Helmet
@@ -205,19 +205,36 @@ type UnitTiers =
     | High
     | HeroClass
 
-type GameCharacter = { 
-    Name : string 
-    Job : CharacterJob option
-    ExperiencePoints: float 
-    LevelUpPoints: int 
-    TiersListRank : UnitTiers option
-    CombatStyle : CombatStyle option
-    Equipment : Equipment
-    State : CharacterState
-    CurrentPosition : Position 
-    CurrentDirection : PlayerDirection 
-}
-with 
+type IGameCharacter =
+        abstract member name : unit -> string
+        abstract member job  : unit -> CharacterJob option
+        abstract member rank : unit -> UnitTiers option 
+        abstract member combatStyle : unit -> CombatStyle option 
+        abstract member equipment : unit -> Equipment 
+        abstract member position : unit -> Position 
+        abstract member direction : unit -> PlayerDirection
+
+type HumanCharacter = 
+    { 
+        Name : string 
+        Job : CharacterJob option
+        ExperiencePoints: float 
+        LevelUpPoints: int 
+        TiersListRank : UnitTiers option
+        CombatStyle : CombatStyle option
+        Equipment : Equipment
+        State : CharacterState
+        CurrentPosition : Position 
+        CurrentDirection : PlayerDirection }
+            interface IGameCharacter with 
+                member x.name () = x.Name
+                member x.job () = x.Job
+                member x.rank() = x.TiersListRank
+                member x.combatStyle() = x.CombatStyle
+                member x.equipment() = x.Equipment
+                member x.position() = x.CurrentPosition
+                member x.direction() = x.CurrentDirection
+                 
     static member InitialGameCharacter = 
         {
             Name = ""
@@ -231,6 +248,36 @@ with
             CurrentPosition = Position.Initial
             CurrentDirection = PlayerDirection.Initial
         }
+
+type BrainCharacter =
+    { 
+        Name        : string 
+        Job         : CharacterJob option
+        Rank        : UnitTiers option
+        Style       : CombatStyle option
+        Equipment   : Equipment 
+        Position    : Position 
+        Direction   : PlayerDirection }
+
+    interface IGameCharacter with 
+        member x.name() = x.Name 
+        member x.job() = x.Job 
+        member x.rank() = x.Rank 
+        member x.combatStyle() = x.Style
+        member x.equipment() = x.Equipment 
+        member x.position() = x.Position 
+        member x.direction() = x.Direction
+     
+    static member InitialBrainCharacter = 
+        {
+            Name = ""
+            Job = Some(Necromancer(Wizard 0,CharacterStats.InitialStats))
+            Rank = Some UnitTiers.Low
+            Style = Some (CombatStyle.Polyvalent 0)
+            Equipment = Equipment.Empty
+            Position = Position.Initial
+            Direction = PlayerDirection.Initial
+    }
 
 let doesHaveTacticalAdvantage (fstCharacter: CharacterJob) (sndCharacter: CharacterJob) =
     match fstCharacter.Role, sndCharacter.Role with

@@ -110,6 +110,20 @@ module Energy =
         member x.applyTemporaryDefense (tPoints: int<def>) =
             { x with Defense = x.Defense + tPoints }
 
+        static member InitialStats = 
+        {
+            Health = { MaxLife = 100.00<hp>; CurrentLife = 100.00<hp> }
+            Mana = { MaxMana = 50.00<mp>; CurrentMana = 50.00<mp> }
+            Speed = 1.00<spd> 
+            Strength = 11.00<str>
+            MagicPower = None 
+            Defense = 12<def> 
+            Resistance = 6<res> 
+            MagicResist = 3.00<mgres> 
+            Evade = 0<evd> 
+            Luck = 2<lck> 
+        }
+
     let removeUnitFromFloat (x: float<_>) =
         float x
     let removeUnitFromInt (x: int<_>) =

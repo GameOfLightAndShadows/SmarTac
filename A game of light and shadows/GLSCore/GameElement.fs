@@ -3,22 +3,8 @@
 open System
 open GLSCore.HelperFunctions
 open GLSCore.GameItemsModel
-open GLSCore.GameItemsModel.GameItems
-open GLSCore.GameItemsModel.Units
-open GLSCore.GameItemsModel.ExccesItems
-open GLSCore.GameItemsModel.ConsummableItems
-open GLSCore.GameItemsModel.CharacterWearableProtection
-open GLSCore.GameItemsModel.Energy
-open GLSCore.GameItemsModel.Weapons
 
-open Akka.Actor
-
-type BattleSequencePhase = 
-    | Move 
-    | ``Attack or Defend``
-    | Rotate 
-    | EndTurn
-    | CheckInventory 
+open Akka.Actor 
 
 type MoveRange = {
     Horizontal : int<abscissa>

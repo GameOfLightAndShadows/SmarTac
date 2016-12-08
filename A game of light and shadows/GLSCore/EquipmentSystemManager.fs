@@ -13,10 +13,10 @@ open Akka.Actor
 open Akka.FSharp
 
 type EquipmentState = {
-    Character : GameCharacter
+    Character : HumanCharacter
 }
 with 
-    static member Initial = { Character = GameCharacter.InitialGameCharacter }
+    static member Initial = { Character = HumanCharacter.InitialGameCharacter }
 
 let equipmentSystem (mailbox: Actor<EquipmentSystemProtocol>) =
     let rec handleProtocol (state: EquipmentState) = actor { 

@@ -3,6 +3,7 @@
 open GLSCore.CharacterInformation
 open GLSCore.GameItemsModel
 open GLSCore.HelperFunctions
+open GLSCore.OperationDataModel
 
 open GLSManager.Protocol
 open GLSManager.StateServer

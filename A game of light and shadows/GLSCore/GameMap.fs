@@ -8,7 +8,7 @@ open System
 type GameCell = 
     | Empty 
     | CollectibleTreasure of Treasure 
-    | Enemy of GameCharacter 
+    | Enemy of HumanCharacter 
     | HiddenTrap of Trap
 with 
     override x.ToString() = 
@@ -23,7 +23,7 @@ type MapSize = { Width: int; Height: int }
 // Game Board 
 type GameBoard =  Map<Position, GameCell>
 // Game State  
-type GameState = { Board: GameBoard ; Character: GameCharacter; Score: int }
+type GameState = { Board: GameBoard ; Character: BrainCharacter; Score: int }
 
     let onboard (size: MapSize) (pos: Position) = {   
         Top = pos.Top %%% size.Height
@@ -57,21 +57,21 @@ type GameState = { Board: GameBoard ; Character: GameCharacter; Score: int }
         | East  -> { pos with Left = (pos.Left + 1) %%% size.Width }
         | West  -> { pos with Left = (pos.Left - 1) %%% size.Width }
 
-    let applyDecision (mapSize: MapSize) (action: Act) (charac: GameCharacter) = 
+    let applyDecision (mapSize: MapSize) (action: Act) (charac: BrainCharacter) = 
         Console.WriteLine (action.ToString())
         match action with 
         | Up 
         | Down 
         | Left
         | Right -> 
-            let newDirection = charac.CurrentDirection |> changeDirection action
+            let newDirection = charac.Direction |> changeDirection action
             { charac with 
-                CurrentPosition = charac.CurrentPosition |> moveTo mapSize newDirection
-                CurrentDirection = newDirection }   
+                Position = charac.Position |> moveTo mapSize newDirection
+                Direction = newDirection }   
         | _ -> charac
 
-    let computeScoreGain (board: GameBoard) (charac: GameCharacter) (action: Act) = 
-        let pos = charac.CurrentPosition
+    let computeScoreGain (board: GameBoard) (charac: BrainCharacter) (action: Act) = 
+        let pos = charac.Position
         let oCell = board |> Map.tryFind pos 
         let scoreGain = 
             match oCell with 
@@ -98,8 +98,8 @@ type GameState = { Board: GameBoard ; Character: GameCharacter; Score: int }
 
         scoreGain 
 
-    let updateGameBoard (board: GameBoard) (character: GameCharacter) = 
-        board |> Map.filter(fun position _ -> position <> character.CurrentPosition)
+    let updateGameBoard (board: GameBoard) (character: BrainCharacter) = 
+        board |> Map.filter(fun position _ -> position <> character.Position)
 
 
          
