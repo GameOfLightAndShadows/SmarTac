@@ -5,6 +5,7 @@ open GLSCore.GameElement
 open GLSCore.CharacterInformation
 open GLSCore.GameMap
 open System
+open System.Collections.Generic
 
 [<AutoOpen>]
 module PrimitiveBrain =
@@ -14,7 +15,7 @@ module PrimitiveBrain =
 
     type Strategy = { State: CurrentGameState; Action: Act } //Possible course of action
 
-    type Brain = Map<Strategy, float> //Strategies tried and rewards collected in the process 
+    type Brain = Map<Strategy,float> //Strategies tried and rewards collected in the process 
 
     let randomizer = Random ()
     let options = [| Left; Right; Up; Down; MeleeAttack; SpecialMove; RaiseDefense; |]
@@ -27,7 +28,7 @@ module PrimitiveBrain =
         (brain: Brain) 
         (xp: Experience) = 
         let strat = { State = xp.State; Action =xp.Action }
-        match brain.TryFind strat with 
+        match brain.TryGetValue strat with 
         | Some value -> 
             brain.Add (strat, (1.0 - alpha) * value + alpha * xp.Reward)
         | None -> brain.Add (strat, (alpha * xp.Reward))

@@ -51,6 +51,4 @@ type BattlePhaseState = {
     Current : BattleSequencePhase
 }
 with    
-    static member Initial = { NumberOfTurns = 0 ; Current = InProcess }
-
-// of numberOfTurn:int * currentPhase: BattleSequencePhase 
+    static member Initial = { NumberOfTurns = 0 ; Current = InitializingLevel }

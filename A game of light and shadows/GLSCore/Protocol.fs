@@ -76,27 +76,22 @@ type BattleSequenceManagerProtocol =
     | LoadExperienceManager 
     | LoadBrainManager
     | CreateGameMap
-    | UpdateCharacterPosition of HumanCharacter 
-    | RemoveGameCharacterFromBattle of HumanCharacter
+    | UpdateCharacterPosition of IGameCharacter 
     | MoveToNextActiveCharacter 
-    | ExecuteHumanTurn of HumanCharacter
-    | ExecuteBrainTurn of HumanCharacter 
     | CharacterDied of IGameCharacter
-    | DisposeRessources
-
-//type BattleViewManagerProtocol =
-//    | TryEvade
-//    | UseMeleeAttack
-//    | UseCharacterSpecialMove
-//    | ApplyTemporaryDefenseUpgrade
-//    | StopManager
+    | ValidateIfGameFinished of MatchState
+    
 
 type WorldMapManagerProtocol =
     | RenderStoryPoint
     | MoveCharacterToStoryPoint
     | Stop
 
+type BrainManagerProtocol = 
+    | ReceiveActiveBrainMember of BrainCharacter
+
 type CommandManagerProtocol =
+    | ReceiveActiveHumanCharacter of HumanCharacter
     | PerformAttackCommandOn of BrainCharacter
     | PerformMoveCommandWith of HumanCharacter 
     | PerformDefendCommandWith of HumanCharacter 

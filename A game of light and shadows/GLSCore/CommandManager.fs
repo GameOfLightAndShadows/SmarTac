@@ -18,6 +18,7 @@ let processCommand
         | SpecialAttack (caller, target) -> 
             target.Stats.Health.takeHit (caller.Stats.Strength |> int32)  |> ignore
             // actorRef <! UpdatePlayerHealth target
+            return! loop()
         | Defend caller -> caller.Stats.applyTemporaryDefense 10 |> ignore<CharacterStats> // TODO: Cannot have ignore here
             
         | _ -> () 
