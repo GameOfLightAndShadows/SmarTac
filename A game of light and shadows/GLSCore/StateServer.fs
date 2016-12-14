@@ -17,12 +17,12 @@ let processGlobalState
             match message with 
             | UpdateStoryline story ->  
                 state.updateStoryline story
-            | UpdateBoard  board ->
-                state.BattleSequence.updateBoardState board |> state.updateBattleSequence
+//            | UpdateBoard  board ->
+//                state.BattleSequence.updateBoardState board |> state.updateBattleSequence
             | UpdateMenu  menu        -> 
                 state.updateMenuState menu
-            | UpdateBattleSequence bs -> 
-                state.updateBattleSequence bs
+//            | UpdateBattleSequence bs -> 
+//                state.updateBattleSequence bs
             | UpdateWeaponStore ws  ->
                 state.updateWeaponStore ws 
             | UpdateItemStore is -> 

@@ -14,11 +14,39 @@ module Program =
     type Board = int[,]
     let randomizer = new Random()
 
-    let updateBoard (board: Board) (player:GameCharacter) = 
-        let pos = player.CurrentPosition
+    let updateBoard (board: Board) (player:BrainCharacter) = 
+        let pos = player.Position
         let updatedBoard = Array2D.copy board   
         updatedBoard.[pos.Left,pos.Top] <- randomizer.Next(cellValues.Length)
         updatedBoard
+
+    let computeScoreGain (board: GameBoard) (charac: BrainCharacter) (action: Act) = 
+        let pos = charac.Position
+        let oCell = board |> Map.tryFind pos 
+        let scoreGain = 
+            match oCell with 
+            | Some cell -> 
+                Console.WriteLine (sprintf "Type of cell: %O" cell)
+                match cell with
+                | Empty -> 
+                    0
+                | Character e ->                 
+                    match action with 
+                    | MeleeAttack  -> MELEEATTACKSCORE 
+                    | RaiseDefense -> RAISEDEFENSESCORE
+                    | SpecialMove  -> SPECIALMOVESCORE
+                    | _ -> 0
+                | HiddenTrap t -> 
+                    match t with 
+                    | ReduceLifePoints -> REDUCELIFEPOINTSCORE
+                    | ReduceMoney      -> REDUCECURRENCYSCORE
+                | CollectibleTreasure ct -> 
+                    match ct with //TODO: COMPLETE MATCHING
+                    | Health(_) ->  HEALTHPOTIONSCORE
+                    | Currency(_)     ->  CURRENCYSCORE
+            | None -> 0
+
+        scoreGain 
 
     type State = int list
 
@@ -31,8 +59,8 @@ module Program =
         // Init world 
         let size = { Width = 64; Height = 64 }
         let characterMoveRange = 4
-        let initialCharacter = GameCharacter.InitialGameCharacter
-        let character = { initialCharacter with CurrentPosition = { Top = 10; Left = 10 }; CurrentDirection = East;  } 
+        let initialCharacter = BrainCharacter.InitialBrainCharacter
+        let character = { initialCharacter with Position = { Top = 10; Left = 10 }; Direction = East;  } 
         let randomizer = Random () 
 
         let gameboard = 
@@ -45,7 +73,7 @@ module Program =
                             else if value >= 0.15 && value < 0.25 then Empty 
                             else if value >= 0.25 && value < 0.5 then HiddenTrap(ReduceMoney)
                             else if value >= 0.5 && value < 0.65 then HiddenTrap(ReduceLifePoints)
-                            else if value >= 0.65 && value < 0.90 then Enemy ( GameCharacter.InitialGameCharacter ) // The found enemy doesn't matter now for the training purposes !!!
+                            else if value >= 0.65 && value < 0.90 then Character ( HumanCharacter.InitialGameCharacter ) // The found enemy doesn't matter now for the training purposes !!!
                             else CollectibleTreasure(Currency(0.00<usd>)) // The amount of money doesn't matter for the training purposes 
                         yield pos, cell]
             |> Map.ofList   

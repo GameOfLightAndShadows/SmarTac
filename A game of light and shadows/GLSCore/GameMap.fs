@@ -1,6 +1,7 @@
 ﻿module GLSCore.GameMap
 
 open GLSCore.GameElement
+open GLSCore.GameItemsModel
 open GLSCore.CharacterInformation
 open GLSCore.HelperFunctions
 open System
@@ -8,14 +9,14 @@ open System
 type GameCell = 
     | Empty 
     | CollectibleTreasure of Treasure 
-    | Enemy of GameCharacter 
+    | Character of IGameCharacter 
     | HiddenTrap of Trap
 with 
     override x.ToString() = 
         match x with 
         | Empty                 -> "Empty Cell"
         | CollectibleTreasure s -> sprintf "Treasure %O" s
-        | Enemy               e -> sprintf "Enemy %O" e
+        | Character               e -> sprintf "Enemy %O" e
         | HiddenTrap          h -> sprintf "Trap %O" h
 
 // Game Board Size 
@@ -23,86 +24,79 @@ type MapSize = { Width: int; Height: int }
 // Game Board 
 type GameBoard =  Map<Position, GameCell>
 // Game State  
-type GameState = { Board: GameBoard ; Character: GameCharacter; Score: int }
+type GameState = { Board: GameBoard ; Character: BrainCharacter; Score: int }
 
-    let onboard (size: MapSize) (pos: Position) = {   
-        Top = pos.Top %%% size.Height
-        Left = pos.Left %%% size.Width    
-    }
+[<Literal>] 
+let MaxWidth = 100
 
-    let changeDirection (act: Act) (dir: PlayerDirection) = 
-        match act with 
-        | Right -> 
-            match dir with 
-            | North -> East 
-            | East -> South 
-            | South -> West 
-            | West -> North 
+[<Literal>] 
+let MaxHeight = 100
+
+let generateGameboard = 
+    let size = { Width = MaxWidth; Height = MaxHeight }
+    let randomizer = Random () 
+    [ for top in 0 .. size.Height - 1 do
+        for left in 0 .. size.Width - 1 do 
+                let pos = { Top = top; Left = left }
+                let cell = 
+                    let value = randomizer.NextDouble()             
+                    if value >= 0.0 && value < 0.15 then CollectibleTreasure(Health(HealthPotion))
+                    else if value >= 0.15 && value < 0.25 then Empty 
+                    else if value >= 0.25 && value < 0.5 then HiddenTrap(ReduceMoney)
+                    else if value >= 0.5 && value < 0.65 then HiddenTrap(ReduceLifePoints)
+                    else if value >= 0.65 && value < 0.90 then Character ( HumanCharacter.InitialGameCharacter ) // The found enemy doesn't matter now for the training purposes !!!
+                    else CollectibleTreasure(Currency(30.00<usd>)) // The amount of money doesn't matter for the training purposes 
+                yield pos, cell]
+    |> Map.ofList  
+
+let onboard (size: MapSize) (pos: Position) = {   
+    Top = pos.Top %%% size.Height
+    Left = pos.Left %%% size.Width    
+}
+
+let changeDirection (act: Act) (dir: PlayerDirection) = 
+    match act with 
+    | Right -> 
+        match dir with 
+        | North -> East 
+        | East -> South 
+        | South -> West 
+        | West -> North 
              
-        | Left ->  
-            match dir with 
-            | North -> West 
-            | West -> South 
-            | South -> East 
-            | East -> North 
-        | _ -> dir 
+    | Left ->  
+        match dir with 
+        | North -> West 
+        | West -> South 
+        | South -> East 
+        | East -> North 
+    | _ -> dir 
 
-    let moveTo 
-        (size: MapSize) 
-        (direction: PlayerDirection)
-        (pos: Position)  = 
-        match direction with 
-        | North -> { pos with Top = (pos.Top - 1) %%% size.Height }
-        | South -> { pos with Top = (pos.Top + 1) %%% size.Height }
-        | East  -> { pos with Left = (pos.Left + 1) %%% size.Width }
-        | West  -> { pos with Left = (pos.Left - 1) %%% size.Width }
+let moveTo 
+    (size: MapSize) 
+    (direction: PlayerDirection)
+    (pos: Position)  = 
+    match direction with 
+    | North -> { pos with Top = (pos.Top - 1) %%% size.Height }
+    | South -> { pos with Top = (pos.Top + 1) %%% size.Height }
+    | East  -> { pos with Left = (pos.Left + 1) %%% size.Width }
+    | West  -> { pos with Left = (pos.Left - 1) %%% size.Width }
 
-    let applyDecision (mapSize: MapSize) (action: Act) (charac: GameCharacter) = 
-        Console.WriteLine (action.ToString())
-        match action with 
-        | Up 
-        | Down 
-        | Left
-        | Right -> 
-            let newDirection = charac.CurrentDirection |> changeDirection action
-            { charac with 
-                CurrentPosition = charac.CurrentPosition |> moveTo mapSize newDirection
-                CurrentDirection = newDirection }   
-        | _ -> charac
+let applyDecision (mapSize: MapSize) (action: Act) (charac: BrainCharacter) = 
+    Console.WriteLine (action.ToString())
+    match action with 
+    | Up 
+    | Down 
+    | Left
+    | Right -> 
+        let newDirection = charac.Direction |> changeDirection action
+        { charac with 
+            Position = charac.Position |> moveTo mapSize newDirection
+            Direction = newDirection }   
+    | _ -> charac
 
-    let computeScoreGain (board: GameBoard) (charac: GameCharacter) (action: Act) = 
-        let pos = charac.CurrentPosition
-        let oCell = board |> Map.tryFind pos 
-        let scoreGain = 
-            match oCell with 
-            | Some cell -> 
-                Console.WriteLine (sprintf "Type of cell: %O" cell)
-                match cell with
-                | Empty -> 
-                    0
-                | Enemy e ->                 
-                    match action with 
-                    | MeleeAttack  -> MELEEATTACKSCORE 
-                    | RaiseDefense -> RAISEDEFENSESCORE
-                    | SpecialMove  -> SPECIALMOVESCORE
-                    | _ -> 0
-                | HiddenTrap t -> 
-                    match t with 
-                    | ReduceLifePoints -> REDUCELIFEPOINTSCORE
-                    | ReduceMoney      -> REDUCECURRENCYSCORE
-                | CollectibleTreasure ct -> 
-                    match ct with //TODO: COMPLETE MATCHING
-                    | Health(_) ->  HEALTHPOTIONSCORE
-                    | Currency(_)     ->  CURRENCYSCORE
-            | None -> 0
-
-        scoreGain 
-
-    let updateGameBoard (board: GameBoard) (character: GameCharacter) = 
-        board |> Map.filter(fun position _ -> position <> character.CurrentPosition)
-
-
-         
+let updateGameBoard (board: GameBoard) (character: BrainCharacter) = 
+    board 
+        |> Map.filter(fun position _ -> position <> character.Position)  
 
 type Point = 
             {x:int;y:int}   
@@ -124,6 +118,7 @@ type Map =  //Simple construct to hold the 2D map data
                 for x in p.x-1..p.x+1 do
                     if ((y<>p.y || x <>p.x) && y>=0 && x>=0 && x<this.width && y<this.height) //bounds checking
                     then yield this.GetElement  x y]
+            
 
 type GameBoardState(size: MapSize) = 
     

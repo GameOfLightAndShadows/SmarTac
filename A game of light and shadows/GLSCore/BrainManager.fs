@@ -5,6 +5,7 @@ open GLSCore.GameElement
 open GLSCore.CharacterInformation
 open GLSCore.GameMap
 open System
+open System.Collections.Generic
 
 [<AutoOpen>]
 module PrimitiveBrain =
@@ -14,7 +15,7 @@ module PrimitiveBrain =
 
     type Strategy = { State: CurrentGameState; Action: Act } //Possible course of action
 
-    type Brain = Map<Strategy, float> //Strategies tried and rewards collected in the process 
+    type Brain = Map<Strategy,float> //Strategies tried and rewards collected in the process 
 
     let randomizer = Random ()
     let options = [| Left; Right; Up; Down; MeleeAttack; SpecialMove; RaiseDefense; |]
@@ -23,14 +24,18 @@ module PrimitiveBrain =
 
     let alpha = 0.30 //learning rate
 
-    let learn(brain: Brain) (xp: Experience) = 
+    let learn
+        (brain: Brain) 
+        (xp: Experience) = 
         let strat = { State = xp.State; Action =xp.Action }
-        match brain.TryFind strat with 
+        match brain.TryGetValue strat with 
         | Some value -> 
             brain.Add (strat, (1.0 - alpha) * value + alpha * xp.Reward)
         | None -> brain.Add (strat, (alpha * xp.Reward))
 
-    let decide (brain: Brain) (state: CurrentGameState) = 
+    let decide 
+        (brain: Brain)
+        (state: CurrentGameState) = 
         let oldStrategies =  
             options
             |> Array.map (fun choice -> { State = state; Action = choice })
@@ -47,7 +52,9 @@ module PrimitiveBrain =
                 | None -> 0.0    
             )
 
-    let activeCell (board: GameBoard) (pos: Position) = board |> Map.tryFind pos
+    let activeCell 
+        (board: GameBoard) 
+        (pos: Position) = board |> Map.tryFind pos
 
     let offsets (range: int) = 
         [ 
@@ -60,8 +67,8 @@ module PrimitiveBrain =
         (range:int)
         (size: MapSize) 
         (board: GameBoard) 
-        (character: GameCharacter) = 
-        let dir, pos = character.CurrentDirection, character.CurrentPosition 
+        (character: BrainCharacter) = 
+        let dir, pos = character.Direction, character.Position 
         let visibleCells = 
             offsets range
             |> List.map(fun (x,y) -> 
@@ -74,8 +81,6 @@ module PrimitiveBrain =
 open PrimitiveBrain 
 
 module AdvancedBrain = 
-
-
     let rotate dir (x,y) = 
         match dir with 
         | North -> (x,y)
@@ -84,17 +89,21 @@ module AdvancedBrain =
         | East -> (y,-x)
 
     // Modifies the perception oh the character of the game board when he changes direction
-    let visibleState (size: MapSize) (moveRange:int) (board: GameBoard) (player: GameCharacter) = 
-        let (dir, pos) = player.CurrentDirection , player.CurrentPosition
+    let visibleState 
+        (size: MapSize) 
+        (moveRange:int)
+        (board: GameBoard) 
+        (player: BrainCharacter) = 
+        let (dir, pos) = player.Direction , player.Position
         offsets moveRange
         |> List.map (rotate dir )
         |> List.map (fun (x,y) -> 
             onboard size { Top = pos.Top + x ; Left = pos.Left + y }
             |> activeCell board)
          
-
-
-    let nextValue (brain: Brain) (state: CurrentGameState) = 
+    let nextValue 
+        (brain: Brain) 
+        (state: CurrentGameState) = 
         options 
         |> Seq.map(fun action -> 
             match brain.TryFind { State = state; Action = action } with 
@@ -107,7 +116,9 @@ module AdvancedBrain =
     let gamma = 0.3 //discount rate
     let epsilon = 0.07 // random learning
 
-    let learn (brain: Brain) (exp: Experience) = 
+    let learn 
+        (brain: Brain) 
+        (exp: Experience) = 
         let strat = { State = exp.State; Action = exp.Action }
         let nValue = nextValue brain exp.NextState
         match brain.TryFind strat with 
@@ -117,7 +128,9 @@ module AdvancedBrain =
         | None -> 
             brain.Add (strat, alpha * (exp.Reward + gamma* nValue))
 
-    let decide (brain: Brain) (state: CurrentGameState) = 
+    let decide 
+        (brain: Brain) 
+        (state: CurrentGameState) = 
         if randomizer.NextDouble() < epsilon then 
             randomMove()
         else 
@@ -136,5 +149,3 @@ module AdvancedBrain =
                     | Some v -> v 
                     | None -> 0.0
                 )
-
-

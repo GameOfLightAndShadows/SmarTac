@@ -40,7 +40,7 @@ with
 
 type GLSPlayer = { 
     Username : string 
-    BestCharacter : GameCharacter option
+    BestCharacter : BrainCharacter option
 }
 with 
     static member Initial = {
@@ -58,53 +58,6 @@ with
         Player = GLSPlayer.Initial
     }
 
-type BattleChoice = 
-    | MeleeAttack 
-    | ClassAttack 
-    | Defense 
-    | SelectItem 
-
-type BattlePhase = 
-    | Move
-    | EngageCharacter of BattleChoice
-    | EndTurn
-
-type MatchState = 
-    | InProcess of numberOfTurn:int * currentPhase: BattleSequencePhase option
-    | BrainWon 
-    | PlayerWon
-with 
-    static member Initial = InProcess(0, None)
-
-type BattleSequenceState = {
-    ActivePhase     : BattlePhase
-    PlayerTeamParty : GameCharacter array
-    BrainTeamParty  : GameCharacter array
-    Board           : GameBoard
-    MatchState      : MatchState
-}
-
-with 
-    member x.updateBoardState (b: GameBoard) = 
-        { x with Board = b }
-
-    member x.updateBrainTeamParty (team: GameCharacter array) = 
-        { x with BrainTeamParty = team }
-
-    member x.updatePlayerParty (team: GameCharacter array) = 
-        { x with PlayerTeamParty = team }
-
-    member x.updateMatchState (state: MatchState) = 
-        { x with MatchState = state }
-
-
-    static member Initial = {
-        ActivePhase = Move 
-        PlayerTeamParty = [| |]
-        BrainTeamParty = [| |]
-        Board = Map.empty
-        MatchState = MatchState.Initial
-    }
 
 // Basic implementation of the weapon & item store 
 // Will be move later. 
@@ -158,7 +111,7 @@ with
 type GlobalGameState = {
     Menu : MenuState
     Story : Storyline
-    BattleSequence : BattleSequenceState
+//    BattleSequence : BattleSequenceState
     ItemStore : ItemStoreState
     WeaponStore : WeaponStoreState
 }
@@ -169,8 +122,8 @@ with
     member x.updateStoryline (sl: Storyline) = 
         { x with Story = sl }
 
-    member x.updateBattleSequence (bss: BattleSequenceState) = 
-        { x with BattleSequence = bss }
+//    member x.updateBattleSequence (bss: BattleSequenceState) = 
+//        { x with BattleSequence = bss }
 
     member x.updateItemStore (iss: ItemStoreState) = 
         { x with ItemStore = iss }
@@ -181,7 +134,7 @@ with
     static member Initial = {
         Menu = MenuState.Initial
         Story = Storyline.FirstLevel
-        BattleSequence = BattleSequenceState.Initial
+//        BattleSequence = BattleSequenceState.Initial
         ItemStore = ItemStoreState.Initial 
         WeaponStore = WeaponStoreState.Initial
     }

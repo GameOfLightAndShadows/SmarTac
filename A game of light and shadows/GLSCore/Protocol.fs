@@ -5,30 +5,37 @@ open GLSCore.GameMap
 open GLSCore.CharacterInformation
 open GLSCore.GameElement
 open GLSCore.GameItemsModel
-open GLSCore.GameItemsModel.GameItems
-open GLSCore.GameItemsModel.Units
-open GLSCore.GameItemsModel.ExccesItems
-open GLSCore.GameItemsModel.ConsummableItems
-open GLSCore.GameItemsModel.CharacterWearableProtection
-open GLSCore.GameItemsModel.Energy
-open GLSCore.GameItemsModel.Weapons
+open GLSCore.OperationDataModel
 
-type StoreOperation = 
-    | Purchase
-    | Sell
+type InventorySystemManagerProtocol =
+      | AddSingleItem of ItemStack
+      | AddItems of ItemStack array
+      | RemoveSingleItem of ItemStack
+      | MoveExcessToInventory
+      | BindItemToEquipment of GameItem
+      | ReleaseItemFromEquipment of GameItem
+      | Stop
 
-type TransactionOperation = 
-    | RemovingFromBill
-    | AddingToBill
+type EquipmentSystemProtocol = 
+    | UpdateWithCharacter of HumanCharacter
+    | UpdateCharacterWithHelmet of Hat 
+    | UpdateCharacterWithArmor of Armor 
+    | UpdateCharacterWithWeapon of Weaponry 
+    | UpdateCharacterWithGloves of Gauntlets
+    | UpdateCharacterWithRing of Ring 
+    | UpdateCharacterWithPants of Pants
+    | UpdateCharacterWithShield of Shield 
+    | UpdateCharacterWithLoot of ConsumableItem
+    | MoveBackHelmetToInventory 
+    | MoveBackArmorToInventory  
+    | MoveBackWeaponToInventory 
+    | MoveBackGlovesToInventory 
+    | MoveBackRingToInventory   
+    | MoveBackPantsToInventory  
+    | MoveBackShieldToInventory     
+    | MoveBackLootToInventory
 
-type StoreTransaction = {
-    StoreStock : ItemStack array 
-    Bill       : int<usd>
-}
-with 
-    static member Empty = { StoreStock = [| |]; Bill = 0<usd> }
-
-type ItemStoreProtocol = 
+type StoreProtocol = 
     | PurchaseMode 
     | SellMode 
     | ConfirmPurchase of bool
@@ -45,64 +52,58 @@ type ItemStoreProtocol =
     | DisableStoreStock
     | IncreasePlayerTotalMoney of StoreTransaction
     | DecreasePlayerTotalMoney of StoreTransaction 
-
+    | AcceptTeamInformation of TeamInformation
+    | Stop
 
 type GlobalStateProtocol =
     | UpdateStoryline       of Storyline
     | UpdateBoard           of GameBoard
     | UpdateMenu            of MenuState
-    | UpdateBattleSequence  of BattleSequenceState
+//    | UpdateBattleSequence  of BattleSequenceState
     | UpdateWeaponStore     of WeaponStoreState
     | UpdateItemStore       of ItemStoreState
 
-
 type GameManagerProtocol =
     | UpdateGlobalState
-    | DestroyCharacter of GameCharacter
-    | UpdateCharacterHealth of GameCharacter
-    | UpdateCharacterPosition of GameCharacter
+    | DestroyCharacter of HumanCharacter
+    | UpdateCharacterHealth of HumanCharacter
+    | UpdateCharacterPosition of HumanCharacter
     | UpdateCharacterDirection
     | BroadcastInventoryUpdate of Inventory
     | StopManager
 
-// Define CharacterObserver which will update the BattleSequenceManager once a character performed an action.
-
 type BattleSequenceManagerProtocol =
-    | ChangePhase of BattlePhase
-    | StopManager
-
-type InventoryManagerProtocol =
-    | LookAtInventory
-    | ReorderInventory
-    | TossItem
-    | AddItem
-    | SelectItem
-    | StopManager
-
-type BattleViewManagerProtocol =
-    | TryEvade
-    | UseMeleeAttack
-    | UseCharacterSpecialMove
-    | ApplyTemporaryDefenseUpgrade
-    | StopManager
-
-type StoreManagerProtocol =
-    | ShowStock
-    | BuyItem
-    | SellItem
-    | StopManager
-
+    | UpdateBattlePhase of turn: int * actualPhase : BattleSequencePhase
+    | LoadCommandManager
+    | LoadExperienceManager 
+    | LoadBrainManager
+    | CreateGameMap
+    | UpdateCharacterPosition of IGameCharacter 
+    | MoveToNextActiveCharacter 
+    | CharacterDied of IGameCharacter
+    | ValidateIfGameFinished of MatchState
+    | UpdateWithInjuredHumanCharacter of HumanCharacter 
+    | UpdateWithInjuredBrainCharacter of BrainCharacter 
+    | UpdateCharacterWithExperienceIncreased of HumanCharacter
+    | DisposeResources
+    
 type WorldMapManagerProtocol =
     | RenderStoryPoint
     | MoveCharacterToStoryPoint
     | Stop
 
+type BrainManagerProtocol = 
+    | ReceiveActiveBrainMember of BrainCharacter
+
 type CommandManagerProtocol =
-    | PerformAttackCommandOn
-    | PerformMoveCommandWith
-    | PerformDefendCommandWith
-    | PerformRotateCommandWith
-    | PerformEndTurn
+    | ReceiveActiveHumanCharacter of HumanCharacter
+    | ReceiveBetterCharacter of HumanCharacter
+    | PerformAttackCommandOn of BrainCharacter
+    | PerformMoveCommandOn of Position 
+    | PerformDefendCommand
+    | PerformRotateCommand 
+    | PerformEndTurn of IGameCharacter 
+    | Stop 
 
 type StateServerProtocol =
     | UpdateTeamPartyState
@@ -111,4 +112,19 @@ type StateServerProtocol =
     | UpdateTeamPartyInventory
 
 type ExperienceSystemProtocol =
-    | ComputeGain of attacker: GameCharacter * target: GameCharacter * selectedAction: EngageAction
+    | ComputeGain of attacker: HumanCharacter * target: BrainCharacter * selectedAction: EngageAction
+    | ProvideUpgradedCharacterWhenPossible
+    | Stop
+
+type TeamPartyProtocol = 
+    (*From ViewTeamInventory to ShowEveryTeamMember, it's related to the dynamic prototype which would load a UI*)
+    | ViewTeamInventory 
+    | ModifyActiveParty 
+    | ShowActiveParty 
+    | ShowCharacterStats 
+    | ShowEveryTeamMember
+    | ShareTeamInformation
+    | RemoveCharacterFromParty of HumanCharacter
+    | RemoveCharacterFromTeam of HumanCharacter
+    | AddCharacterToParty of HumanCharacter
+    | AddCharacterToTeam of HumanCharacter 

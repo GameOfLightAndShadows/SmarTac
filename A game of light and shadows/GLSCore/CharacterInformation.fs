@@ -42,7 +42,6 @@ with
         | East -> West 
         | West -> East 
 
-
 type CharacterState = 
     | Alive 
     | NeedsHealth
@@ -61,11 +60,11 @@ type EngageAction =
     | NoAction
 
 type CharacterRole = 
-    | Wizard of int
-    | Knight of int 
-    | Fighter of int
-    | MagicSoldier of int 
-    | Sniper  of int
+    | Wizard of moveRange: int
+    | Knight of moverange: int 
+    | Fighter of moveRange: int
+    | MagicSoldier of moveRange: int 
+    | Sniper  of moveRange: int
 with    
     member x.moveRange = 
         match x with 
@@ -107,35 +106,75 @@ with
         | Necromancer  (role, _) -> role
         | Nightblade   (role, _) -> role
 
+let findCharacterRoleType (job: CharacterJob) = 
+    match job with 
+    | Healer(_) -> Healer
+    | Knight(_) -> Knight
+    | Berserker(_) -> Berserker 
+    | Rider(_) -> Rider
+    | Paladin(_) -> Paladin 
+    | BowAndBlade(_) -> BowAndBlade 
+    | Necromancer(_) -> Necromancer
+    | Nightblade(_) -> Nightblade 
 
-type CombatStyle = 
-    | DualWielder of int
-    | MaceUser of int 
-    |  ``Sword and shield`` of int
-    | Archer of int 
-    | ``Staff wielder`` of int
-    | Polyvalent of int
-with 
-    member x.actionPoints = 
-        match x with 
-        | DualWielder ap -> ap 
-        | MaceUser ap -> ap
-        | Archer ap -> ap 
-        | Polyvalent ap -> ap 
-        | ``Sword and shield`` ap -> ap 
-        | ``Staff wielder`` ap -> ap 
 
-type Equipment = {
-    Helmet    : GameItem option
-    Armor  : GameItem option
-    Legs   : GameItem option
-    Gloves : GameItem option
-    Ring   : GameItem option
-    Weapon : GameItem option
-    Shield : GameItem option
-    Loot   : GameItem option
-    InventoryManager : IActorRef
-}
+[<AutoOpen>]
+module CharacterEquipment =
+    type Equipment = {
+        Helmet      : Hat option
+        Armor       : Armor option
+        Legs        : Pants option
+        Gloves      : Gauntlets option
+        Ring        : Ring option
+        Weapon      : Weaponry option
+        Shield      : Shield option
+        Loot        : ConsumableItem option
+    }
+    with 
+        static member Empty = 
+            {
+                Helmet = None 
+                Armor = None 
+                Legs = None 
+                Gloves = None 
+                Ring = None 
+                Weapon = None 
+                Shield = None 
+                Loot = None  
+        }
+
+    let getHelmetFun e = e.Helmet
+    let equipHelmetFun newHelm e = { e with Helmet = newHelm }
+    let HelmetFun_ = (getHelmetFun, equipHelmetFun)
+
+    let getArmorFun e = e.Armor
+    let equipArmorFun newArmor e = { e with Armor = newArmor }
+    let ArmorFun_ = (getArmorFun, equipArmorFun)
+
+    let getLegsFun e = e.Legs
+    let equipLegsFun newLegs e = { e with Legs = newLegs }
+    let LegsFun_ = (getLegsFun, equipLegsFun)
+
+    let getGlovesFun e = e.Gloves 
+    let equipGlovesFun newGloves e = { e with Gloves = newGloves }
+    let GlovesFun_ = (getGlovesFun, equipGlovesFun)
+
+    let getRingFun e = e.Ring 
+    let equipRingFun newRing e = { e with Ring = newRing }
+    let RingFun_ = (getRingFun, equipRingFun)
+
+    let getWeaponFun e = e.Weapon 
+    let equipWeaponFun newWeapon e = { e with Weapon = newWeapon }
+    let WeaponFun_ = (getWeaponFun, equipWeaponFun)
+
+    let getShieldFun e = e.Shield 
+    let equipShieldFun newShield e = { e with Shield = newShield }
+    let ShieldFun_ = (getShieldFun, equipShieldFun)
+
+    let getLootFun e = e.Loot 
+    let equipLootFun newLoot e = { e with Loot = newLoot }
+    let LootFun_ = (getLootFun, equipLootFun)
+
 
 [<Literal>]
 let lowTiersStatsFactor = 1
@@ -159,19 +198,36 @@ type UnitTiers =
     | High
     | HeroClass
 
-type GameCharacter = { 
-    Name : string 
-    Job : CharacterJob option
-    ExperiencePoints: float 
-    LevelUpPoints: int 
-    TiersListRank : UnitTiers option
-    CombatStyle : CombatStyle option
-    Equipment : Equipment option
-    State : CharacterState
-    CurrentPosition : Position 
-    CurrentDirection : PlayerDirection 
-}
-with 
+type IGameCharacter =
+        abstract member name : unit -> string
+        abstract member job  : unit -> CharacterJob option
+        abstract member rank : unit -> UnitTiers option 
+        abstract member combatStyle : unit -> CombatStyle option 
+        abstract member equipment : unit -> Equipment 
+        abstract member position : unit -> Position 
+        abstract member direction : unit -> PlayerDirection
+
+type HumanCharacter = 
+    { 
+        Name : string 
+        Job : CharacterJob option
+        ExperiencePoints: float 
+        LevelUpPoints: int 
+        TiersListRank : UnitTiers option
+        CombatStyle : CombatStyle option
+        Equipment : Equipment
+        State : CharacterState
+        CurrentPosition : Position 
+        CurrentDirection : PlayerDirection }
+            interface IGameCharacter with 
+                member x.name () = x.Name
+                member x.job () = x.Job
+                member x.rank() = x.TiersListRank
+                member x.combatStyle() = x.CombatStyle
+                member x.equipment() = x.Equipment
+                member x.position() = x.CurrentPosition
+                member x.direction() = x.CurrentDirection
+                 
     static member InitialGameCharacter = 
         {
             Name = ""
@@ -180,11 +236,43 @@ with
             LevelUpPoints = 0
             TiersListRank = None
             CombatStyle = None 
-            Equipment = None 
+            Equipment = Equipment.Empty
             State = Alive 
             CurrentPosition = Position.Initial
             CurrentDirection = PlayerDirection.Initial
         }
+
+type BrainCharacter =
+    { 
+        Name        : string 
+        Job         : CharacterJob option
+        Rank        : UnitTiers option
+        Style       : CombatStyle option
+        MoneyDrop   : float<usd>
+        Equipment   : Equipment 
+        Position    : Position 
+        Direction   : PlayerDirection }
+
+    interface IGameCharacter with 
+        member x.name() = x.Name 
+        member x.job() = x.Job 
+        member x.rank() = x.Rank 
+        member x.combatStyle() = x.Style
+        member x.equipment() = x.Equipment 
+        member x.position() = x.Position 
+        member x.direction() = x.Direction
+     
+    static member InitialBrainCharacter = 
+        {
+            Name = ""
+            Job = Some(Necromancer(Wizard 0,CharacterStats.InitialStats))
+            Rank = Some UnitTiers.Low
+            Style = Some (CombatStyle.Polyvalent 0)
+            Equipment = Equipment.Empty
+            Position = Position.Initial
+            Direction = PlayerDirection.Initial
+            MoneyDrop = 20.00<usd>
+    }
 
 let doesHaveTacticalAdvantage (fstCharacter: CharacterJob) (sndCharacter: CharacterJob) =
     match fstCharacter.Role, sndCharacter.Role with
@@ -195,5 +283,3 @@ let doesHaveTacticalAdvantage (fstCharacter: CharacterJob) (sndCharacter: Charac
     | Sniper _, CharacterRole.Knight _ -> true // 5% more damage
     | MagicSoldier _, CharacterRole.Knight _ -> true // 3 % by sword only
     | _, _ -> false
-
-
