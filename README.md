@@ -32,51 +32,11 @@ The AI was developed by create different sequences of actions to do and evaluate
 
 ## Motivation
 
-The idea behind A Game of Light and Shadows is to build a new version of the AI for the TRPG. This time around, I won't use Unity, but Urho3D to create a prototype for Android. Again, this time around, the project won't be in 3D but will be in 2D. The goal is to do a proof of concept to show that I can develop a hard mode AI to make it impossible for players to win against it. In order to do so, I am planning to use diverse machine learning techniques and genetic algorithms in order to use Darwin's idea in order to select the strongest and most adapted AI for the hard mode.
+The idea behind SmarTac was to develop a new TRPG based on the work I previously completed on Augmented Tactics. With time, it became apparent that this project should not be a game but a framework that other developers could use as a plugin in their game to develop their own games. To show how to use the framework, the project, ATRPG, under the GameOfLigntAndShadows community, will use it in a near future to give a more complete view of an AR-based TRPG prototype.
 
-As of today (27/08/16), it is planned to have an AI able to classify states to understand whether the situation is 
-- Good
-- Bad 
-- Neutral 
-- Unknown
+#Contributing
 
-Over time, the bot will not only be able to classify game states but also, the both will learn to recognize the different possibilities that are available to it. By knowing what's available to him and using a reward system to be able to understand the game states, the bot will know when a decision was either good or bad. For instance, more XP can be awarded to the bot when a character is defeated but the total points will be reduced if it takes more time than usual to beat an opponent. Not only this, hopefully, I'll be able to implement a system able to react to more defensive/offensive party. Using a reward information
-
-Lately, I've been really into functional programming and F#. For the project, I intend to do it in F#. Since it's a port of AugmentedTactics, the first thing will be to take the implementation and port in a functional style with F# for Urho3D.
-
-## Task list
-- [ ] Get to know Urho3D
-- [x] Get to know genetic algorithms
-- [ ] Get to know neural networks
-- [x] Get to know Asynchronous Programming with F#
-- [ ] 
-- [ ] Learn about reinforcement learning 
-- [x] Learn about supervised and unsupervised learning
-- [ ] Get to know SARSA algorithm
-- [ ] Create Urho3D 2D project for F#
-- [x] Port character folder from AT
-- [x] Port combat menu from AT
-- [x] Port commands from AT
-- [x] Port character artificial intelligence from AT
-- [ ] Port Pathfinding algorithm from AT
-- [ ] Create game states : MenuState, TurnState, AttackState, etc
-- [ ] Create server to handle game state
-- [ ] Update game world state via server
-- [ ] Implement a tactical AI :  looks at the game state and determines a target
-- [ ] Implement an operational AI :  receives a target from the Tactical AI, looks at its game state and chooses an optimal action to achieve its goal
-- [ ] Create artificial brain 
-- [ ] Train artificial brain
-- [ ] Implement a genetic algorithm 
-- [ ] Add continuous integration with Travis
-- [ ] Implement most damageable command sequence 
-- [ ] Implement an XP system 
-- [ ] Implement money system 
-- [ ] Implement a store for both items and equipment
-- [ ] Implement time constraint for brain training 
-- [ ] Test architecture with NUnit
-- [ ] Initialize a database to store result from training over time
-- [ ] Create a 64 x 64 map
-- [ ] Make character assets move in the map 
+Take a look at the project and the code I've written in the past. There some issues I've listed that I haven't had the chance to work on during the 3 months period I was given to develop the project in the fall of 2016. You may even open new issues if you see things that you'd like to add as features to the framework. What I'd would love to see is either patches or unit tests on what's already there. Thanks !
 
 ## License 
 
